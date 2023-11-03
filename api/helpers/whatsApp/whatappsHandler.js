@@ -36,7 +36,7 @@ const handleIncomingMessages = (client) => {
   client.on('message', async (msg) => {
     const isSubscribe = await userExistAndSubscribe(msg.from);
     if (isSubscribe.success && !msg.isGroupMsg && msg.from != process.env.NUMBER_ADMIN) {
-      msg.reply("Étant déjà abonné à l'un de nos forfaits en cours, saisissez l'occasion de tirer parti de nos pronostics VIP pour remporter d'importants gains.");
+      msg.reply("Vous beneficiez des services de la fondation Bibemella");
     }
     else if (msg.from == process.env.NUMBER_ADMIN && !msg.isGroupMsg) {
     await AdminCommander(client,msg,transactionSteps);
