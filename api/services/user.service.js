@@ -10,6 +10,7 @@ async function createUser(userData) {
         const hashedPassword = await bcrypt.hash(userData.password, 10); // Hashage du mot de passe
 
         const newUser = new User({
+            name: userData.name,
             phoneNumber: userData.phoneNumber,
             password: hashedPassword, // Utilisation du mot de passe hashé
         });
@@ -31,7 +32,7 @@ async function login(phoneNumber, password) {
         }
 
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
+        const passwordMatch = await bcrypt.compare(password, user.password); 
 
         if (!passwordMatch) {
             return { success: false, message: 'Mot de passe incorrect' };
@@ -43,13 +44,14 @@ async function login(phoneNumber, password) {
     }
 }
 
-async function userExistAndSubscribe(phoneNumber) {
+async function userExistAndSubscribe(phoneNumber, contactName) {
     try {
         const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
         const user = await User.findOne({"phoneNumber": cleanedPhoneNumber });
 
         if (!user) {
             await createUser({
+                'name': contactName,
                 'phoneNumber': cleanedPhoneNumber,
                 'password': process.env.DEFAULT_PASSWORD
             });

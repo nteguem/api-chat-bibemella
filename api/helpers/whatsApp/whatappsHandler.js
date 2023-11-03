@@ -34,20 +34,21 @@ const handleIncomingMessages = (client) => {
   const transactionSteps = {};
 
   client.on('message', async (msg) => {
-    const isSubscribe = await userExistAndSubscribe(msg.from);
+    const contact = await msg.getContact();
+    const contactName = contact.pushname; // Récupérer le nom de l'utilisateur
+    const isSubscribe = await userExistAndSubscribe(msg.from, contactName); // Passer msg, msg.from et contactName
+
     if (isSubscribe.success && !msg.isGroupMsg && msg.from != process.env.NUMBER_ADMIN) {
-      msg.reply("Vous beneficiez des services de la fondation Bibemella");
+      msg.reply("Vous bénéficiez des services de la fondation Bibemella");
     }
     else if (msg.from == process.env.NUMBER_ADMIN && !msg.isGroupMsg) {
-    await AdminCommander(client,msg,transactionSteps);
+      await AdminCommander(client, msg, transactionSteps);
     }
     else {
-    await UserCommander(msg,transactionSteps);
+      await UserCommander(msg, transactionSteps);
     }
   });
-
 };
-
 
 
 
