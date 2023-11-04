@@ -12,7 +12,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 const ENSEIGNEMENTS_MESSAGE = "Entrez l'enseignement que vous souhaitez partager avec votre communauté";
 const CONFIRM_MESSAGE = "Voici les enseignements que vous souhaitez envoyer a votre communauté :\n\n*%s*\n\nÊtes-vous sûr de vouloir les envoyer ? Répondez par 'Oui' pour confirmer.";
 const INVALID_REQUEST_MESSAGE = "Je ne comprends pas votre requête. Pour envoyer des enseignements saisir 1 , pour envoyer des conseils saisir 2";
-const COMMAND_NAME = { ENSEIGNEMENTS: '1', NOTIFICATION: '2' };
+const COMMAND_NAME = { ENSEIGNEMENTS: '1', ANNONCE: '2' };
 
 const AdminCommander = async (client, msg, transactions) => {
     const contact = await msg.getContact();
@@ -31,15 +31,15 @@ const AdminCommander = async (client, msg, transactions) => {
             transactions[sender].step = "confirm_send";
             transactions[sender].type = "Enseignement"; // Set the type
             transactions[sender].content = enseignement; // Store the enseignement content
-        } else if (userMessage === COMMAND_NAME.NOTIFICATION) {
-            msg.reply("Entrez la notification que vous souhaitez envoyer à votre communauté");
-            transactions[sender].step = "enter_notification";
-        } else if (transactions[sender].step === "enter_notification") {
-            const notification = msg.body;
-            msg.reply(CONFIRM_MESSAGE.replace('%s', notification));
+        } else if (userMessage === COMMAND_NAME.ANNONCE) {
+            msg.reply("Entrez l'annonce que vous souhaitez envoyer à votre communauté");
+            transactions[sender].step = "enter_annonce";
+        } else if (transactions[sender].step === "enter_annonce") {
+            const annonce = msg.body;
+            msg.reply(CONFIRM_MESSAGE.replace('%s', annonce));
             transactions[sender].step = "confirm_send";
-            transactions[sender].type = "Notification"; // Set the type
-            transactions[sender].content = notification; // Store the notification content
+            transactions[sender].type = "Annonce"; // Set the type
+            transactions[sender].content = annonce; // Store the announce content
         } else if (transactions[sender].step === "confirm_send" && userMessage === "oui") {
             try {
                 const activeSubscribers = await findActiveSubscribers();
@@ -54,7 +54,7 @@ const AdminCommander = async (client, msg, transactions) => {
                     ]
                 });
 
-                const SUCCESS_MESSAGE = (transactions[sender].type === 'Notification') ? "Les notifications ont été envoyées à toute la communauté avec succès." : "Les enseignements ont été envoyés à toute la communauté avec succès.";
+                const SUCCESS_MESSAGE = (transactions[sender].type === 'Annonce') ? "Les annonces ont été envoyées à toute la communauté avec succès." : "Les enseignements ont été envoyés à toute la communauté avec succès.";
 
                 for (const subscriber of activeSubscribers.data) {
                     await sendMessageToNumber(
