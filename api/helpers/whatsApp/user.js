@@ -1,6 +1,7 @@
 const { getAllSubscriptions } = require('../../services/subscription.service');
 const MonetBil = require('../MonetBil');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
+const { MessageMedia } = require('whatsapp-web.js');
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -26,7 +27,7 @@ const UserCommander = async (msg) => {
     welcomeStatusUser[msg.from] = true;
   } else if (!msg.isGroupMsg) {
     const userResponse = msg.body.trim();
- 
+
     if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
       const allSubscriptionsResponse = await getAllSubscriptions();
       if (allSubscriptionsResponse.success) {
@@ -71,8 +72,19 @@ const UserCommander = async (msg) => {
         msg.reply(invalidPhoneNumberMessage);
       }
     } else if (userResponse === COMMAND_NAME.NFT) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
-      msg.reply(invalidRequestMessage); 
+      // L'utilisateur souhaite acheter une œuvre d'art.
+      // Vous pouvez envoyer les détails des œuvres d'art disponibles avec des liens d'images, des noms, des descriptions et des prix.
+      const artDetails = [
+        { name: 'Œuvre 1', description: 'Description de l\'œuvre 1', price: '$100', imageUrl: 'https://res.cloudinary.com/nwccompany/image/upload/v1699090007/ekema.png' },
+        { name: 'Œuvre 2', description: 'Description de l\'œuvre 2', price: '$150', imageUrl: 'https://res.cloudinary.com/nwccompany/image/upload/v1699090007/mbom.png' },
+        // Ajoutez d'autres œuvres d'art ici.
+      ];
+
+      for (let i = 0; i < artDetails.length; i++) {
+        const art = artDetails[i];
+        const media = await MessageMedia.fromUrl(art.imageUrl);
+        await msg.reply(media);
+      }
     } else if (userResponse === COMMAND_NAME.WELNESS) {
       const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
       msg.reply(invalidRequestMessage);
@@ -81,7 +93,7 @@ const UserCommander = async (msg) => {
       delete transactionSteps[msg.from];
       welcomeStatusUser[msg.from] = false;
       msg.reply(welcomeMessage);
-    }else {
+    } else {
       // Gérer d'autres cas d'utilisation ou afficher un message d'erreur
       const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
       msg.reply(invalidRequestMessage);
