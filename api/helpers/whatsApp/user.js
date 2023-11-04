@@ -26,8 +26,6 @@ const UserCommander = async (msg) => {
     welcomeStatusUser[msg.from] = true;
   } else if (!msg.isGroupMsg) {
     const userResponse = msg.body.trim();
-  }else if (!msg.isGroupMsg) {
-    const userResponse = msg.body.trim();
  
     if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
       const allSubscriptionsResponse = await getAllSubscriptions();
