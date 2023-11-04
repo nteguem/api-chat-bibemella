@@ -1,4 +1,5 @@
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
+const { MessageMedia } = require('whatsapp-web.js');
 
 const welcomeStatusUser = {};
 
@@ -17,9 +18,20 @@ const UserCommander = async (msg, transactionSteps) => {
   
         // Enregistrer l'état de bienvenue pour cet utilisateur
         welcomeStatusUser[msg.from] = true;
-      } else if (!msg.isGroupMsg) {
-        const invalidRequestMessage = `Bot en cours de developpement pour repondre a tout ces services ulterieurement.`;
-        msg.reply(invalidRequestMessage); 
+      } else if (!msg.isGroupMsg && msg.body == '2') {
+         // L'utilisateur souhaite acheter une œuvre d'art.
+    // Vous pouvez envoyer les détails des œuvres d'art disponibles avec des liens d'images, des noms, des descriptions et des prix.
+    const artDetails = [
+      { name: 'Œuvre 1', description: 'Description de l\'œuvre 1', price: '$100', imageUrl: 'https://res.cloudinary.com/nwccompany/image/upload/v1699090007/ekema.png' },
+      { name: 'Œuvre 2', description: 'Description de l\'œuvre 2', price: '$150', imageUrl: 'https://res.cloudinary.com/nwccompany/image/upload/v1699090007/mbom.png' },
+      // Ajoutez d'autres œuvres d'art ici.
+    ];
+
+    for (let i = 0; i < artDetails.length; i++) {
+      const art = artDetails[i];
+      const media = await MessageMedia.fromUrl(art.imageUrl);
+      await msg.reply(media);
+    }
         }
       
        else {
