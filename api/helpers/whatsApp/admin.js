@@ -1,12 +1,12 @@
 const { findActiveSubscribers } = require("../../services/subscription.service");
 const { sendMessageToNumber } = require("./whatsappMessaging");
 const { createNotification } = require("../../services/notification.service")
+
 const WELCOME_MESSAGE = `Salut %s,
 En tant qu'administrateur de la Fondation Bibemella, voici les actions que vous pouvez effectuer :
 1️⃣ Pour publier un enseignement, tapez 1.
-2️⃣ Pour faire une annonce à tous,tapez 2.
-
-Si vous souhaitez basculer d'une action à une autre tapez *Menu*.
+2️⃣ Pour faire une annonce à tous, tapez 2.
+0️⃣ Pour revenir au menu principal, tapez 0.
 
 Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella ! 🙌`;
 const ENSEIGNEMENTS_MESSAGE = "Entrez l'enseignement que vous souhaitez partager avec votre communauté";
@@ -73,7 +73,7 @@ const AdminCommander = async (client, msg, transactions) => {
                 delete transactions[sender];
             }
         } else {
-            if (userMessage === "menu") {
+            if (userMessage === '0') {
                 msg.reply(WELCOME_MESSAGE.replace('%s', sender));
                 delete transactions[sender];
             } else {
