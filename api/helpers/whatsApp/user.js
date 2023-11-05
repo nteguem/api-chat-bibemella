@@ -79,7 +79,9 @@ const UserCommander = async (msg) => {
       if (allProductsResponse.success) {
         const products = allProductsResponse.products;
     
-        for (const product of products) {
+        for (let i = 0; i < products.length; i++) {
+          const product = products[i];
+    
           // Récupérer l'image en tant que données binaires
           const imageResponse = await axios.get(product.image, { responseType: 'arraybuffer' });
           const imageBase64 = Buffer.from(imageResponse.data).toString('base64');
@@ -88,43 +90,43 @@ const UserCommander = async (msg) => {
           const media = new MessageMedia('image/jpeg', imageBase64);
     
           // Construire le message avec les détails
-          const replyMessage = `*${product.name}*\n\n${product.description}\n\n${product.price} XAF\n\nPlus de détails: ${product.link}`;
+          let replyMessage = `*${product.name}*\n\n${product.description}\n\n${product.price} XAF\n\nPlus de détails: ${product.link}`;
+          
+          // Ajouter un message demandant si l'utilisateur souhaite acheter le produit
+          replyMessage += `\n\nVoulez-vous acheter ce produit ? Si oui, *tapez ${i + 1}*.`;
     
           // Envoyer l'image avec le texte en utilisant la fonction caption
           await msg.reply(media, msg.from, { caption: replyMessage });
         }
     
-        const productNameMessage = 'Entrez le nom du produit que vous souhaitez acheter :';
-        msg.reply(productNameMessage);
+        const ProductNumberMessage = 'Entrez le numéro de NFT que vous souhaitez acheter';
+        msg.reply(ProductNumberMessage);
     
-        transactionSteps[msg.from] = { step: 'awaitProductName' };
+        transactionSteps[msg.from] = { step: 'awaitProductNumber', products };
       } else {
-        const replyMessage = 'Erreur lors de la récupération des produits.';
+        const replyMessage = 'Erreur lors de la récupération des NFTs.';
         msg.reply(replyMessage);
       }
-    }
-     else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitProductName') {
-
-      const allProductsResponse = await getAllProduct();
-      const products = allProductsResponse.products;
-
-      const userProductName = userResponse.toLowerCase(); // Nom du produit entré par l'utilisateur
-      const product = products.find((p) => p.name.toLowerCase() === userProductName.toLowerCase());
-
-      if (product) {
+    }    
+    else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitProductNumber') {
+      const products = transactionSteps[msg.from].products; // Récupérer les produits précédemment chargés
+    
+      const userProductNumber = parseInt(userResponse); // Convertir la réponse de l'utilisateur en nombre
+      const selectedProduct = products[userProductNumber - 1];
+    
+      if (selectedProduct) {
         // Le produit a été trouvé. Demandez au client le mode de paiement.
         const paymentMethodMessage = 'Choisissez le mode de paiement :\n1. Paiement Mobile Money\n2. Paiement Ejara';
         msg.reply(paymentMethodMessage);
-
+    
         // Enregistrez le produit sélectionné pour la prochaine étape.
-        selectedProduct = product;
-
-        transactionSteps[msg.from] = { step: 'awaitPaymentMethod' };
+        transactionSteps[msg.from] = { step: 'awaitPaymentMethod', selectedProduct };
       } else {
-        const invalidProductNameMessage = 'Le produit que vous avez entré est introuvable. Veuillez entrer un nom de produit valide.';
-        msg.reply(invalidProductNameMessage);
+        const invalidProductNumberMessage = 'Le numéro que vous avez entré est introuvable. Veuillez entrer un numéro valide.';
+        msg.reply(invalidProductNumberMessage);
       }
-    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitPaymentMethod') {
+    }
+     else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitPaymentMethod') {
 
       if (userResponse === '1') {
         // L'utilisateur a choisi le paiement Mobile Money.
