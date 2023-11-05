@@ -88,7 +88,7 @@ const UserCommander = async (msg) => {
           const media = new MessageMedia('image/jpeg', imageBase64);
     
           // Construire le message avec les détails
-          const replyMessage = `*${product.name}*\n\n${product.description}\n\n${product.price} XAF\n\n${product.link}`;
+          const replyMessage = `*${product.name}*\n\n${product.description}\n\n${product.price} XAF\n\nPlus de détails: ${product.link}`;
     
           // Envoyer l'image avec le texte en utilisant la fonction caption
           await msg.reply(media, msg.from, { caption: replyMessage });
