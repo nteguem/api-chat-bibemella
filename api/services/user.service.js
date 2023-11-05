@@ -2,7 +2,7 @@ require('dotenv').config(); // Load environment variables from the .env file
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {hasActiveSubscription} = require('./subscription.service')
+const { hasActiveSubscription } = require('./subscription.service')
 const JWT_SECRET = process.env.JWT_SECRET; // Remplacez ceci par une clé secrète sécurisée
 
 async function createUser(userData) {
@@ -32,53 +32,60 @@ async function login(phoneNumber, password) {
         }
 
 
-        const passwordMatch = await bcrypt.compare(password, user.password); 
+        const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
             return { success: false, message: 'Mot de passe incorrect' };
         }
 
-        return { success: true, user};
+        return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };
     }
 }
 
-async function userExistAndSubscribe(phoneNumber, contactName) {
+async function checkUserSubPurchase(phoneNumber, contactName) {
     try {
         const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
-        const user = await User.findOne({"phoneNumber": cleanedPhoneNumber });
+        const user = await User.findOne({ "phoneNumber": cleanedPhoneNumber });
 
         if (!user) {
+            // Case 1: User not found, create the user
             await createUser({
                 'name': contactName,
                 'phoneNumber': cleanedPhoneNumber,
                 'password': process.env.DEFAULT_PASSWORD
             });
-            
-            return { success: false, message: "User created successfully." }; 
+
+            return { hasSubscription: false, hasPurchase: false, message: "User created successfully." };
         } else {
-            // Incrémenter le champ engagementLevel à chaque communication
+            // Case 2: User found, increment engagement
             try {
                 user.engagementLevel = (user.engagementLevel || 0) + 1;
                 await user.save();
             } catch (error) {
-                console.error('Error incrementing engagement level for user:', error); 
+                console.error('Error incrementing user engagement level:', error);
             }
 
-            const hasActiveSub = await  hasActiveSubscription(cleanedPhoneNumber);
-            if (hasActiveSub.hasActiveSubscription) {
-                return { success: true, message: "User has an active subscription." };
-            } else {
-                return { success: false, message: "User exists but doesn't have an active subscription." };
-            }
+            // Case 3: Check if the user has an active subscription
+            const hasActiveSub = await hasActiveSubscription(cleanedPhoneNumber);
+
+            // Case 4: Check if the user has purchases
+            const userPurchases = await getUserPurchases(cleanedPhoneNumber);
+
+            return {
+                hasSubscription: hasActiveSub.hasActiveSubscription,
+                hasPurchase: userPurchases.purchases.length > 0,
+                message: "User status retrieved successfully."
+            };
         }
     } catch (error) {
-        return { success: false, message: "An error occurred.", error: error.message };
+        return { hasSubscription: false, hasPurchase: false, message: "An error occurred.", error: error.message };
     }
 }
 
-async function getAllUser() { 
+
+async function getAllUser() {
     try {
         const users = await User.find();
         return { success: true, users };
@@ -94,7 +101,7 @@ async function getUser(userId) {
         if (!user) {
             return { success: false, message: 'Utilisateur non trouvé' };
         }
- 
+
         return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };
@@ -145,5 +152,5 @@ module.exports = {
     getAllUser,
     getUser,
     updateUser,
-    userExistAndSubscribe
+    checkUserSubPurchase
 };

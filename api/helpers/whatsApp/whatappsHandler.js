@@ -1,7 +1,7 @@
 require('dotenv').config(); // Load environment variables from the .env file
 const { Client } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
-const { userExistAndSubscribe } = require('../../services/user.service');
+const { checkUserSubPurchase } = require('../../services/user.service');
 const {AdminCommander} = require("./admin");
 const {UserCommander} = require("./user");
 
@@ -36,8 +36,8 @@ const handleIncomingMessages = (client) => {
   client.on('message', async (msg) => {
     const contact = await msg.getContact();
     const contactName = contact.pushname; // Récupérer le nom de l'utilisateur
-    const isSubscribe = await userExistAndSubscribe(msg.from, contactName); // Passer msg, msg.from et contactName
-
+    const result = await checkUserSubPurchase(msg.from, contactName);
+    const isSubscribe = result.hasSubscription;
     if (isSubscribe.success && !msg.isGroupMsg && msg.from != process.env.NUMBER_ADMIN) {
       msg.reply("Vous bénéficiez des services de la fondation Bibemella");
     }
