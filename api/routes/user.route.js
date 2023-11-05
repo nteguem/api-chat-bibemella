@@ -11,6 +11,7 @@ const setupUserRoutes = (app) => {
     app.use("/user", router);
     router.post('/signup', userHandler.createUser);
     router.post('/login', userHandler.loginUser);
+    router.get('/all-users', userHandler.getAllUser);
     router.get('/:userId', userHandler.getUser);
     router.put('/:userId', userHandler.updateUser);
     

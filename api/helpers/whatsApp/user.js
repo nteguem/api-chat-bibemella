@@ -1,3 +1,4 @@
+const { getAllProduct } = require('../../services/product.service');
 const { getAllSubscriptions } = require('../../services/subscription.service');
 const MonetBil = require('../MonetBil');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
@@ -9,6 +10,7 @@ const transactionSteps = {};
 const COMMAND_NAME = { ENSEIGNEMENTS: '1', NFT: '2', WELNESS: '3' };
 
 const UserCommander = async (msg) => {
+
   const contact = await msg.getContact();
   const welcomeMessage = `🌍 Salut ${contact.pushname} et bienvenue à la Fondation Bibemella, le temple de la Culture Africaine. Explorez nos services exceptionnels pour une expérience unique :
 
@@ -64,28 +66,86 @@ const UserCommander = async (msg) => {
       const phoneNumber = userResponse.replace(/\s+/g, '');
 
       if (/^(?:\+237)?6(?:9|8|7|5)\d{7}$/.test(phoneNumber)) {
-        // Étape 3 : Effectuer le paiement
         const selectedForfait = transactionSteps[msg.from].selectedForfait;
         MonetBil.processPayment(msg, phoneNumber, selectedForfait, transactionSteps);
       } else {
         const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.NFT) {
-      // L'utilisateur souhaite acheter une œuvre d'art.
-      // Vous pouvez envoyer les détails des œuvres d'art disponibles avec des liens d'images, des noms, des descriptions et des prix.
-      const artDetails = [
-        { name: 'Œuvre 1', description: 'Description de l\'œuvre 1', price: '$100', imageUrl: 'https://res.cloudinary.com/nwccompany/image/upload/v1699090007/ekema.png' },
-        { name: 'Œuvre 2', description: 'Description de l\'œuvre 2', price: '$150', imageUrl: 'https://res.cloudinary.com/nwccompany/image/upload/v1699090007/mbom.png' },
-        // Ajoutez d'autres œuvres d'art ici.
-      ];
+    }
+    else if (userResponse === COMMAND_NAME.NFT) {
+      // Récupérer la liste des produits depuis la base de données
+      const allProductsResponse = await getAllProduct();
+      if (allProductsResponse.success) {
+        const products = allProductsResponse.products;
 
-      for (let i = 0; i < artDetails.length; i++) {
-        const art = artDetails[i];
-        const media = await MessageMedia.fromUrl(art.imageUrl);
-        await msg.reply(media);
+        for (const product of products) {
+          const replyMessage = `Nom : ${product.name}\nDescription : ${product.description}\nPrix : ${product.price}\nLien : ${product.link}`;
+          const media = await MessageMedia.fromUrl(product.image);
+
+          // Envoyer l'image et le message de réponse
+          await msg.reply(media);
+          await msg.reply(replyMessage);
+        }
+        const productNameMessage = 'Entrez le nom du produit que vous souhaitez acheter :';
+        msg.reply(productNameMessage); 
+
+        transactionSteps[msg.from] = { step: 'awaitProductName' };
+      } else {
+        const replyMessage = 'Erreur lors de la récupération des produits.';
+        msg.reply(replyMessage);
       }
-    } else if (userResponse === COMMAND_NAME.WELNESS) {
+    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitProductName') {
+
+      const allProductsResponse = await getAllProduct();
+      const products = allProductsResponse.products;
+
+      const userProductName = userResponse.toLowerCase(); // Nom du produit entré par l'utilisateur
+      const product = products.find((p) => p.name.toLowerCase() === userProductName.toLowerCase());
+
+      if (product) {
+        // Le produit a été trouvé. Demandez au client le mode de paiement.
+        const paymentMethodMessage = 'Choisissez le mode de paiement :\n1. Paiement Mobile Money\n2. Paiement Ejara';
+        msg.reply(paymentMethodMessage);
+
+        // Enregistrez le produit sélectionné pour la prochaine étape.
+        selectedProduct = product;
+
+        transactionSteps[msg.from] = { step: 'awaitPaymentMethod' };
+      } else {
+        const invalidProductNameMessage = 'Le produit que vous avez entré est introuvable. Veuillez entrer un nom de produit valide.';
+        msg.reply(invalidProductNameMessage);
+      }
+    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitPaymentMethod') {
+
+      if (userResponse === '1') {
+        // L'utilisateur a choisi le paiement Mobile Money.
+        const phoneNumberMessage = 'Veuillez entrer votre numéro de téléphone pour la transaction Mobile Money (ex: 6xxxxxxxx):';
+        msg.reply(phoneNumberMessage);
+
+        transactionSteps[msg.from] = { step: 'askPhoneNumber', selectedProduct };
+      } else if (userResponse === '2') {
+        // L'utilisateur a choisi le paiement Ejara.
+        const replyMessage = 'Bot en cours de développement.';
+        msg.reply(replyMessage);
+
+        transactionSteps[msg.from] = { step: 'start' };
+      } else {
+        const invalidPaymentMethodMessage = 'Choisissez une option de paiement valide (1 ou 2).';
+        msg.reply(invalidPaymentMethodMessage);
+      }
+    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'askPhoneNumber') {
+      const phoneNumber = userResponse.replace(/\s+/g, '');
+
+      if (/^(?:\+237)?6(?:9|8|7|5)\d{7}$/.test(phoneNumber)) {
+        const selectedProduct = transactionSteps[msg.from].selectedProduct;
+        MonetBil.processPayment(msg, phoneNumber, selectedProduct, transactionSteps);
+      } else {
+        const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
+        msg.reply(invalidPhoneNumberMessage);
+      }
+    }
+    else if (userResponse === COMMAND_NAME.WELNESS) {
       const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
       msg.reply(invalidRequestMessage);
     } else if (userResponse === '0') {

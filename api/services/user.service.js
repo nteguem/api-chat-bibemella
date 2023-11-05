@@ -78,6 +78,14 @@ async function userExistAndSubscribe(phoneNumber, contactName) {
     }
 }
 
+async function getAllUser() { 
+    try {
+        const users = await User.find();
+        return { success: true, users };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
 
 async function getUser(userId) {
     try {
@@ -86,7 +94,7 @@ async function getUser(userId) {
         if (!user) {
             return { success: false, message: 'Utilisateur non trouvé' };
         }
-
+ 
         return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };
@@ -134,6 +142,7 @@ module.exports = {
     createUser,
     login,
     generateAccessToken,
+    getAllUser,
     getUser,
     updateUser,
     userExistAndSubscribe

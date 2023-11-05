@@ -23,6 +23,16 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getAllUser = async (req, res) => {
+  const response = await userService.getAllUser();
+
+  if (response.success) {
+      res.json(response.users);
+  } else {
+      res.status(500).json({ message: 'Erreur lors de la récupération des users', error: response.error });
+  }
+};
+
 const getUser = async (req, res) => {
     const userId = req.params.userId;
     const response = await userService.getUser(userId);
@@ -49,6 +59,7 @@ const getUser = async (req, res) => {
 module.exports = {
   createUser,
   loginUser,
+  getAllUser,
   getUser,
   updateUser,
 };

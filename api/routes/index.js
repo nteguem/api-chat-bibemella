@@ -6,6 +6,7 @@ const router = express.Router();
 const { setupPaiementRoutes } = require('./paiement.route');
 const { setupSubscriptionRoutes } = require('./subscription.route');
 const { setupUserRoutes } = require('./user.route');
+const { setupProductRoutes } = require('./product.route');
 
 
 /* GET home page. */
@@ -22,6 +23,7 @@ const setupAppRoutes = (client) => {
   const app = router;
   // Set up the predict routes and link them to the corresponding route module.
   setupPaiementRoutes(app, client);
+  setupProductRoutes(app)
   setupUserRoutes(app);
   setupSubscriptionRoutes(app);
   return app;
