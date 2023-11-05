@@ -1,3 +1,4 @@
+const axios = require('axios');
 const { getAllProduct } = require('../../services/product.service');
 const { getAllSubscriptions } = require('../../services/subscription.service');
 const MonetBil = require('../MonetBil');
@@ -77,24 +78,32 @@ const UserCommander = async (msg) => {
       const allProductsResponse = await getAllProduct();
       if (allProductsResponse.success) {
         const products = allProductsResponse.products;
-
+    
         for (const product of products) {
+          // Récupérer l'image en tant que données binaires
+          const imageResponse = await axios.get(product.image, { responseType: 'arraybuffer' });
+          const imageBase64 = Buffer.from(imageResponse.data).toString('base64');
+    
+          // Créer un objet MessageMedia avec l'image
+          const media = new MessageMedia('image/jpeg', imageBase64);
+    
+          // Construire le message avec les détails
           const replyMessage = `*${product.name}*\n\n${product.description}\n\n${product.price} XAF\n\n${product.link}`;
-          const media = await MessageMedia.fromUrl(product.image);
-
-          // Envoyer l'image et le message de réponse
-          await msg.reply(media);
-          await msg.reply(replyMessage);
+    
+          // Envoyer l'image avec le texte en utilisant la fonction caption
+          await msg.reply(media, msg.from, { caption: replyMessage });
         }
+    
         const productNameMessage = 'Entrez le nom du produit que vous souhaitez acheter :';
         msg.reply(productNameMessage);
-
+    
         transactionSteps[msg.from] = { step: 'awaitProductName' };
       } else {
         const replyMessage = 'Erreur lors de la récupération des produits.';
         msg.reply(replyMessage);
       }
-    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitProductName') {
+    }
+     else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitProductName') {
 
       const allProductsResponse = await getAllProduct();
       const products = allProductsResponse.products;
