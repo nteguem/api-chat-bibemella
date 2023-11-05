@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const productHandler = require('../controllers/produit.controller');
+const productHandler = require('../controllers/product.controller');
 
 /**
  * Set up the Product routes and link them to the corresponding controller functions.

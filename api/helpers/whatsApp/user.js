@@ -72,15 +72,14 @@ const UserCommander = async (msg) => {
         const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
         msg.reply(invalidPhoneNumberMessage);
       }
-    }
-    else if (userResponse === COMMAND_NAME.NFT) {
+    } else if (userResponse === COMMAND_NAME.NFT) {
       // Récupérer la liste des produits depuis la base de données
       const allProductsResponse = await getAllProduct();
       if (allProductsResponse.success) {
         const products = allProductsResponse.products;
 
         for (const product of products) {
-          const replyMessage = `Nom : ${product.name}\nDescription : ${product.description}\nPrix : ${product.price}\nLien : ${product.link}`;
+          const replyMessage = `*${product.name}*\n\n${product.description}\n\n${product.price} XAF\n\n${product.link}`;
           const media = await MessageMedia.fromUrl(product.image);
 
           // Envoyer l'image et le message de réponse
@@ -88,7 +87,7 @@ const UserCommander = async (msg) => {
           await msg.reply(replyMessage);
         }
         const productNameMessage = 'Entrez le nom du produit que vous souhaitez acheter :';
-        msg.reply(productNameMessage); 
+        msg.reply(productNameMessage);
 
         transactionSteps[msg.from] = { step: 'awaitProductName' };
       } else {
