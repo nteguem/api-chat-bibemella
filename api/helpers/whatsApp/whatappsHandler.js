@@ -34,7 +34,8 @@ const handleIncomingMessages = (client) => {
   const transactionSteps = {};
 
   client.on('message', async (msg) => {
-    const isSubscribe = await checkUserSubPurchase(msg.from);
+    const result = await checkUserSubPurchase(msg.from);
+    const isSubscribe = result.hasSubscription;
     if (isSubscribe.success && !msg.isGroupMsg && msg.from != process.env.NUMBER_ADMIN) {
       msg.reply("Vous beneficiez des services de la fondation Bibemella");
     }
