@@ -43,38 +43,45 @@ async function login(phoneNumber, password) {
     }
 }
 
-async function userExistAndSubscribe(phoneNumber) {
+async function checkUserSubPurchase(phoneNumber) {
     try {
-        const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
-        const user = await User.findOne({"phoneNumber": cleanedPhoneNumber });
-
-        if (!user) {
-            await createUser({
-                'phoneNumber': cleanedPhoneNumber,
-                'password': process.env.DEFAULT_PASSWORD
-            });
-            
-            return { success: false, message: "User created successfully." };
-        } else {
-            // Incrémenter le champ engagementLevel à chaque communication
-            try {
-                user.engagementLevel = (user.engagementLevel || 0) + 1;
-                await user.save();
-            } catch (error) {
-                console.error('Error incrementing engagement level for user:', error); 
-            }
-
-            const hasActiveSub = await  hasActiveSubscription(cleanedPhoneNumber);
-            if (hasActiveSub.hasActiveSubscription) {
-                return { success: true, message: "User has an active subscription." };
-            } else {
-                return { success: false, message: "User exists but doesn't have an active subscription." };
-            }
+      const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
+      const user = await User.findOne({ "phoneNumber": cleanedPhoneNumber });
+  
+      if (!user) {
+        // Case 1: User not found, create the user
+        await createUser({
+          'phoneNumber': cleanedPhoneNumber,
+          'password': process.env.DEFAULT_PASSWORD
+        });
+  
+        return { hasSubscription: false, hasPurchase: false, message: "User created successfully." };
+      } else {
+        // Case 2: User found, increment engagement
+        try {
+          user.engagementLevel = (user.engagementLevel || 0) + 1;
+          await user.save();
+        } catch (error) {
+          console.error('Error incrementing user engagement level:', error);
         }
+  
+        // Case 3: Check if the user has an active subscription
+        const hasActiveSub = await hasActiveSubscription(cleanedPhoneNumber);
+  
+        // Case 4: Check if the user has purchases
+        const userPurchases = await getUserPurchases(cleanedPhoneNumber);
+  
+        return {
+          hasSubscription: hasActiveSub.hasActiveSubscription,
+          hasPurchase: userPurchases.purchases.length > 0,
+          message: "User status retrieved successfully."
+        };
+      }
     } catch (error) {
-        return { success: false, message: "An error occurred.", error: error.message };
+      return { hasSubscription: false, hasPurchase: false, message: "An error occurred.", error: error.message };
     }
-}
+  }
+  
 
 
 async function getUser(userId) {
@@ -134,5 +141,5 @@ module.exports = {
     generateAccessToken,
     getUser,
     updateUser,
-    userExistAndSubscribe
+    checkUserSubPurchase
 };
