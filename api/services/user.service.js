@@ -3,6 +3,7 @@ const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { hasActiveSubscription } = require('./subscription.service')
+const { getUserPurchases } = require('./purchase.service')
 const JWT_SECRET = process.env.JWT_SECRET; // Remplacez ceci par une clé secrète sécurisée
 
 async function createUser(userData) {
