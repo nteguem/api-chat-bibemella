@@ -7,6 +7,7 @@ const { setupPaiementRoutes } = require('./paiement.route');
 const { setupSubscriptionRoutes } = require('./subscription.route');
 const { setupUserRoutes } = require('./user.route');
 const { setupProductRoutes } = require('./product.route');
+const { setupTeachingRoutes } = require('./teaching.route');
 
 
 /* GET home page. */
@@ -26,6 +27,7 @@ const setupAppRoutes = (client) => {
   setupProductRoutes(app)
   setupUserRoutes(app);
   setupSubscriptionRoutes(app);
+  setupTeachingRoutes(app);
   return app;
 }
 
