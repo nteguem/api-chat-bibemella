@@ -6,9 +6,6 @@ const generatePDFBuffer = require('../helpers/pdfGenerator');
 async function handlePaymentSuccess(req, res, client) {
   try {
     const {user,phone,operator_transaction_id,item_ref,amount,first_name,operator, last_name,email} = req.body;
-    const dateSubscription = moment().format('YYYY-MM-DD');
-    const expirationDate = moment(dateSubscription).add(first_name, 'days');
-    const formattedExpirationDate = expirationDate.format('YYYY-MM-DD');
     const successMessage = `Félicitations ! Votre paiement pour le forfait ${item_ref} a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement du forfait.`;
     const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,item_ref,operator,amount,first_name,last_name,email);
     const pdfBase64 = pdfBuffer.toString('base64');
@@ -16,7 +13,8 @@ async function handlePaymentSuccess(req, res, client) {
     const documentType = 'application/pdf';
     await Promise.all([
       sendMediaToNumber(client, `${user}@c\.us`, documentType, pdfBase64, pdfName),
-      addSubscriptionToUser(user, item_ref, dateSubscription, formattedExpirationDate),
+     // addSubscriptionToUser(user, item_ref, dateSubscription, formattedExpirationDate),
+      sendMessageToNumber(client, `${user}@c\.us`, successMessage),
     ]);
     res.status(200).send('Success');
   } catch (error) {
@@ -28,6 +26,8 @@ async function handlePaymentSuccess(req, res, client) {
 async function handlePaymentFailure(req, res, client, operatorMessage) {
   try {
     const failureMessage = operatorMessage || `Désolé, Votre paiement mobile pour le forfait ${req.body.item_ref} a échoué en raison d'un problème de transaction. Veuillez vérifier vos détails de paiement et réessayer. Si le problème persiste, contactez-nous pour de l'aide. Nous nous excusons pour tout désagrément.
+    
+    
     Cordialement, L'équipe de Bibemella`;
     await sendMessageToNumber(client, `${req.body.user}@c\.us`, failureMessage);
     res.status(200).send('Failure');
