@@ -28,8 +28,6 @@ async function handlePaymentSuccess(req, res, client) {
 async function handlePaymentFailure(req, res, client, operatorMessage) {
   try {
     const failureMessage = operatorMessage || `Désolé, Votre paiement mobile pour le forfait ${req.body.item_ref} a échoué en raison d'un problème de transaction. Veuillez vérifier vos détails de paiement et réessayer. Si le problème persiste, contactez-nous pour de l'aide. Nous nous excusons pour tout désagrément.
-    
-    
     Cordialement, L'équipe de Bibemella`;
     await sendMessageToNumber(client, `${req.body.user}@c\.us`, failureMessage);
     res.status(200).send('Failure');
