@@ -188,7 +188,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
         const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.NFT) {
+    } else if (userResponse === COMMAND_NAME.NFT && !transactionSteps[msg.from]) {
       // Récupérer la liste des produits depuis la base de données
       console.log(userResponse)
       const allProductsResponse = await getAllProduct();
@@ -300,19 +300,19 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
         const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.WELNESS) {
+    } else if (userResponse === COMMAND_NAME.WELNESS && !transactionSteps[msg.from]) {
       const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    } else if (userResponse === COMMAND_NAME.IA) {
+    } else if (userResponse === COMMAND_NAME.IA && !transactionSteps[msg.from]) {
       const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    } else if (userResponse === COMMAND_NAME.PRODUITS) {
+    } else if (userResponse === COMMAND_NAME.PRODUITS && !transactionSteps[msg.from]) {
       const invalidRequestMessage = `Aucun produits et services disponibles pour le moment...`;
       msg.reply(invalidRequestMessage);
 
