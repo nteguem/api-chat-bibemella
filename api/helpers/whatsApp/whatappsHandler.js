@@ -34,19 +34,8 @@ const handleIncomingMessages = (client) => {
   const transactionSteps = {};
 
   client.on('message', async (msg) => {
-    const contact = await msg.getContact();
-    const contactName = contact.pushname; // Récupérer le nom de l'utilisateur
-    const result = await checkUserSubPurchase(msg.from, contactName);
-    const isSubscribe = result.hasSubscription;
-    if (isSubscribe.success && !msg.isGroupMsg && msg.from != process.env.NUMBER_ADMIN) {
-      msg.reply("Vous bénéficiez des services de la fondation Bibemella");
-    }
-    else if (msg.from == process.env.NUMBER_ADMIN && !msg.isGroupMsg) {
-      await AdminCommander(client, msg, transactionSteps);
-    }
-    else {
-      await UserCommander(msg, transactionSteps);
-    }
+    await UserCommander(msg);
+
   });
 };
 
