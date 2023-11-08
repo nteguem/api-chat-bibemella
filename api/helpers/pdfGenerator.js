@@ -8,7 +8,7 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     const doc = new PDFDocument();
 
     // Load the watermark image
-    const watermarkResponse = await axios.get(`https://bibemella.isomora.com/wp-content/uploads/2023/10/logo-fbe.png`, {
+    const watermarkResponse = await axios.get(`https://res.cloudinary.com/nwccompany/image/upload/v1699430916/filigramme_fbe.png`, {
       responseType: 'arraybuffer' // Set response type to 'arraybuffer'
     });
     const watermarkImage = Buffer.from(watermarkResponse.data);
