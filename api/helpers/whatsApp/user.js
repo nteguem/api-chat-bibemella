@@ -32,6 +32,9 @@ const UserCommander = async (msg) => {
   } else if (!msg.isGroupMsg) {
     const userResponse = msg.body.trim();
 
+    console.log(userResponse, 'stop');
+    return
+
     if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
       const allTeachingsResponse = await getAllTeachings();
       if (allTeachingsResponse.success) {
