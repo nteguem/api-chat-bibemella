@@ -188,12 +188,12 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
         const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.NFT && transactionSteps[msg.from] && transactionSteps[msg.from].step !== 'awaitProductNumber') {
+    } else if (userResponse === COMMAND_NAME.NFT) {
       // Récupérer la liste des produits depuis la base de données
       console.log(userResponse)
-      const allProductsResponse = await getAllProduct(); 
+      const allProductsResponse = await getAllProduct();
       if (allProductsResponse.success) {
-        const products = allProductsResponse.products; 
+        const products = allProductsResponse.products;
 
         const productMessage = products.map((product, index) => {
           return `${index + 1}. ${product.name} - ${product.price} XAF\n`;
