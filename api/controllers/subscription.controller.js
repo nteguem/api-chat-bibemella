@@ -75,7 +75,7 @@ const getAllSubscriptionsUser = async (req, res) => {
     }
 };
 
-  const addSubscriptionToUser = async (req, res) => {
+  const addSubscriptionToUser = async (req, res) => { 
     const { phoneNumber, subscriptionName, subscriptionDate, expirationDate } = req.body;
     const response = await subscriptionService.addSubscriptionToUser(phoneNumber, subscriptionName, subscriptionDate, expirationDate);
     
