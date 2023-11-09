@@ -1,6 +1,6 @@
 const { findActiveSubscribers } = require("../../services/subscription.service");
 const { sendMessageToNumber } = require("./whatsappMessaging");
-const { createNotification } = require("../../services/notification.service");
+const { createNotification } = require("../../services/notification.service"); 
 const { getAllTeachings } = require("../../services/teaching.service");
 const { getAllUser } = require("../../services/user.service");
 
@@ -8,7 +8,7 @@ const SUCCESS_MESSAGE_ENSEIGNEMENTS = "L'enseignement a été publié à toute l
 const SUCCESS_MESSAGE_ANNONCE = "L'annonce a été partagé à toute la communauté avec succès.";
 
 const welcomeStatusUser = {};
-const COMMAND_NAME = { ENSEIGNEMENTS: '1', ANNONCE: '2' };
+const COMMAND_NAME = { ENSEIGNEMENTS: '1', ANNONCE: '2' }; 
 
 const AdminCommander = async (client, msg, transactions) => {
     const contact = await msg.getContact();
@@ -219,7 +219,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             transactions[msg.from].step = "confirm_send_annonce";
             transactions[msg.from].type = "Annonce";
             transactions[msg.from].annonce = annonce;
-        } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_send_annonce" && userResponse === "oui") {
+        } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_send_annonce" && userResponse.toLowerCase() === "oui") {
             try {
                 const AllUsers = await getAllUser();
                 const annonce = transactions[msg.from].annonce;
