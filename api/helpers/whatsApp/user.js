@@ -30,7 +30,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
 2️⃣ Pour découvrir notre collection d'objets d'art numérique (NFTs), tapez 2.
 3️⃣ Pour en savoir plus sur notre Wellness Center et nos journées sportives, tapez 3.
 4️⃣ Pour parler à un assistant artificiel, tapez 4.
-5️⃣ Pour en savoir plus sur vos produits et services, tapez 5.
+5️⃣ Mon compte, tapez 5.
 
 Nous sommes là pour vous aider à vous immerger dans la culture africaine et à répondre à vos besoins.`;
 

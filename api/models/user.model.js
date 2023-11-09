@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   subscriptions: [{
     subscription: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
     subscriptionDate: { type: Date, default: Date.now },
-    expirationDate: { type: Date, required: true },
+    expirationDate: { type: Date },
   }],
 });
 

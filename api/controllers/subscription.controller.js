@@ -45,7 +45,8 @@ const createSubscription = async (req, res) => {
   };
 
 const getActiveSubscribers = async (req, res) => {
-    const response = await subscriptionService.findActiveSubscribers();
+  const {type,name} = req.body;
+    const response = await subscriptionService.findActiveSubscribers(type,name);
     if (response.success) {
         res.json(response.data);
     } else {
@@ -53,23 +54,23 @@ const getActiveSubscribers = async (req, res) => {
     }
 };
 
-const checkActiveSubscription = async (req, res) => {
-    const phoneNumber = req.params.phoneNumber;
-    const response = await subscriptionService.hasActiveSubscription(phoneNumber);
+// const checkActiveSubscription = async (req, res) => {
+//     const phoneNumber = req.params.phoneNumber;
+//     const response = await subscriptionService.hasActiveSubscription(phoneNumber);
 
-    if (response.success) {
-        res.json({ hasActiveSubscription: response.hasActiveSubscription });
-    } else {
-        res.status(500).json({ message: 'Erreur lors de la vérification de l\'abonnement actif', error: response.error });
-    }
-};
+//     if (response.success) {
+//         res.json({ hasActiveSubscription: response.hasActiveSubscription });
+//     } else {
+//         res.status(500).json({ message: 'Erreur lors de la vérification de l\'abonnement actif', error: response.error });
+//     }
+// };
 
 const getAllSubscriptionsUser = async (req, res) => {
     const phoneNumber = req.params.phoneNumber;
-    const response = await subscriptionService.getAllSubscriptionsUser(phoneNumber);
+    const response = await subscriptionService.getAllUserSubscriptions(phoneNumber);
 
     if (response.success) {
-        res.json(response.subscriptions);
+        res.json(response);
     } else {
         res.status(500).json({ message: 'Erreur lors de la récupération des souscriptions de l\'utilisateur', error: response.error });
     }
@@ -77,7 +78,8 @@ const getAllSubscriptionsUser = async (req, res) => {
 
   const addSubscriptionToUser = async (req, res) => { 
     const { phoneNumber, subscriptionName, subscriptionDate, expirationDate } = req.body;
-    const response = await subscriptionService.addSubscriptionToUser(phoneNumber, subscriptionName, subscriptionDate, expirationDate);
+    const addSubscription = { subscriptionName, subscriptionDate, expirationDate};
+    const response = await subscriptionService.addSubscriptionToUser(phoneNumber,addSubscription);
     
     if (response.success) {
       res.json({ message: response.message, subscription: response.subscription });
@@ -89,7 +91,7 @@ const getAllSubscriptionsUser = async (req, res) => {
 module.exports = { 
     getActiveSubscribers,
     getAllSubscriptionsUser,
-    checkActiveSubscription,
+    // checkActiveSubscription,
     addSubscriptionToUser,
     createSubscription,
     getAllSubscriptions,
