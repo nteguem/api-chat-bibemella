@@ -300,14 +300,14 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
         const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.WELNESS && !transactionSteps[msg.from]) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
+    } else if (userResponse === COMMAND_NAME.WELNESS) {
+      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    } else if (userResponse === COMMAND_NAME.IA && !transactionSteps[msg.from]) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
+    } else if (userResponse === COMMAND_NAME.IA) {
+      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
       delete transactionSteps[msg.from];

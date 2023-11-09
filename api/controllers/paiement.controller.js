@@ -6,7 +6,7 @@ const generatePDFBuffer = require('../helpers/pdfGenerator');
 async function handlePaymentSuccess(req, res, client) {
   try {
     const {user,phone,operator_transaction_id,item_ref,amount,first_name,operator, last_name,email} = req.body;
-    const successMessage = `Félicitations ! Votre paiement pour le forfait ${item_ref} a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement du forfait.`;
+    const successMessage = `Félicitations ! Votre paiement pour  *${item_ref}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement du forfait.`;
     const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,item_ref,operator,amount,first_name,last_name,email);
     const pdfBase64 = pdfBuffer.toString('base64');
     const pdfName = 'invoice.pdf';
