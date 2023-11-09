@@ -3,7 +3,7 @@ const axios = require('axios');
 const moment = require('moment');
 require('moment/locale/fr'); // Importez la localisation française
 
-async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amount,due,logo,background_logo) {
+async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amount,due,nft) {
   return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument();
 
@@ -30,8 +30,21 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     // Invoice Information
     doc.fontSize(12).text(`Numéro de facture: ${idTransaction}`, 50, 190);
     doc.fontSize(12).text(`Opérateur: ${operator}`, 50, 210);
-    doc.fontSize(12).text(`Date d'échéance forfait: ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
-
+    if(nft != '')
+    {
+      doc.fontSize(12).text(`Date d'échéance : ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
+    }
+    const imageX = 450;
+    const imageY = 120;
+    const imageWidth = 100;
+    const imageHeight = 150;
+  
+    // Appliquer un border radius en utilisant clip
+    doc.save();
+    doc.roundedRect(imageX, imageY, imageWidth, imageHeight, 10); // Ajustez la valeur de 10 selon la courbure désirée
+    doc.clip();
+    doc.image(`https://bibemella.isomora.com/wp-content/uploads/${nft}`, imageX, imageY, { width: imageWidth });
+    doc.restore();
     // Separator Line
     const separatorY = doc.y + 10;
     doc.moveTo(50, separatorY).lineTo(550, separatorY).stroke();

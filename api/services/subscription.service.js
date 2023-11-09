@@ -50,21 +50,15 @@ async function deleteSubscription(subscriptionId) {
   }
 }
 
-async function findActiveSubscribers(type, name) {
+async function findActiveSubscribers(name) {
   try {
-    let query = {};
-
-    if (type === 'service') {
-      if (name) {
-        query = { 'subscriptions.expirationDate': { $gt: new Date() }, 'subscriptions.subscription.name': name };
-      } else {
-        query = { 'subscriptions.expirationDate': { $gt: new Date() } };
-      }
-    } else if (type === 'produit') {
-      query = { 'subscriptions.subscription.name': name };
-    }
+    const query = {
+      'subscriptions.subscription.name': name,
+      'subscriptions.expirationDate': { $exists: true },
+    };
 
     const activeSubscribers = await User.find(query).select('phoneNumber');
+    
     return { success: true, data: activeSubscribers };
   } catch (error) {
     return { success: false, error: error.message };

@@ -12,7 +12,8 @@ const createSubscription = async (req, res) => {
   };
   
   const getAllSubscriptions = async (req, res) => {
-    const response = await subscriptionService.getAllSubscriptions();
+    const {type} =req.body
+    const response = await subscriptionService.getAllSubscriptions(type);
     
     if (response.success) {
       res.json(response.subscriptions);
@@ -45,8 +46,8 @@ const createSubscription = async (req, res) => {
   };
 
 const getActiveSubscribers = async (req, res) => {
-  const {type,name} = req.body;
-    const response = await subscriptionService.findActiveSubscribers(type,name);
+  const {name} = req.body;
+    const response = await subscriptionService.findActiveSubscribers(name);
     if (response.success) {
         res.json(response.data);
     } else {
@@ -77,8 +78,8 @@ const getAllSubscriptionsUser = async (req, res) => {
 };
 
   const addSubscriptionToUser = async (req, res) => { 
-    const { phoneNumber, subscriptionName, subscriptionDate, expirationDate } = req.body;
-    const addSubscription = { subscriptionName, subscriptionDate, expirationDate};
+    const { phoneNumber, subscriptionName, expirationDate } = req.body;
+    const addSubscription = { subscriptionName, expirationDate};
     const response = await subscriptionService.addSubscriptionToUser(phoneNumber,addSubscription);
     
     if (response.success) {
