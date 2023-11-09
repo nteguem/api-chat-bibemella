@@ -46,8 +46,8 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
 
     // Customer Information
     doc.fontSize(14).text('Client', 50, 260);
-    doc.fontSize(12).text(`Utilisateur :${user}`, 50, 285, { width: 200 });
-    doc.fontSize(12).text(`№ transaction :${phone}`, 50, 305, { width: 200 });
+    doc.fontSize(12).text(`Utilisateur : ${user}`, 50, 285, { width: 200 });
+    doc.fontSize(12).text(`N° transaction : ${phone}`, 50, 305, { width: 200 });
 
     // Item Details
     const items = [

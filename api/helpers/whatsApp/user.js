@@ -301,13 +301,13 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
         msg.reply(invalidPhoneNumberMessage);
       }
     } else if (userResponse === COMMAND_NAME.WELNESS) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
+      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
     } else if (userResponse === COMMAND_NAME.IA) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à tous ces services ultérieurement.`;
+      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
       delete transactionSteps[msg.from];
