@@ -112,7 +112,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       } else {
         // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
         const teachingOptions = selectedTeaching.name.map((teachingOption, index) => {
-          return `${index + 1}. ${teachingOption.nameTeaching} - ${teachingOption.price} XAF`;
+          return `${index + 1}. ${teachingOption.name} - ${teachingOption.price} XAF`;
         });
         const teachingOptionsMessage = `Choisissez un enseignement pour les ${selectedTeaching.type} en entrant son numéro :\n${teachingOptions.join('\n')}
         \n*. Menu précédent\n#. Menu principal`;
@@ -164,7 +164,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeaching.name.length) {
         // L'utilisateur a choisi un enseignement, affichez les détails de l'enseignement
         const selectedTeachingOption = selectedTeaching.name[teachingOptionNumber - 1];
-        const teachingDetailsMessage = `*Enseignement choisi :* \nCours de langue: ${selectedTeachingOption.nameTeaching}\n` +
+        const teachingDetailsMessage = `*Enseignement choisi :* \nCours de langue: ${selectedTeachingOption.name}\n` +
           `Prix : ${selectedTeachingOption.price} XAF\n` +
           `Durée : ${selectedTeachingOption.durationInDay} jours\n\n` +
           `Voulez-vous souscrire à cet enseignement ? \nRépondez par "Oui" ou "Non".`;

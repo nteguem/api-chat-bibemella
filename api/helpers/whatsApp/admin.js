@@ -74,7 +74,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             } else {
                 // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
                 const teachingOptions = selectedTeachingChoice.name.map((teachingOption, index) => {
-                    return `${index + 1}. ${teachingOption.nameTeaching}`;
+                    return `${index + 1}. ${teachingOption.name}`;
                 });
                 const teachingOptionsMessage = `Choisissez un enseignement pour les ${selectedTeachingChoice.type} en entrant son numéro :\n${teachingOptions.join('\n')}
               \n*. Menu précédent\n#. Menu principal`;
@@ -111,7 +111,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
             if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeachingChoice.name.length) {
                 const selectedTeachingOption = selectedTeachingChoice.name[teachingOptionNumber - 1];
-                const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedTeachingChoice.type} ${selectedTeachingOption.nameTeaching} que vous souhaitez envoyer à votre communauté`;
+                const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedTeachingChoice.type} ${selectedTeachingOption.name} que vous souhaitez envoyer à votre communauté`;
 
                 msg.reply(TeachingDetailsMessage);
 
@@ -138,7 +138,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const selectedTeachingChoice = transactions[msg.from].selectedTeachingChoice;
             const teachingMessageChoice = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
             const selectedTeachingOption = transactions[msg.from].selectedTeachingOption
-            msg.reply(`Vous êtes sur le point de publier le ${selectedTeachingChoice.type} ${selectedTeachingOption.nameTeaching} suivant :\n\n*${teachingMessageChoice}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
+            msg.reply(`Vous êtes sur le point de publier le ${selectedTeachingChoice.type} ${selectedTeachingOption.name} suivant :\n\n*${teachingMessageChoice}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message_teaching";
             transactions[msg.from].selectedTeachingChoice = selectedTeachingChoice; // Stockez le message de l'enseignement dans une variable distincte
@@ -188,7 +188,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const selectedTeachingOption = transactions[msg.from].selectedTeachingOption
 
             // Define the content for the message
-            const content = `Cher utilisateur VIP, voici le ${selectedTeachingChoice.type} ${selectedTeachingOption.nameTeaching} pour aujourd'hui :\n\n*${teachingMessageChoice}* \n\n Bonne lecture !`;
+            const content = `Cher utilisateur VIP, voici le ${selectedTeachingChoice.type} ${selectedTeachingOption.name} pour aujourd'hui :\n\n*${teachingMessageChoice}* \n\n Bonne lecture !`;
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
