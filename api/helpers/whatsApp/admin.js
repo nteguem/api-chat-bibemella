@@ -1,14 +1,15 @@
 const { findActiveSubscribers } = require("../../services/subscription.service");
 const { sendMessageToNumber } = require("./whatsappMessaging");
-const { createNotification } = require("../../services/notification.service"); 
+const { createNotification } = require("../../services/notification.service");
 const { getAllTeachings } = require("../../services/teaching.service");
 const { getAllUser } = require("../../services/user.service");
+const { MessageMedia } = require('whatsapp-web.js');
 
 const SUCCESS_MESSAGE_ENSEIGNEMENTS = "L'enseignement a été publié à toute la communauté avec succès.";
 const SUCCESS_MESSAGE_ANNONCE = "L'annonce a été partagé à toute la communauté avec succès.";
 
 const welcomeStatusUser = {};
-const COMMAND_NAME = { ENSEIGNEMENTS: '1', ANNONCE: '2' }; 
+const COMMAND_NAME = { ENSEIGNEMENTS: '1', ANNONCE: '2' };
 
 const AdminCommander = async (client, msg, transactions) => {
     const contact = await msg.getContact();
@@ -67,7 +68,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             // Vérifiez si le type contient des données dans l'objet "name"
             if (selectedTeaching.name.length === 0) {
                 // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
-                msg.reply(`*Entrez le contenu du ${selectedTeaching.type} que vous souhaitez partager avec votre communauté.*\nVous pouvez partager un media(image, pdf, etc)`);
+                msg.reply(`Entrez le contenu du ${selectedTeaching.type} que vous souhaitez partager avec votre communauté.`);
                 transactions[msg.from].step = "pre_confirm_send_message";
                 transactions[msg.from].selectedTeaching = selectedTeaching;
             } else {
@@ -85,8 +86,20 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             }
         } else if (transactions[msg.from] && transactions[msg.from].step === "pre_confirm_send_message") {
             const selectedTeaching = transactions[msg.from].selectedTeaching;
-            const teachingMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
-            msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
+            const teachingMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte
+            if (teachingMessage = msg.body) {
+                msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
+            }
+            if (teachingMessage = msg.hasMedia) {
+                // Télécharger le média
+                const media = await msg.downloadMedia();        
+                // const targetUser = '237695592865@c.us'; // Remplacez par le numéro de l'utilisateur cible
+                const mediaMessage = new MessageMedia(media.mimetype, media.data, media.filename);
+                // await client.sendMessage(targetUser, mediaMessage);
+                const replyMedia = `Vous êtes sur le point de publier le ${selectedTeaching.type} ci dessus`
+                msg.reply(mediaMessage, {caption: replyMedia})
+            }
+            // msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message";
             transactions[msg.from].selectedTeaching = selectedTeaching; // Stockez le message de l'enseignement dans une variable distincte
@@ -136,7 +149,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
             // Define the content for the message
             const content = `Cher utilisateur VIP, voici le ${selectedTeaching.type} pour aujourd'hui :\n\n*${teachingMessage}* \n\n Bonne lecture !`;
-            
+
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
                 const activeSubscribers = await findActiveSubscribers();
@@ -219,7 +232,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             transactions[msg.from].step = "confirm_send_annonce";
             transactions[msg.from].type = "Annonce";
             transactions[msg.from].annonce = annonce;
-        } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_send_annonce" && userResponse.toLowerCase() === "oui") {
+        } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_send_annonce" && userResponse === "oui") {
             try {
                 const AllUsers = await getAllUser();
                 const annonce = transactions[msg.from].annonce;
