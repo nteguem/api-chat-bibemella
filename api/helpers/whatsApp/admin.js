@@ -3,7 +3,6 @@ const { sendMessageToNumber } = require("./whatsappMessaging");
 const { createNotification } = require("../../services/notification.service"); 
 const { getAllTeachings } = require("../../services/teaching.service");
 const { getAllUser } = require("../../services/user.service");
-const { MessageMedia } = require("whatsapp-web.js");
 
 const SUCCESS_MESSAGE_ENSEIGNEMENTS = "L'enseignement a été publié à toute la communauté avec succès.";
 const SUCCESS_MESSAGE_ANNONCE = "L'annonce a été partagé à toute la communauté avec succès.";
@@ -87,6 +86,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         } else if (transactions[msg.from] && transactions[msg.from].step === "pre_confirm_send_message") {
             const selectedTeaching = transactions[msg.from].selectedTeaching;
             const teachingMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
+            msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message";
             transactions[msg.from].selectedTeaching = selectedTeaching; // Stockez le message de l'enseignement dans une variable distincte
