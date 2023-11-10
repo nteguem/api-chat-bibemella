@@ -108,15 +108,15 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       const selectedTeaching = teachings[userChoice - 1];
 
       // Vérifiez si le type contient des données dans l'objet "name"
-      if (selectedTeaching.name.length === 0) {
+      if (selectedTeaching.nameTeaching.length === 0) {
         // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
         msg.reply(`*${selectedTeaching.type} : ${selectedTeaching.price} XAF*\nSouhaitez-vous recevoir des informations sur le ${selectedTeaching.type} ?\n\nRépondez par "Oui" ou "Non".`);
         transactionSteps[msg.from].step = 'awaitTeachingInfoRequest';
         transactionSteps[msg.from].selectedTeaching = selectedTeaching;
       } else {
         // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
-        const teachingOptions = selectedTeaching.name.map((teachingOption, index) => {
-          return `${index + 1}. ${teachingOption.nameTeaching} - ${teachingOption.price} XAF`;
+        const teachingOptions = selectedTeaching.nameTeaching.map((teachingOption, index) => {
+          return `${index + 1}. ${teachingOption.name} - ${teachingOption.price} XAF`;
         });
         const teachingOptionsMessage = `Choisissez un enseignement pour les ${selectedTeaching.type} en entrant son numéro :\n${teachingOptions.join('\n')}
         \n*. Menu précédent\n#. Menu principal`;
@@ -165,10 +165,10 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       const teachingOptionNumber = parseInt(userResponse);
       const selectedTeaching = transactionSteps[msg.from].selectedTeaching;
 
-      if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeaching.name.length) {
+      if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeaching.nameTeaching.length) {
         // L'utilisateur a choisi un enseignement, affichez les détails de l'enseignement
-        const selectedTeachingOption = selectedTeaching.name[teachingOptionNumber - 1];
-        const teachingDetailsMessage = `*Enseignement choisi :* \nCours de langue: ${selectedTeachingOption.nameTeaching}\n` +
+        const selectedTeachingOption = selectedTeaching.nameTeaching[teachingOptionNumber - 1];
+        const teachingDetailsMessage = `*Enseignement choisi :* \nCours de langue: ${selectedTeachingOption.name}\n` +
           `Prix : ${selectedTeachingOption.price} XAF\n` +
           `Durée : ${selectedTeachingOption.durationInDay} jours\n\n` +
           `Voulez-vous souscrire à cet enseignement ? \nRépondez par "Oui" ou "Non".`;

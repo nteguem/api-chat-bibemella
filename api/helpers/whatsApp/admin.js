@@ -66,15 +66,15 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const selectedTeachingChoice = teachings[userChoice - 1];
 
             // Vérifiez si le type contient des données dans l'objet "name"
-            if (selectedTeaching.name.length === 0) {
+            if (selectedTeaching.nameTeaching.length === 0) {
                 // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
                 msg.reply(`Entrez le contenu du ${selectedTeaching.type} que vous souhaitez partager avec votre communauté.`);
                 transactions[msg.from].step = "pre_confirm_send_message";
                 transactions[msg.from].selectedTeaching = selectedTeaching;
             } else {
                 // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
-                const teachingOptions = selectedTeachingChoice.name.map((teachingOption, index) => {
-                    return `${index + 1}. ${teachingOption.nameTeaching}`;
+                const teachingOptions = selectedTeachingChoice.nameTeaching.map((teachingOption, index) => {
+                    return `${index + 1}. ${teachingOption.name}`;
                 });
                 const teachingOptionsMessage = `Choisissez un enseignement pour les ${selectedTeachingChoice.type} en entrant son numéro :\n${teachingOptions.join('\n')}
               \n*. Menu précédent\n#. Menu principal`;
@@ -109,9 +109,9 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const teachingOptionNumber = parseInt(userResponse);
             const selectedTeachingChoice = transactions[msg.from].selectedTeachingChoice;
 
-            if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeachingChoice.name.length) {
-                const selectedTeachingOption = selectedTeachingChoice.name[teachingOptionNumber - 1];
-                const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedTeachingChoice.type} ${selectedTeachingOption.nameTeaching} que vous souhaitez envoyer à votre communauté`;
+            if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeachingChoice.nameTeaching.length) {
+                const selectedTeachingOption = selectedTeachingChoice.nameTeaching[teachingOptionNumber - 1];
+                const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedTeachingChoice.type} ${selectedTeachingOption.name} que vous souhaitez envoyer à votre communauté`;
 
                 msg.reply(TeachingDetailsMessage);
 
@@ -174,6 +174,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
                 // Send a success message to the user
                 msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
+                msg.reply(MenuPrincipal);
             } catch (error) {
                 console.error("Error sending messages:", error);
                 msg.reply("Une erreur s'est produite lors de l'envoi des messages.");
@@ -188,7 +189,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const selectedTeachingOption = transactions[msg.from].selectedTeachingOption
 
             // Define the content for the message
-            const content = `Cher utilisateur VIP, voici le ${selectedTeachingChoice.type} ${selectedTeachingOption.nameTeaching} pour aujourd'hui :\n\n*${teachingMessageChoice}* \n\n Bonne lecture !`;
+            const content = `Cher utilisateur VIP, voici le ${selectedTeachingChoice.type} ${selectedTeachingOption.name} pour aujourd'hui :\n\n*${teachingMessageChoice}* \n\n Bonne lecture !`;
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
