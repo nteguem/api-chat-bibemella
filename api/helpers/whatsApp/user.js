@@ -189,7 +189,6 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       }
     } else if (userResponse === COMMAND_NAME.NFT && !transactionSteps[msg.from]) {
       // Récupérer la liste des produits depuis la base de données
-      console.log(userResponse)
       const allProductsResponse = await getAllSubscriptions('NFT');
       if (allProductsResponse.success) {
         const products = allProductsResponse.subscriptions;
