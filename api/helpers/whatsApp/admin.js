@@ -86,20 +86,15 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             }
         } else if (transactions[msg.from] && transactions[msg.from].step === "pre_confirm_send_message") {
             const selectedTeaching = transactions[msg.from].selectedTeaching;
-            const teachingMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte
-            if (teachingMessage = msg.body) {
-                msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
-            }
-            if (teachingMessage = msg.hasMedia) {
+            const teachingMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
+            if (msg.hasMedia) {
                 // Télécharger le média
                 const media = await msg.downloadMedia();        
-                // const targetUser = '237695592865@c.us'; // Remplacez par le numéro de l'utilisateur cible
+                const targetUser = '237695592865@c.us'; // Remplacez par le numéro de l'utilisateur cible
                 const mediaMessage = new MessageMedia(media.mimetype, media.data, media.filename);
-                // await client.sendMessage(targetUser, mediaMessage);
-                const replyMedia = `Vous êtes sur le point de publier le ${selectedTeaching.type} ci dessus`
-                msg.reply(mediaMessage, {caption: replyMedia})
+                await client.sendMessage(targetUser, mediaMessage);
             }
-            // msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
+            msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message";
             transactions[msg.from].selectedTeaching = selectedTeaching; // Stockez le message de l'enseignement dans une variable distincte
