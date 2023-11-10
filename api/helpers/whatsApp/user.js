@@ -57,7 +57,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
 
       if (userResponseEjara === 'oui') {
         // Le client a confirmé l'achat, continuez avec les options de paiement.
-        const ejaraName = '*Veuillez renseigner votre nom d\'utilisatur Ejara*';
+        const ejaraName = '*Veuillez renseigner votre nom d\'utilisateur Ejara*';
         msg.reply(ejaraName);
 
         transactionSteps[msg.from].step = 'ask-ejara-name';
