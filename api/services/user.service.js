@@ -104,21 +104,7 @@ async function updateUser(phoneNumber, updatedData) {
             updatedData.password = await bcrypt.hash(updatedData.password, 10);
         }
 
-        // Mise à jour de l'utilisateur en fonction des champs fournis dans updatedData
-        const updateFields = {};
-        if (updatedData.phoneNumber) {
-            updateFields.phoneNumber = updatedData.phoneNumber;
-        }
-        if (updatedData.password) {
-            updateFields.password = updatedData.password;
-        }
-
-        // Vérification s'il y a des champs à mettre à jour
-        if (Object.keys(updateFields).length === 0) {
-            return { success: false, message: 'Aucune donnée de mise à jour fournie' };
-        }
-
-        const updatedUser = await User.findByIdAndUpdate(phoneNumber, updateFields, { new: true });
+        const updatedUser = await User.findOneAndUpdate({ phoneNumber: phoneNumber }, updatedData, { new: true });
 
         if (!updatedUser) {
             return { success: false, message: 'Utilisateur non trouvé' };

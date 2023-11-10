@@ -13,7 +13,7 @@ const setupUserRoutes = (app) => {
     router.post('/login', userHandler.loginUser);
     router.get('/all-users', userHandler.getAllUser);
     router.get('/:userId', userHandler.getUser);
-    router.put('/:userId', userHandler.updateUser);
+    router.put('/update-user', userHandler.updateUser);
     
   };
   

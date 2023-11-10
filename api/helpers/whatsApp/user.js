@@ -4,6 +4,7 @@ const MonetBil = require('../MonetBil');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
 const { MessageMedia } = require('whatsapp-web.js');
 const { getAllTeachings } = require('../../services/teaching.service');
+const { updateUser } = require('../../services/user.service');
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -34,7 +35,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
 Nous sommes là pour vous aider à vous immerger dans la culture africaine et à répondre à vos besoins.`;
 
   if (!welcomeStatusUser[msg.from]) {
-    // Envoyer le message de bienvenue la première fois
+    // Envoyer le message de bienvenue la première fois 
     msg.reply(welcomeMessage);
 
     // Enregistrer l'état de bienvenue pour cet utilisateur
@@ -46,10 +47,42 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       // Réinitialiser l'état de l'utilisateur et renvoyer le message de bienvenue
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    }
-    else if ( msg.body.toLowerCase() == "ejara")
-    {
-      msg.reply("Veuillez renseigner votre nom d'utilisateur ejara");
+    } else if (userResponse.toLowerCase() === "ejara") {
+      transactionSteps[msg.from] = {};
+      msg.reply("Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'");
+
+      transactionSteps[msg.from].step = 'ask-ejara-account';
+    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'ask-ejara-account') {
+      const userResponseEjara = userResponse.toLowerCase()
+
+      if (userResponseEjara === 'oui') {
+        // Le client a confirmé l'achat, continuez avec les options de paiement.
+        const ejaraName = '*Veuillez renseigner votre nom d\'utilisatur Ejara*';
+        msg.reply(ejaraName);
+
+        transactionSteps[msg.from].step = 'ask-ejara-name';
+        transactionSteps[msg.from].ejaraName = ejaraName
+      } else if (userResponseEjara === 'non') {
+        // Redirigez l'utilisateur vers le choix du type d'enseignement
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
+      }
+    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'ask-ejara-name') {
+      const ejaraNameResponse = userResponse;
+      const phoneNumber = msg.from
+      const updatedData = {
+        username_ejara: ejaraNameResponse
+      };
+      console.log("Avant updateUser - phoneNumber:", phoneNumber, "username_ejara:", updatedData);
+      const userUpdated = await updateUser(phoneNumber, updatedData);
+      if (userUpdated.success) {
+        console.log("Après updateUser - userUpdated:", userUpdated);
+        msg.reply(`Le nom d'utilisateur Ejara a été mis à jour avec succès pour ${userUpdated.user.username_ejara}.`);
+        // Continuez avec d'autres étapes si nécessaire
+      } else {
+        msg.reply(`Erreur lors de la mise à jour du nom d'utilisateur Ejara`);
+        // Gérez l'erreur ou revenez à une étape précédente si nécessaire
+      }
     }
     else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
       const allTeachingsResponse = await getAllTeachings();
@@ -128,7 +161,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
         const invalidPhoneNumberMessage = 'Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).';
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitSubTeachingChoice') { 
+    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'awaitSubTeachingChoice') {
       const teachingOptionNumber = parseInt(userResponse);
       const selectedTeaching = transactionSteps[msg.from].selectedTeaching;
 
@@ -179,7 +212,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
         transactionSteps[msg.from].step = 'awaitTeachingType';
       } else {
         const invalidConfirmationMessage = 'Répondez par "Oui" ou "Non".';
-        msg.reply(invalidConfirmationMessage); 
+        msg.reply(invalidConfirmationMessage);
       }
     } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'await-phone-number') {
       const phoneNumber = userResponse.replace(/\s+/g, '');
@@ -322,9 +355,43 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
     } else {
+      if (msg.body.toLowerCase() === "ejara") {
+        msg.reply("Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'");
+
+        transactionSteps[msg.from].step = "ask-ejara-account";
+      } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'ask-ejara-account') {
+        const userResponseEjara = userResponse.toLowerCase()
+
+        if (userResponseEjara === 'oui') {
+          // Le client a confirmé l'achat, continuez avec les options de paiement.
+          const ejaraName = '*Veuillez renseigner votre nom d\'utilisatur Ejara*';
+          msg.reply(ejaraName);
+
+          transactionSteps[msg.from].step = 'ask-ejara-name';
+          transactionSteps[msg.from].ejaraName = ejaraName
+        } else if (userResponseEjara === 'non') {
+          // Redirigez l'utilisateur vers le choix du type d'enseignement
+          delete transactionSteps[msg.from];
+          msg.reply(MenuPrincipal);
+        }
+      } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'ask-ejara-name') {
+        const ejaraName = transactionSteps[msg.from].ejaraName;
+        const phoneNumber = msg.from
+        const updatedData = {
+          username_ejara: ejaraName
+        };
+        const userUpdated = await updateUser(phoneNumber, updatedData);
+        if (userUpdated.success) {
+          msg.reply(`Le nom d'utilisateur Ejara a été mis à jour avec succès pour ${userUpdated.user.username_ejara}.`);
+          // Continuez avec d'autres étapes si nécessaire
+        } else {
+          msg.reply(`Erreur lors de la mise à jour du nom d'utilisateur Ejara : ${userUpdated.message}`);
+          // Gérez l'erreur ou revenez à une étape précédente si nécessaire
+        }
+      } else 
       // Gérer d'autres cas d'utilisation ou afficher un message d'erreur
       delete transactionSteps[msg.from];
-      msg.reply(MenuPrincipal);;
+      msg.reply(MenuPrincipal);
     }
   }
 };
