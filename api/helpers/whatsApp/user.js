@@ -1,5 +1,4 @@
 const axios = require('axios');
-const { getAllProduct } = require('../../services/product.service');
 const { getAllSubscriptions } = require('../../services/subscription.service');
 const MonetBil = require('../MonetBil');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
@@ -30,7 +29,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
 2️⃣ Pour découvrir notre collection d'objets d'art numérique (NFTs), tapez 2.
 3️⃣ Pour en savoir plus sur notre Wellness Center et nos journées sportives, tapez 3.
 4️⃣ Pour parler à un assistant artificiel, tapez 4.
-5️⃣ Pour en savoir plus sur vos produits et services, tapez 5.
+5️⃣ Mon compte, tapez 5.
 
 Nous sommes là pour vous aider à vous immerger dans la culture africaine et à répondre à vos besoins.`;
 
@@ -191,9 +190,9 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
     } else if (userResponse === COMMAND_NAME.NFT && !transactionSteps[msg.from]) {
       // Récupérer la liste des produits depuis la base de données
       console.log(userResponse)
-      const allProductsResponse = await getAllProduct();
+      const allProductsResponse = await getAllSubscriptions('NFT');
       if (allProductsResponse.success) {
-        const products = allProductsResponse.products;
+        const products = allProductsResponse.subscriptions;
 
         const productMessage = products.map((product, index) => {
           return `${index + 1}. ${product.name} - ${product.price} XAF\n`;

@@ -2,16 +2,16 @@ require('dotenv').config();
 const axios = require('axios');
 
 async function processPayment(msg, phoneNumber, selectedForfait, transactionSteps) {
+  const contact = await msg.getContact();
   const paymentData = {
     service: process.env.PAYMENT_SERVICE_ID,
     phonenumber: phoneNumber.replace(/^\+/, '').replace(/\s/g, ''),
     // amount: selectedForfait?.price,
     amount: 1,
-    user: msg.from.replace(/@c\.us$/, ""),
-    first_name: selectedForfait?.durationInDays,
+    user: contact.pushname,
+    first_name: selectedForfait?.type == "NFT" ? selectedForfait?.durationInDays : 0 ,
+    last_name: selectedForfait?.type == "NFT" ? selectedForfait?.image : '',
     item_ref: selectedForfait?.name,
-    last_name:process.env.LOGO_APP,
-    email:process.env.BACKGROUND_LOGO,
   };
 
   const apiEndpoint = process.env.PAYMENT_API_ENDPOINT;

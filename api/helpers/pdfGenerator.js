@@ -3,10 +3,11 @@ const axios = require('axios');
 const moment = require('moment');
 require('moment/locale/fr'); // Importez la localisation française
 
-async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amount,due,logo,background_logo) {
+async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amount,due,nft) {
   return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument();
-
+    let nftResponse;
+    let nftImage;
     // Load the watermark image
     const watermarkResponse = await axios.get(`https://res.cloudinary.com/nwccompany/image/upload/v1699430916/filigramme_fbe.png`, {
       responseType: 'arraybuffer' // Set response type to 'arraybuffer'
@@ -19,6 +20,15 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     });
     const logoImage = Buffer.from(logoResponse.data);
 
+     // Load the nft image
+    if(nft != '')
+    {
+       nftResponse = await axios.get(`https://bibemella.isomora.com/wp-content/uploads/${nft}`, {
+        responseType: 'arraybuffer' // Set response type to 'arraybuffer'
+      });
+       nftImage = Buffer.from(nftResponse.data);
+    }
+
     // Header (Logo and Watermark)
     doc.image(logoImage, 70, 60, { width: 100 });
     const now = moment();
@@ -30,8 +40,28 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     // Invoice Information
     doc.fontSize(12).text(`Numéro de facture: ${idTransaction}`, 50, 190);
     doc.fontSize(12).text(`Opérateur: ${operator}`, 50, 210);
-    doc.fontSize(12).text(`Date d'échéance forfait: ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
+    if (nft == '') {
+      doc.fontSize(12).text(`Date d'échéance : ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
+    }else{
+      doc.fontSize(12).text(`Date d'achat : ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
 
+    }   
+if (nftImage && nftImage.length > 0) {
+    const imageX = 450;
+    const imageY = 120;
+    const imageWidth = 100;
+    const imageHeight = 150;
+  
+    // Appliquer un border radius en utilisant clip
+    doc.save();
+    doc.roundedRect(imageX, imageY, imageWidth, imageHeight, 10); // Ajustez la valeur de 10 selon la courbure désirée
+    doc.clip();
+    doc.image(nftImage, imageX, imageY, { width: imageWidth });
+    doc.restore();
+  } else {
+    // Handle the case where the image is null or not available
+    doc.fontSize(12).text('', 450, 120);
+  }
     // Separator Line
     const separatorY = doc.y + 10;
     doc.moveTo(50, separatorY).lineTo(550, separatorY).stroke();

@@ -2,8 +2,7 @@ require('dotenv').config(); // Load environment variables from the .env file
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { hasActiveSubscription } = require('./subscription.service')
-const { getUserPurchases } = require('./purchase.service')
+// const { hasActiveSubscription } = require('./subscription.service')
 const JWT_SECRET = process.env.JWT_SECRET; // Remplacez ceci par une clé secrète sécurisée
 
 async function createUser(userData) {
@@ -45,7 +44,7 @@ async function login(phoneNumber, password) {
     }
 }
 
-async function checkUserSubPurchase(phoneNumber, contactName) {
+async function saveUser(phoneNumber, contactName) {
     try {
         const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
         const user = await User.findOne({ "phoneNumber": cleanedPhoneNumber });
@@ -68,17 +67,6 @@ async function checkUserSubPurchase(phoneNumber, contactName) {
                 console.error('Error incrementing user engagement level:', error);
             }
 
-            // Case 3: Check if the user has an active subscription
-            const hasActiveSub = await hasActiveSubscription(cleanedPhoneNumber);
-
-            // Case 4: Check if the user has purchases
-            const userPurchases = await getUserPurchases(cleanedPhoneNumber);
-
-            return {
-                hasSubscription: hasActiveSub.hasActiveSubscription,
-                hasPurchase: userPurchases.purchases.length > 0,
-                message: "User status retrieved successfully."
-            };
         }
     } catch (error) {
         return { hasSubscription: false, hasPurchase: false, message: "An error occurred.", error: error.message };
@@ -153,5 +141,5 @@ module.exports = {
     getAllUser,
     getUser,
     updateUser,
-    checkUserSubPurchase
+    saveUser
 };
