@@ -39,17 +39,14 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
 
     // Enregistrer l'état de bienvenue pour cet utilisateur
     welcomeStatusUser[msg.from] = true;
-  } else if (!msg.isGroupMsg) {
+  } 
+  else if (!msg.isGroupMsg) {
     const userResponse = msg.body.trim();
 
     if (userResponse === '#') {
       // Réinitialiser l'état de l'utilisateur et renvoyer le message de bienvenue
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    }
-    else if ( msg.body.toLowerCase() == "ejara")
-    {
-      msg.reply("Veuillez renseigner votre nom d'utilisateur ejara");
     }
     else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
       const allTeachingsResponse = await getAllTeachings();
@@ -321,12 +318,18 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
 
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    } else {
+    } 
+    else if (msg.body.toLowerCase() == "ejara")
+  {
+    msg.reply("Veuillez renseigner votre nom d'utilisateur ejara");
+  }
+    else {
       // Gérer d'autres cas d'utilisation ou afficher un message d'erreur
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);;
     }
   }
+  
 };
 
 module.exports = {
