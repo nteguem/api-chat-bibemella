@@ -42,8 +42,8 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
       doc.fontSize(12).text(`Date d'achat : ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
 
     }   
-    if (nftImage) {
-    const imageX = 450;
+    if (nftImage && nftImage.length > 0) {
+      const imageX = 450;
     const imageY = 120;
     const imageWidth = 100;
     const imageHeight = 150;
