@@ -58,10 +58,7 @@ if (nftImage && nftImage.length > 0) {
     doc.clip();
     doc.image(nftImage, imageX, imageY, { width: imageWidth });
     doc.restore();
-  } else {
-    // Handle the case where the image is null or not available
-    doc.fontSize(12).text('', 450, 120);
-  }
+  } 
     // Separator Line
     const separatorY = doc.y + 10;
     doc.moveTo(50, separatorY).lineTo(550, separatorY).stroke();
