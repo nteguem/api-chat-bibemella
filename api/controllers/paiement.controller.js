@@ -24,8 +24,12 @@ async function handlePaymentSuccess(req, res, client) {
       addSubscriptionToUser(formatPhone,addSubscription),
       sendMessageToNumber(client, `${formatPhone}@c\.us`, successMessage),
     ]);
-    await sendMessageToNumber(client, `${formatPhone}@c\.us`, `Super ! Merci de renseigner votre nom d'utilisateur Ejara en saissisant *ejara*\n\n 
-    Si vous n'avez pas encore de compte Ejara, suivez ce lien pour découvrir comment créer un compte : https://youtu.be/wLkfXWOYCco`)
+    if(first_name == 0 )
+    {
+      await sendMessageToNumber(client, `${formatPhone}@c\.us`, `Super ! Merci de renseigner votre nom d'utilisateur Ejara en saissisant *ejara*\n\n 
+      Si vous n'avez pas encore de compte Ejara, suivez ce lien pour découvrir comment créer un compte : https://youtu.be/wLkfXWOYCco`)
+    }
+  
     res.status(200).send('Success');
   } catch (error) {
     console.error(error);
