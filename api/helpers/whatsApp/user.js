@@ -4,13 +4,7 @@ const MonetBil = require('../MonetBil');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
 const { MessageMedia } = require('whatsapp-web.js');
 const { getAllTeachings } = require('../../services/teaching.service');
-const ConversationStepsEjara = {
-  INIT: 'init',
-  ASK_USERNAME: 'ask_username',
-  CONFIRM_USERNAME: 'confirm_username',
-  END: 'end',
-};
-const userConversations = new Map();
+
 const welcomeStatusUser = {};
 const transactionSteps = {};
 
@@ -55,52 +49,8 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
     }
     else if ( msg.body.toLowerCase() == "ejara")
     {
-    let currentStep = userConversations.get(userNumber) || ConversationStepsEjara.INIT;
-
-    switch (currentStep) {
-        case ConversationStepsEjara.INIT:
-            // Étape 1 : Demander le nom d'utilisateur
-            await msg.reply('Veuillez fournir votre nom d\'utilisateur ("ejara").');
-            userConversations.set(userNumber, ConversationStepsEjara.ASK_USERNAME);
-            break;
-
-        case ConversationStepsEjara.ASK_USERNAME:
-            // Étape 2 : Capturer le nom d'utilisateur fourni par l'utilisateur
-            const username = msg.body;
-            // Enregistrez le nom d'utilisateur pour cet utilisateur
-            userConversations.set(userNumber, ConversationStepsEjara.CONFIRM_USERNAME);
-
-            // Étape 3 : Demander une confirmation
-            await msg.reply(`Votre nom d'utilisateur est-il "${username}" ? Répondez par "oui" ou "non".`);
-            break;
-
-        case ConversationStepsEjara.CONFIRM_USERNAME:
-            // Étape 4 : Capturer la confirmation
-            const confirmation = msg.body.toLowerCase();
-
-            if (confirmation === 'oui') {
-                // Étape 5 : Si confirmé, renvoyer le nom d'utilisateur
-                await msg.reply(`Votre nom d'utilisateur est confirmé : ${username}`);
-            } else if (confirmation === 'non') {
-                // Étape 6 : Si non confirmé, informer l'utilisateur
-                await msg.reply('Aucune action entreprise. Veuillez fournir le bon nom d\'utilisateur.');
-            } else {
-                // Étape 7 : Gérer une confirmation invalide
-                await msg.reply('Confirmation invalide. Veuillez répondre par "oui" ou "non".');
-            }
-
-            // Étape finale : Réinitialiser la conversation pour cet utilisateur
-            userConversations.delete(userNumber);
-            delete transactionSteps[msg.from];
-            msg.reply(MenuPrincipal);
-            break;
-
-        // Autres étapes ou cas de gestion d'erreur ici...
-
-        default:
-            break;
+      msg.reply("Veuillez renseigner votre nom d'utilisateur ejara");
     }
-      }
     else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
       const allTeachingsResponse = await getAllTeachings();
       if (allTeachingsResponse.success) {
