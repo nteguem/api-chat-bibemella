@@ -46,7 +46,12 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       // Réinitialiser l'état de l'utilisateur et renvoyer le message de bienvenue
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    } else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
+    }
+    else if ( msg.body.toLowerCase() == "ejara")
+    {
+      msg.reply("Veuillez renseigner votre nom d'utilisateur ejara");
+    }
+    else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
       const allTeachingsResponse = await getAllTeachings();
       if (allTeachingsResponse.success) {
         const teachings = allTeachingsResponse.teachings;
@@ -189,7 +194,6 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       }
     } else if (userResponse === COMMAND_NAME.NFT && !transactionSteps[msg.from]) {
       // Récupérer la liste des produits depuis la base de données
-      console.log(userResponse)
       const allProductsResponse = await getAllSubscriptions('NFT');
       if (allProductsResponse.success) {
         const products = allProductsResponse.subscriptions;
