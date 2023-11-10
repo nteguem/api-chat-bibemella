@@ -73,10 +73,10 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       let cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, '');
       const userUpdated = await updateUser(cleanedPhoneNumber, ejaraNameResponse);
       if (userUpdated.success) {
-        msg.reply(`Le nom d'utilisateur Ejara a été mis à jour avec succès pour ${userUpdated.user.username_ejara}.`);
+        msg.reply(`Votre nom d'utilisateur Ejara a été ajouté avec succès.`);
         delete transactionSteps[msg.from];
       } else {
-        msg.reply(`Erreur lors de la mise à jour du nom d'utilisateur Ejara`);
+        msg.reply(`Erreur lors de l'ajout du nom d'utilisateur Ejara, réessayez ultérieurement.`);
         delete transactionSteps[msg.from];
       }
     }
