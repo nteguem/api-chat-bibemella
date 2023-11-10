@@ -70,18 +70,14 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
     } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'ask-ejara-name') {
       const ejaraNameResponse = userResponse;
       const phoneNumber = msg.from
-      const updatedData = {
-        username_ejara: ejaraNameResponse
-      };
-      console.log("Avant updateUser - phoneNumber:", phoneNumber, "username_ejara:", updatedData);
-      const userUpdated = await updateUser(phoneNumber, updatedData);
+      let cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, '');
+      const userUpdated = await updateUser(cleanedPhoneNumber, ejaraNameResponse);
       if (userUpdated.success) {
-        console.log("Après updateUser - userUpdated:", userUpdated);
         msg.reply(`Le nom d'utilisateur Ejara a été mis à jour avec succès pour ${userUpdated.user.username_ejara}.`);
-        // Continuez avec d'autres étapes si nécessaire
+        delete transactionSteps[msg.from];
       } else {
         msg.reply(`Erreur lors de la mise à jour du nom d'utilisateur Ejara`);
-        // Gérez l'erreur ou revenez à une étape précédente si nécessaire
+        delete transactionSteps[msg.from];
       }
     }
     else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
