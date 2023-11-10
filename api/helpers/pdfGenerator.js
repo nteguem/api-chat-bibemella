@@ -36,10 +36,13 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     // Invoice Information
     doc.fontSize(12).text(`Numéro de facture: ${idTransaction}`, 50, 190);
     doc.fontSize(12).text(`Opérateur: ${operator}`, 50, 210);
-    if(nft != '')
-    {
+    if (nft == '') {
       doc.fontSize(12).text(`Date d'échéance : ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
-    }
+    }else{
+      doc.fontSize(12).text(`Date d'achat : ${dueDate.format('dddd D MMMM YYYY [à] HH[h]mm')}`, 50, 230);
+
+    }   
+    if (nftImage) {
     const imageX = 450;
     const imageY = 120;
     const imageWidth = 100;
@@ -51,6 +54,10 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     doc.clip();
     doc.image(nftImage, imageX, imageY, { width: imageWidth });
     doc.restore();
+  } else {
+    // Handle the case where the image is null or not available
+    doc.fontSize(12).text('', 450, 120);
+  }
     // Separator Line
     const separatorY = doc.y + 10;
     doc.moveTo(50, separatorY).lineTo(550, separatorY).stroke();
