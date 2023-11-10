@@ -19,6 +19,12 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     });
     const logoImage = Buffer.from(logoResponse.data);
 
+     // Load the nft image
+     const nftResponse = await axios.get(`https://bibemella.isomora.com/wp-content/uploads/${nft}`, {
+      responseType: 'arraybuffer' // Set response type to 'arraybuffer'
+    });
+    const nftImage = Buffer.from(nftResponse.data);
+
     // Header (Logo and Watermark)
     doc.image(logoImage, 70, 60, { width: 100 });
     const now = moment();
@@ -43,7 +49,7 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     doc.save();
     doc.roundedRect(imageX, imageY, imageWidth, imageHeight, 10); // Ajustez la valeur de 10 selon la courbure désirée
     doc.clip();
-    doc.image(`https://bibemella.isomora.com/wp-content/uploads/${nft}`, imageX, imageY, { width: imageWidth });
+    doc.image(nftResponse, imageX, imageY, { width: imageWidth });
     doc.restore();
     // Separator Line
     const separatorY = doc.y + 10;
