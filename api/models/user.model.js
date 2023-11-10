@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phoneNumber: { type: String, required: true, unique: true },
   password: { type: String, required: true},
+  username_ejara: { type: String},
   engagementLevel:{type: Number}, 
   subscriptions: [{
     subscription: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
