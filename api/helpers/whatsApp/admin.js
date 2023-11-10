@@ -87,13 +87,19 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         } else if (transactions[msg.from] && transactions[msg.from].step === "pre_confirm_send_message") {
             const selectedTeaching = transactions[msg.from].selectedTeaching;
             const teachingMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
-            if (msg.hasMedia) {
-                // Télécharger le média
-                const media = await msg.downloadMedia();        
-                const targetUser = '237695592865@c.us'; // Remplacez par le numéro de l'utilisateur cible
-                const mediaMessage = new MessageMedia(media.mimetype, media.data, media.filename);
-                await client.sendMessage(targetUser, mediaMessage);
+            const AllUsers = await getAllUser();
+            if (AllUsers.success) {
+                const users = AllUsers.users;
+                if (msg.hasMedia) {
+                    // Télécharger le média
+                    const media = await msg.downloadMedia();
+                    const targetUser = `${users.phoneNumber}@c.us`; // Replace with the actual index or logic to select a user
+                    console.log(targetUser);
+                    const mediaMessage = new MessageMedia(media.mimetype, media.data, media.filename);
+                    await client.sendMessage(targetUser, mediaMessage);
+                }
             }
+
             msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message";
@@ -147,7 +153,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
-                const activeSubscribers = await findActiveSubscribers();
+                const AllUsers = await getAllUser();
 
                 // Create a notification
                 await createNotification({
@@ -161,9 +167,9 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                 });
 
                 // Send the message to each subscriber
-                for (const subscriber of activeSubscribers.data) {
+                for (const users of AllUsers.users) {
                     // Implement the logic for sending messages to subscribers
-                    await sendMessageToNumber(client, `${subscriber.phoneNumber}@c.us`, content);
+                    await sendMessageToNumber(client, `${users.phoneNumber}@c.us`, content);
                 }
 
                 // Send a success message to the user
@@ -186,7 +192,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
-                const activeSubscribers = await findActiveSubscribers();
+                const AllUsers = await getAllUser();
 
                 // Create a notification
                 await createNotification({
@@ -200,9 +206,9 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                 });
 
                 // Send the message to each subscriber
-                for (const subscriber of activeSubscribers.data) {
+                for (const users of AllUsers.users) {
                     // Implement the logic for sending messages to subscribers
-                    await sendMessageToNumber(client, `${subscriber.phoneNumber}@c.us`, content);
+                    await sendMessageToNumber(client, `${users.phoneNumber}@c.us`, content);
                 }
 
                 // Send a success message to the user
