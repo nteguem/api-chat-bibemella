@@ -44,45 +44,34 @@ async function login(phoneNumber, password) {
     }
 }
 
-// async function checkUserSubPurchase(phoneNumber, contactName) {
-//     try {
-//         const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
-//         const user = await User.findOne({ "phoneNumber": cleanedPhoneNumber });
+async function saveUser(phoneNumber, contactName) {
+    try {
+        const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
+        const user = await User.findOne({ "phoneNumber": cleanedPhoneNumber });
 
-//         if (!user) {
-//             // Case 1: User not found, create the user
-//             await createUser({
-//                 'name': contactName,
-//                 'phoneNumber': cleanedPhoneNumber,
-//                 'password': process.env.DEFAULT_PASSWORD
-//             });
+        if (!user) {
+            // Case 1: User not found, create the user
+            await createUser({
+                'name': contactName,
+                'phoneNumber': cleanedPhoneNumber,
+                'password': process.env.DEFAULT_PASSWORD
+            });
 
-//             return { hasSubscription: false, hasPurchase: false, message: "User created successfully." };
-//         } else {
-//             // Case 2: User found, increment engagement
-//             try {
-//                 user.engagementLevel = (user.engagementLevel || 0) + 1;
-//                 await user.save();
-//             } catch (error) {
-//                 console.error('Error incrementing user engagement level:', error);
-//             }
+            return { hasSubscription: false, hasPurchase: false, message: "User created successfully." };
+        } else {
+            // Case 2: User found, increment engagement
+            try {
+                user.engagementLevel = (user.engagementLevel || 0) + 1;
+                await user.save();
+            } catch (error) {
+                console.error('Error incrementing user engagement level:', error);
+            }
 
-//             // Case 3: Check if the user has an active subscription
-//             const hasActiveSub = await hasActiveSubscription(cleanedPhoneNumber);
-
-//             // Case 4: Check if the user has purchases
-//             const userPurchases = await getUserPurchases(cleanedPhoneNumber);
-
-//             return {
-//                 hasSubscription: hasActiveSub.hasActiveSubscription,
-//                 hasPurchase: userPurchases.purchases.length > 0,
-//                 message: "User status retrieved successfully."
-//             };
-//         }
-//     } catch (error) {
-//         return { hasSubscription: false, hasPurchase: false, message: "An error occurred.", error: error.message };
-//     }
-// }
+        }
+    } catch (error) {
+        return { hasSubscription: false, hasPurchase: false, message: "An error occurred.", error: error.message };
+    }
+}
 
 
 async function getAllUser() {
@@ -152,5 +141,5 @@ module.exports = {
     getAllUser,
     getUser,
     updateUser,
-    // checkUserSubPurchase
+    saveUser
 };
