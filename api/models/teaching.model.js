@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const teachingSchema = new mongoose.Schema({
     type: { type: String, required: true, unique: true },
-    nameTeaching: [{
-        name: { type: String, unique: true },
+    name: [{
+        name: { type: String },
         price: { type: Number },
         durationInDay: { type: Number }
     }],
