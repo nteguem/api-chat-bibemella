@@ -49,7 +49,7 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
     doc.save();
     doc.roundedRect(imageX, imageY, imageWidth, imageHeight, 10); // Ajustez la valeur de 10 selon la courbure désirée
     doc.clip();
-    doc.image(nftResponse, imageX, imageY, { width: imageWidth });
+    doc.image(nftImage, imageX, imageY, { width: imageWidth });
     doc.restore();
     // Separator Line
     const separatorY = doc.y + 10;
