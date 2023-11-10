@@ -10,6 +10,7 @@ const ConversationStepsEjara = {
   CONFIRM_USERNAME: 'confirm_username',
   END: 'end',
 };
+const userConversations = new Map();
 const welcomeStatusUser = {};
 const transactionSteps = {};
 
