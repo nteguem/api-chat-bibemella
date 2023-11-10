@@ -19,13 +19,13 @@ async function handlePaymentSuccess(req, res, client) {
     const pdfName = 'facture.pdf';
     const documentType = 'application/pdf';
     await Promise.all([
-      sendMediaToNumber(client, email, documentType, pdfBase64, pdfName),
-      addSubscriptionToUser(formatPhone,addSubscription),
-      sendMessageToNumber(client, email, successMessage),
+      sendMediaToNumber(client, `${email}@c\.us`, documentType, pdfBase64, pdfName),
+      addSubscriptionToUser(email,addSubscription),
+      sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);
     if(last_name != "" )
     {
-      await sendMessageToNumber(client, `${formatPhone}@c\.us`, `Super ! Merci de renseigner votre nom d'utilisateur Ejara en saissisant *ejara*\n\n 
+      await sendMessageToNumber(client, `${email}@c\.us`, `Super ! Merci de renseigner votre nom d'utilisateur Ejara en saissisant *ejara*\n\n 
       Si vous n'avez pas encore de compte Ejara, suivez ce lien pour découvrir comment créer un compte : https://youtu.be/wLkfXWOYCco`)
     }
   
