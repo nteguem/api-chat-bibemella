@@ -6,16 +6,29 @@ const generatePDFBuffer = require('../helpers/pdfGenerator');
 async function handlePaymentSuccess(req, res, client) {
   try {
     const {user,phone,operator_transaction_id,item_ref,amount,first_name,operator, last_name,email} = req.body;
-    const successMessage = `Félicitations ! Votre paiement pour le forfait ${item_ref} a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement du forfait.`;
-    const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,item_ref,operator,amount,first_name,last_name,email);
+    const dateSubscription = moment().format('YYYY-MM-DD');
+    const successMessage = `Félicitations ! Votre paiement pour  *${item_ref}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
+    const expirationDate = moment(dateSubscription).add(first_name, 'days');
+    const formattedExpirationDate = expirationDate.format('YYYY-MM-DD');
+    const addSubscription = {
+      "subscriptionName": item_ref,
+      ...(first_name != 0 ? { "expirationDate": formattedExpirationDate } : {})
+    };
+    const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,item_ref,operator,amount,first_name,last_name);
     const pdfBase64 = pdfBuffer.toString('base64');
-    const pdfName = 'invoice.pdf';
+    const pdfName = 'facture.pdf';
     const documentType = 'application/pdf';
     await Promise.all([
-      sendMediaToNumber(client, `${user}@c\.us`, documentType, pdfBase64, pdfName),
-     // addSubscriptionToUser(user, item_ref, dateSubscription, formattedExpirationDate),
-      sendMessageToNumber(client, `${user}@c\.us`, successMessage),
+      sendMediaToNumber(client, `${email}@c\.us`, documentType, pdfBase64, pdfName),
+      addSubscriptionToUser(email,addSubscription),
+      sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);
+    if(last_name != "" )
+    {
+      await sendMessageToNumber(client, `${email}@c\.us`, `Super ! Merci de renseigner votre nom d'utilisateur Ejara en saissisant *ejara*\n\n 
+      Si vous n'avez pas encore de compte Ejara, suivez ce lien pour découvrir comment créer un compte : https://youtu.be/wLkfXWOYCco`)
+    }
+  
     res.status(200).send('Success');
   } catch (error) {
     console.error(error);

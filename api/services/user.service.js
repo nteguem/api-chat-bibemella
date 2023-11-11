@@ -2,8 +2,7 @@ require('dotenv').config(); // Load environment variables from the .env file
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { hasActiveSubscription } = require('./subscription.service')
-const { getUserPurchases } = require('./purchase.service')
+// const { hasActiveSubscription } = require('./subscription.service')
 const JWT_SECRET = process.env.JWT_SECRET; // Remplacez ceci par une clé secrète sécurisée
 
 async function createUser(userData) {
@@ -45,7 +44,7 @@ async function login(phoneNumber, password) {
     }
 }
 
-async function checkUserSubPurchase(phoneNumber, contactName) {
+async function saveUser(phoneNumber, contactName) {
     try {
         const cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
         const user = await User.findOne({ "phoneNumber": cleanedPhoneNumber });
@@ -68,17 +67,6 @@ async function checkUserSubPurchase(phoneNumber, contactName) {
                 console.error('Error incrementing user engagement level:', error);
             }
 
-            // Case 3: Check if the user has an active subscription
-            const hasActiveSub = await hasActiveSubscription(cleanedPhoneNumber);
-
-            // Case 4: Check if the user has purchases
-            const userPurchases = await getUserPurchases(cleanedPhoneNumber);
-
-            return {
-                hasSubscription: hasActiveSub.hasActiveSubscription,
-                hasPurchase: userPurchases.purchases.length > 0,
-                message: "User status retrieved successfully."
-            };
         }
     } catch (error) {
         return { hasSubscription: false, hasPurchase: false, message: "An error occurred.", error: error.message };
@@ -111,36 +99,22 @@ async function getUser(userId) {
 
 async function updateUser(phoneNumber, updatedData) {
     try {
-        if (updatedData.password) {
-            // Hashage du nouveau mot de passe
-            updatedData.password = await bcrypt.hash(updatedData.password, 10);
-        }
-
-        // Mise à jour de l'utilisateur en fonction des champs fournis dans updatedData
-        const updateFields = {};
-        if (updatedData.phoneNumber) {
-            updateFields.phoneNumber = updatedData.phoneNumber;
-        }
-        if (updatedData.password) {
-            updateFields.password = updatedData.password;
-        }
-
-        // Vérification s'il y a des champs à mettre à jour
-        if (Object.keys(updateFields).length === 0) {
-            return { success: false, message: 'Aucune donnée de mise à jour fournie' };
-        }
-
-        const updatedUser = await User.findByIdAndUpdate(phoneNumber, updateFields, { new: true });
-
-        if (!updatedUser) {
-            return { success: false, message: 'Utilisateur non trouvé' };
-        }
-
-        return { success: true, user: updatedUser };
-    } catch (error) {
-        return { success: false, error: error.message };
+      // Utilisez findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour username_ejara
+      const updatedUser = await User.findOneAndUpdate(
+        { phoneNumber: phoneNumber },
+        { $set: { username_ejara: updatedData } },
+        { new: true } // Ceci renvoie le document mis à jour plutôt que l'ancien
+      );
+  
+      if (updatedUser) {
+        return { success: true, message: 'Utilisateur mis à jour avec succès', user: updatedUser };
+    } else {
+        return { success: false, message: 'Utilisateur non trouvé' };
     }
-}
+    } catch (error) {
+        return { success: false, message: 'Erreur lors de la mise à jour de l\'utilisateur' };
+    }
+  }
 
 function generateAccessToken(userId) {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '1h' });
@@ -153,5 +127,5 @@ module.exports = {
     getAllUser,
     getUser,
     updateUser,
-    checkUserSubPurchase
+    saveUser
 };

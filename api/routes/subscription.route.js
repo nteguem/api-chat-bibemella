@@ -14,7 +14,7 @@ const setupSubscriptionRoutes = (app) => {
   router.put('/update-subscription/:subscriptionId', subscriptionHandler.updateSubscription);
   router.delete('/delete-subscription/:subscriptionId', subscriptionHandler.deleteSubscription);
   router.get('/active-subscribers', subscriptionHandler.getActiveSubscribers);
-  router.get('/has-active-subscription/:phoneNumber', subscriptionHandler.checkActiveSubscription);
+  // router.get('/has-active-subscription/:phoneNumber', subscriptionHandler.checkActiveSubscription);
   router.get('/all-subscriptions/:phoneNumber', subscriptionHandler.getAllSubscriptionsUser);
   router.post('/add-subscription', subscriptionHandler.addSubscriptionToUser); 
 };

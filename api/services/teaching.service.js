@@ -47,10 +47,10 @@ async function deleteTeaching(teachingId) {
     }
 }
 
-async function addTeachingToTeaching(nameTeaching, price, durationInDay) {
+async function addTeachingToTeaching(name, price, durationInDay) {
     try {
         // Rechercher l'enseignement par son nom
-        const teaching = await Teaching.findOne({ 'name.nameTeaching': nameTeaching });
+        const teaching = await Teaching.findOne({ 'name.name': name });
 
         if (!teaching) {
             return { success: false, message: 'Enseignement non trouvé' };
@@ -58,7 +58,7 @@ async function addTeachingToTeaching(nameTeaching, price, durationInDay) {
 
         // Ajouter le nouvel enseignement aux données existantes
         teaching.name.push({
-            nameTeaching,
+            name,
             price,
             durationInDay
         });
