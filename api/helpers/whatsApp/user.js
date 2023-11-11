@@ -57,7 +57,7 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
 
       if (userResponseEjara === 'oui') {
         // Le client a confirmé l'achat, continuez avec les options de paiement.
-        const ejaraName = '*Veuillez renseigner votre nom d\'utilisatur Ejara*';
+        const ejaraName = '*Veuillez renseigner votre nom d\'utilisateur Ejara*';
         msg.reply(ejaraName);
 
         transactionSteps[msg.from].step = 'ask-ejara-name';
@@ -70,18 +70,14 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
     } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === 'ask-ejara-name') {
       const ejaraNameResponse = userResponse;
       const phoneNumber = msg.from
-      const updatedData = {
-        username_ejara: ejaraNameResponse
-      };
-      console.log("Avant updateUser - phoneNumber:", phoneNumber, "username_ejara:", updatedData);
-      const userUpdated = await updateUser(phoneNumber, updatedData);
+      let cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, '');
+      const userUpdated = await updateUser(cleanedPhoneNumber, ejaraNameResponse);
       if (userUpdated.success) {
-        console.log("Après updateUser - userUpdated:", userUpdated);
-        msg.reply(`Le nom d'utilisateur Ejara a été mis à jour avec succès pour ${userUpdated.user.username_ejara}.`);
-        // Continuez avec d'autres étapes si nécessaire
+        msg.reply(`Votre nom d'utilisateur Ejara a été ajouté avec succès.`);
+        delete transactionSteps[msg.from];
       } else {
-        msg.reply(`Erreur lors de la mise à jour du nom d'utilisateur Ejara`);
-        // Gérez l'erreur ou revenez à une étape précédente si nécessaire
+        msg.reply(`Erreur lors de l'ajout du nom d'utilisateur Ejara, réessayez ultérieurement.`);
+        delete transactionSteps[msg.from];
       }
     }
     else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactionSteps[msg.from]) {
@@ -108,14 +104,14 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       const selectedTeaching = teachings[userChoice - 1];
 
       // Vérifiez si le type contient des données dans l'objet "name"
-      if (selectedTeaching.nameTeaching.length === 0) {
+      if (selectedTeaching.name.length === 0) {
         // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
         msg.reply(`*${selectedTeaching.type} : ${selectedTeaching.price} XAF*\nSouhaitez-vous recevoir des informations sur le ${selectedTeaching.type} ?\n\nRépondez par "Oui" ou "Non".`);
         transactionSteps[msg.from].step = 'awaitTeachingInfoRequest';
         transactionSteps[msg.from].selectedTeaching = selectedTeaching;
       } else {
         // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
-        const teachingOptions = selectedTeaching.nameTeaching.map((teachingOption, index) => {
+        const teachingOptions = selectedTeaching.name.map((teachingOption, index) => {
           return `${index + 1}. ${teachingOption.name} - ${teachingOption.price} XAF`;
         });
         const teachingOptionsMessage = `Choisissez un enseignement pour les ${selectedTeaching.type} en entrant son numéro :\n${teachingOptions.join('\n')}
@@ -165,9 +161,9 @@ Nous sommes là pour vous aider à vous immerger dans la culture africaine et à
       const teachingOptionNumber = parseInt(userResponse);
       const selectedTeaching = transactionSteps[msg.from].selectedTeaching;
 
-      if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeaching.nameTeaching.length) {
+      if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeaching.name.length) {
         // L'utilisateur a choisi un enseignement, affichez les détails de l'enseignement
-        const selectedTeachingOption = selectedTeaching.nameTeaching[teachingOptionNumber - 1];
+        const selectedTeachingOption = selectedTeaching.name[teachingOptionNumber - 1];
         const teachingDetailsMessage = `*Enseignement choisi :* \nCours de langue: ${selectedTeachingOption.name}\n` +
           `Prix : ${selectedTeachingOption.price} XAF\n` +
           `Durée : ${selectedTeachingOption.durationInDay} jours\n\n` +

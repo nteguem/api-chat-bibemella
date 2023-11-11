@@ -66,14 +66,14 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const selectedTeachingChoice = teachings[userChoice - 1];
 
             // Vérifiez si le type contient des données dans l'objet "name"
-            if (selectedTeaching.nameTeaching.length === 0) {
+            if (selectedTeaching.name.length === 0) {
                 // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
                 msg.reply(`Entrez le contenu du ${selectedTeaching.type} que vous souhaitez partager avec votre communauté.`);
                 transactions[msg.from].step = "pre_confirm_send_message";
                 transactions[msg.from].selectedTeaching = selectedTeaching;
             } else {
                 // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
-                const teachingOptions = selectedTeachingChoice.nameTeaching.map((teachingOption, index) => {
+                const teachingOptions = selectedTeachingChoice.name.map((teachingOption, index) => {
                     return `${index + 1}. ${teachingOption.name}`;
                 });
                 const teachingOptionsMessage = `Choisissez un enseignement pour les ${selectedTeachingChoice.type} en entrant son numéro :\n${teachingOptions.join('\n')}
@@ -109,8 +109,8 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const teachingOptionNumber = parseInt(userResponse);
             const selectedTeachingChoice = transactions[msg.from].selectedTeachingChoice;
 
-            if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeachingChoice.nameTeaching.length) {
-                const selectedTeachingOption = selectedTeachingChoice.nameTeaching[teachingOptionNumber - 1];
+            if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeachingChoice.name.length) {
+                const selectedTeachingOption = selectedTeachingChoice.name[teachingOptionNumber - 1];
                 const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedTeachingChoice.type} ${selectedTeachingOption.name} que vous souhaitez envoyer à votre communauté`;
 
                 msg.reply(TeachingDetailsMessage);
@@ -138,7 +138,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             const selectedTeachingChoice = transactions[msg.from].selectedTeachingChoice;
             const teachingMessageChoice = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
             const selectedTeachingOption = transactions[msg.from].selectedTeachingOption
-            msg.reply(`Vous êtes sur le point de publier le ${selectedTeachingChoice.type} ${selectedTeachingOption.nameTeaching} suivant :\n\n*${teachingMessageChoice}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
+            msg.reply(`Vous êtes sur le point de publier le ${selectedTeachingChoice.type} ${selectedTeachingOption.name} suivant :\n\n*${teachingMessageChoice}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message_teaching";
             transactions[msg.from].selectedTeachingChoice = selectedTeachingChoice; // Stockez le message de l'enseignement dans une variable distincte
@@ -234,7 +234,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             transactions[msg.from].step = "confirm_send_annonce";
             transactions[msg.from].type = "Annonce";
             transactions[msg.from].annonce = annonce;
-        } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_send_annonce" && userResponse === "oui") {
+        } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_send_annonce" && userResponse.toLowerCase() === "oui") {
             try {
                 const AllUsers = await getAllUser();
                 const annonce = transactions[msg.from].annonce;
@@ -249,7 +249,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                     ]
                 });
 
-                for (const users of AllUsers.users) {
+                for (const users of AllUsers.users) { 
                     await sendMessageToNumber(
                         client,
                         `${users.phoneNumber}@c.us`,

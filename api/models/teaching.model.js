@@ -5,7 +5,7 @@ const teachingSchema = new mongoose.Schema({
     name: [{
         name: { type: String },
         price: { type: Number },
-        durationInDay: { type: Number }
+        durationInDay: { type: Number } 
     }],
     price: { type: Number },
 });

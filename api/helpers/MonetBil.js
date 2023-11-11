@@ -12,6 +12,8 @@ async function processPayment(msg, phoneNumber, selectedForfait, transactionStep
     first_name: selectedForfait?.type == "NFT" ? selectedForfait?.durationInDays : 0 ,
     last_name: selectedForfait?.type == "NFT" ? selectedForfait?.image : '',
     item_ref: selectedForfait?.name,
+    email: msg.from.replace(/@c\.us$/, ""),
+
   };
 
   const apiEndpoint = process.env.PAYMENT_API_ENDPOINT;

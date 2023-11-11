@@ -99,22 +99,22 @@ async function getUser(userId) {
 
 async function updateUser(phoneNumber, updatedData) {
     try {
-        if (updatedData.password) {
-            // Hashage du nouveau mot de passe
-            updatedData.password = await bcrypt.hash(updatedData.password, 10);
-        }
-
-        const updatedUser = await User.findOneAndUpdate({ phoneNumber: phoneNumber }, updatedData, { new: true });
-
-        if (!updatedUser) {
-            return { success: false, message: 'Utilisateur non trouvé' };
-        }
-
-        return { success: true, user: updatedUser };
-    } catch (error) {
-        return { success: false, error: error.message };
+      // Utilisez findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour username_ejara
+      const updatedUser = await User.findOneAndUpdate(
+        { phoneNumber: phoneNumber },
+        { $set: { username_ejara: updatedData } },
+        { new: true } // Ceci renvoie le document mis à jour plutôt que l'ancien
+      );
+  
+      if (updatedUser) {
+        return { success: true, message: 'Utilisateur mis à jour avec succès', user: updatedUser };
+    } else {
+        return { success: false, message: 'Utilisateur non trouvé' };
     }
-}
+    } catch (error) {
+        return { success: false, message: 'Erreur lors de la mise à jour de l\'utilisateur' };
+    }
+  }
 
 function generateAccessToken(userId) {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '1h' });
