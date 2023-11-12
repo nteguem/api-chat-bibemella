@@ -1,9 +1,6 @@
 const axios = require("axios");
-const { getAllSubscriptions } = require("../../services/subscription.service");
 const MonetBil = require("../MonetBil");
 require("dotenv").config(); // Charger les variables d'environnement depuis le fichier .env
-const { MessageMedia } = require("whatsapp-web.js");
-const { getAllTeachings } = require("../../services/teaching.service");
 const { updateUser } = require("../../services/user.service");
 const { welcomeData, menuData } = require("../../data");
 const { getAllProducts } = require("../../services/product.service");
@@ -121,9 +118,9 @@ const UserCommander = async (msg) => {
       const services = transactionSteps[msg.from].services;
       const selectedService = services[userChoice - 1];
 
-      // Vérifiez si le type contient des données dans l'objet "name"
+      // Vérifiez si le type contient des données dans le sous-type
       if (!selectedService.hasSub) {
-        // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
+        // Si l'objet a un sous-type
         msg.reply(
           `*${selectedService.name} : ${selectedService.price} XAF*\nSouhaitez-vous recevoir des informations sur le ${selectedService.name} ?\n\nRépondez par "Oui" ou "Non".`
         );
@@ -133,14 +130,12 @@ const UserCommander = async (msg) => {
         // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
         const servicesOptions = selectedService.subservices.map(
           (serviceOption, index) => {
-            return `${index + 1}. ${serviceOption.name} - ${
-              serviceOption.price
-            } XAF`;
+            return `${index + 1}. ${serviceOption.name} - ${serviceOption.price
+              } XAF`;
           }
         );
-        const servicesOptionsMessage = `Choisissez un enseignement pour les ${
-          selectedService.type
-        } en entrant son numéro :\n${servicesOptions.join("\n")}
+        const servicesOptionsMessage = `Choisissez un enseignement pour les ${selectedService.type
+          } en entrant son numéro :\n${servicesOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(servicesOptionsMessage);
 
@@ -206,8 +201,7 @@ const UserCommander = async (msg) => {
         teachingOptionNumber <= selectedService.subservices.length
       ) {
         // L'utilisateur a choisi un enseignement, affichez les détails de l'enseignement
-        const selectedServiceOption =
-          selectedService.subservices[teachingOptionNumber - 1];
+        const selectedServiceOption = selectedService.subservices[teachingOptionNumber - 1];
         const serviceDetailsMessage =
           `*Enseignement choisi :* \n${selectedService.name}: ${selectedServiceOption.name}\n` +
           `Prix : ${selectedServiceOption.price} XAF\n` +
@@ -316,16 +310,13 @@ const UserCommander = async (msg) => {
 
       if (selectedProduct) {
         // Afficher les détails du produit
-        const productDetailsMessage = `*${
-          selectedProduct.name
-        }*\n\n*Description :*\n${
-          selectedProduct.description
-        }\n\n*Avantage* :\n${selectedProduct.advantage
-          .split("\n")
-          .map((advantage) => `• ${advantage}`)
-          .join("\n")}\n\n*Prix :* ${
-          selectedProduct.price
-        }\n\nPour plus de détails : ${selectedProduct.link}`;
+        const productDetailsMessage = `*${selectedProduct.name
+          }*\n\n*Description :*\n${selectedProduct.description
+          }\n\n*Avantage* :\n${selectedProduct.advantage
+            .split("\n")
+            .map((advantage) => `• ${advantage}`)
+            .join("\n")}\n\n*Prix :* ${selectedProduct.price
+          }\n\nPour plus de détails : ${selectedProduct.link}`;
         msg.reply(productDetailsMessage);
 
         // Demander si l'utilisateur souhaite acheter le produit
@@ -346,11 +337,9 @@ const UserCommander = async (msg) => {
     ) {
       if (userResponse.toLowerCase() === "oui") {
         // Demander au client de confirmer l'achat
-        const confirmationMessage = `Vous avez choisi d'acheter le NFT:\n*${
-          transactionSteps[msg.from].selectedProduct.name
-        } - ${
-          transactionSteps[msg.from].selectedProduct.price
-        } XAF*. \n\nConfirmez vous l'achat de ce NFT? "Oui" ou "Non".`;
+        const confirmationMessage = `Vous avez choisi d'acheter le NFT:\n*${transactionSteps[msg.from].selectedProduct.name
+          } - ${transactionSteps[msg.from].selectedProduct.price
+          } XAF*. \n\nConfirmez vous l'achat de ce NFT? "Oui" ou "Non".`;
         msg.reply(confirmationMessage);
 
         transactionSteps[msg.from].step = "awaitBuyConfirmationConfirmation";
@@ -451,25 +440,17 @@ const UserCommander = async (msg) => {
 
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    } else if (
-      userResponse === COMMAND_NAME.PRODUITS &&
-      !transactionSteps[msg.from]
-    ) {
-      const allSubsriptions = await getAllUserSubscriptions(
-        msg.from.replace(/@c\.us$/, "")
-      );
+    } else if (userResponse === COMMAND_NAME.PRODUITS && !transactionSteps[msg.from]) {
+      const allSubsriptions = await getAllUserSubscriptions(msg.from.replace(/@c\.us$/, ""));
       if (allSubsriptions.success) {
         const services = allSubsriptions.products;
 
         // Affichez les types d'enseignement à l'utilisateur avec des numéros
         const replyMessage =
-          `Consultez la liste de vos produits et services en cours
-          \n\n` +
-          services
-            .map((service, index) => {
-              return `${index + 1}. ${service.productId.name}`;
-            })
-            .join("\n");
+          `Consultez la liste de vos produits et services en cours\n\n` +
+          services.map((service, index) => {
+            return `${index + 1}. ${service.productId.name}`;
+          }).join("\n");
         msg.reply(replyMessage + "\n\n#. Menu principal");
 
         // Enregistrez l'étape de la transaction pour cet utilisateur

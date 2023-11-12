@@ -16,8 +16,6 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     price: inputObject.selectedService.hasSub ? inputObject?.selectedServiceOption?.price : inputObject.selectedService.price,
   };
 
-  console.log(resultObject, 'jjjjjj');
-
   const paymentData = {
     service: process.env.PAYMENT_SERVICE_ID,
     phonenumber: phoneNumber.replace(/^\+/, '').replace(/\s/g, ''),

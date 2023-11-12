@@ -1,7 +1,7 @@
 const moment = require('moment');
 const {sendMessageToNumber,sendMediaToNumber} = require('../helpers/whatsApp/whatsappMessaging');
-const { addSubscriptionToUser } = require('../services/subscription.service');
 const generatePDFBuffer = require('../helpers/pdfGenerator');
+const { addProductToUser } = require('../services/product.service');
 
 async function handlePaymentSuccess(req, res, client) {
   try {
@@ -23,7 +23,7 @@ async function handlePaymentSuccess(req, res, client) {
     const documentType = 'application/pdf';
     await Promise.all([
       sendMediaToNumber(client, `${email}@c\.us`, documentType, pdfBase64, pdfName),
-      addSubscriptionToUser(email,addSubscription),
+      addProductToUser(email,addSubscription),
       sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);
     if(serviceData?.image != "" )
