@@ -3,7 +3,7 @@ const { Client } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
  const { saveUser } = require('../../services/user.service');
 const {AdminCommander} = require("./admin");
-const {UserCommander} = require("./user");
+const {UserCommander} = require("./new-user");
 
 
 const initializeWhatsAppClient = () => {

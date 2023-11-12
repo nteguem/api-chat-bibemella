@@ -6,12 +6,13 @@ const router = express.Router();
 const { setupPaiementRoutes } = require('./paiement.route');
 const { setupSubscriptionRoutes } = require('./subscription.route');
 const { setupUserRoutes } = require('./user.route');
+const { setupProductRoutes } = require('./product.route');
 
 
 /* GET home page. */
 // Define a route for the home page ('/') that renders the 'index' template with the title 'Bibemella'.
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'chatbot Bibemella' });
+  res.json({ title: 'chatbot Bibemella' });
 });
 
 /**
@@ -24,6 +25,7 @@ const setupAppRoutes = (client) => {
   setupPaiementRoutes(app, client);
   setupUserRoutes(app);
   setupSubscriptionRoutes(app);
+  setupProductRoutes(app);
   return app;
 }
 
