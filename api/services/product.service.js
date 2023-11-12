@@ -22,6 +22,43 @@ async function getAllProducts(type) {
   }
 }
 
+async function addProductToUser(phoneNumber, addSubscription) {
+  try {
+    console.log(addSubscription, "dkjf", phoneNumber);
+    const user = await User.findOne({ phoneNumber });
+    const product = await ProductService.findOne({
+      _id: addSubscription.itemId,
+    });
+
+    if (!user || !product) {
+      return {
+        success: false,
+        message: "Utilisateur ou souscription non trouvé",
+      };
+    }
+
+    user.subscriptions.push({
+      productId: addSubscription.itemId,
+      expirationDate: addSubscription.expirationDate,
+      isOption: addSubscription.hasSub,
+      optionId: addSubscription?.selectedServiceOption?._id,
+      productType: addSubscription.type,
+    });
+
+    await user.save();
+
+    const addedSubscription = await ProductService.findById(product._id);
+
+    return {
+      success: true,
+      message: "Souscription ajoutée avec succès",
+      subscription: addedSubscription,
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 // async function updateSubscription(subscriptionId, updatedData) {
 //   try {
 //     const updatedSubscription = await Subscription.findByIdAndUpdate(subscriptionId, updatedData, { new: true });
@@ -65,46 +102,46 @@ async function getAllProducts(type) {
 //   }
 // }
 
-// async function getAllUserSubscriptions(phoneNumber) {
-//   try {
-//     const user = await User.findOne({ phoneNumber }).populate('subscriptions.subscription'); // Associez les souscriptions à l'utilisateur
+async function getAllUserSubscriptions(phoneNumber) {
+  try {
+    const user = await User.findOne({ phoneNumber }).populate(
+      "subscriptions.productId"
+    ); // Associez les souscriptions à l'utilisateur
 
-//     if (!user) {
-//       return { success: false, message: 'Utilisateur non trouvé' };
-//     }
+    if (!user) {
+      return { success: false, message: "Utilisateur non trouvé" };
+    }
 
-//     const activeServices = user.subscriptions.filter(sub => sub.expirationDate > new Date());
-//     const products = user.subscriptions.filter(sub => !sub.expirationDate);
+    const services = user.subscriptions.filter(
+      (sub) => sub.productType === "service" && sub.expirationDate > new Date()
+    );
+    const products = user.subscriptions.filter(
+      (sub) => sub.productType === "product"
+    );
 
-//     return { success: true, services: activeServices, products: products };
-//   } catch (error) {
-//     return { success: false, error: error.message };
-//   }
-// }
+    //we transform the services here
+    const transformedServices = services.map((service) => {
+      if (service.isOption) {
+        const subData = service.productId.subservices.find(
+          (sub) => sub._id.toString() === service.optionId
+        );
 
-// async function addSubscriptionToUser(phoneNumber, addSubscription) {
-//   try {
-//     const user = await User.findOne({ phoneNumber });
-//     const subscription = await Subscription.findOne({ name: addSubscription.subscriptionName });
+        return {
+          expirationDate: service.expirationDate,
+          isOption: service.isOption,
+          productType: service.productType,
+          subscriptionDate: service.subscriptionDate,
+          productId: subData,
+        };
+      }
+      return service;
+    });
 
-//     if (!user || !subscription) {
-//       return { success: false, message: 'Utilisateur ou souscription non trouvé' };
-//     }
-
-//     user.subscriptions.push({
-//       subscription: subscription._id,
-//       ...addSubscription
-//     });
-
-//     await user.save();
-
-//     const addedSubscription = await Subscription.findById(subscription._id);
-
-//     return { success: true, message: 'Souscription ajoutée avec succès', subscription: addedSubscription };
-//   } catch (error) {
-//     return { success: false, error: error.message };
-//   }
-// }
+    return { success: true, products: [...products, ...transformedServices] };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 
 module.exports = {
   createProductService,
@@ -112,6 +149,6 @@ module.exports = {
   //   updateSubscription,
   //   deleteSubscription,
   //   findActiveSubscribers,
-  //   getAllUserSubscriptions,
-  //   addSubscriptionToUser,
+  getAllUserSubscriptions,
+  addProductToUser,
 };

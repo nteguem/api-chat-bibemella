@@ -5,16 +5,19 @@ const generatePDFBuffer = require('../helpers/pdfGenerator');
 
 async function handlePaymentSuccess(req, res, client) {
   try {
-    const {user,phone,operator_transaction_id,item_ref,amount,first_name,operator, last_name,email} = req.body;
+    const {user,phone,operator_transaction_id,item_ref,amount,operator,email} = req.body;
+
+    let serviceData = JSON.parse(item_ref);
+    
     const dateSubscription = moment().format('YYYY-MM-DD');
-    const successMessage = `Félicitations ! Votre paiement pour  *${item_ref}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
-    const expirationDate = moment(dateSubscription).add(first_name, 'days');
+    const successMessage = `Félicitations ! Votre paiement pour  *${serviceData.name}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
+    const expirationDate = moment(dateSubscription).add(serviceData?.durationInDays, 'days');
     const formattedExpirationDate = expirationDate.format('YYYY-MM-DD');
     const addSubscription = {
-      "subscriptionName": item_ref,
-      ...(first_name != 0 ? { "expirationDate": formattedExpirationDate } : {})
+      ...serviceData,
+      ...(serviceData?.durationInDays != 0 ? { "expirationDate": formattedExpirationDate } : {}),
     };
-    const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,item_ref,operator,amount,first_name,last_name);
+    const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,item_ref,operator,amount,serviceData?.durationInDays, serviceData?.image);
     const pdfBase64 = pdfBuffer.toString('base64');
     const pdfName = 'facture.pdf';
     const documentType = 'application/pdf';
@@ -23,7 +26,7 @@ async function handlePaymentSuccess(req, res, client) {
       addSubscriptionToUser(email,addSubscription),
       sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);
-    if(last_name != "" )
+    if(serviceData?.image != "" )
     {
       await sendMessageToNumber(client, `${email}@c\.us`, `Super ! Merci de renseigner votre nom d'utilisateur Ejara en saissisant *ejara*\n\n 
       Si vous n'avez pas encore de compte Ejara, suivez ce lien pour découvrir comment créer un compte : https://youtu.be/wLkfXWOYCco`)

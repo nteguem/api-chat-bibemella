@@ -19,6 +19,7 @@ const productServiceSchema = new mongoose.Schema({
   advantage: { type: String },
   link: { type: String },
   hasSub: {type: Boolean, required: true, default: false},
+  durationInDay: {type: Number, default: 0 }, // Only for type: service... if hasSub is false. then it should be required
   subservices: [subserviceSchema], // Array of subservices
 });
 

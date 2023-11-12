@@ -6,7 +6,8 @@ const { MessageMedia } = require("whatsapp-web.js");
 const { getAllTeachings } = require("../../services/teaching.service");
 const { updateUser } = require("../../services/user.service");
 const { welcomeData, menuData } = require("../../data");
-const { getAllProducts } = require("../../services/product.service")
+const { getAllProducts } = require("../../services/product.service");
+const { getAllUserSubscriptions } = require("../../services/product.service");
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -87,7 +88,7 @@ const UserCommander = async (msg) => {
       userResponse === COMMAND_NAME.ENSEIGNEMENTS &&
       !transactionSteps[msg.from]
     ) {
-      const allServices = await getAllProducts('service');
+      const allServices = await getAllProducts("service");
       if (allServices.success) {
         const services = allServices.products;
 
@@ -96,7 +97,7 @@ const UserCommander = async (msg) => {
           "Choisissez un enseignement en répondant avec son numéro :\n" +
           services
             .map((service, index) => {
-              return `${index + 1}. ${service.name} hey`;
+              return `${index + 1}. ${service.name}`;
             })
             .join("\n");
         msg.reply(replyMessage + "\n\n#. Menu principal");
@@ -133,12 +134,12 @@ const UserCommander = async (msg) => {
         const servicesOptions = selectedService.subservices.map(
           (serviceOption, index) => {
             return `${index + 1}. ${serviceOption.name} - ${
-                serviceOption.price
+              serviceOption.price
             } XAF`;
           }
         );
         const servicesOptionsMessage = `Choisissez un enseignement pour les ${
-            selectedService.type
+          selectedService.type
         } en entrant son numéro :\n${servicesOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(servicesOptionsMessage);
@@ -187,12 +188,7 @@ const UserCommander = async (msg) => {
       if (/^(?:\+237)?6(?:9|8|7|5)\d{7}$/.test(phoneNumber)) {
         // Vous avez le numéro de téléphone et les détails de l'enseignement choisi, initiez le paiement
         const selectedService = transactionSteps[msg.from]?.selectedService;
-        MonetBil.processPayment(
-          msg,
-          phoneNumber,
-          selectedService,
-          transactionSteps
-        );
+        MonetBil.processPayment(msg, phoneNumber, transactionSteps);
       } else {
         const invalidPhoneNumberMessage =
           "Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).";
@@ -226,7 +222,7 @@ const UserCommander = async (msg) => {
           selectedServiceOption;
       } else if (userResponse === "*") {
         // L'utilisateur veut revenir à l'étape précédente
-        const allProductsResponse = await getAllProducts('service');
+        const allProductsResponse = await getAllProducts("service");
         const services = allProductsResponse.products;
         const replyMessage =
           "Choisissez un enseignement en répondant avec son numéro :\n" +
@@ -256,7 +252,7 @@ const UserCommander = async (msg) => {
         transactionSteps[msg.from].step = "await-phone-number";
       } else if (userResponseLower === "non") {
         // Redirigez l'utilisateur vers le choix du type d'enseignement
-        const allProductsResponse = await getAllProducts('service');
+        const allProductsResponse = await getAllProducts("service");
         const services = allProductsResponse.products;
         const replyMessage =
           "Choisissez un enseignement en répondant avec son numéro :\n" +
@@ -281,12 +277,7 @@ const UserCommander = async (msg) => {
         // Vous avez le numéro de téléphone et les détails de l'enseignement choisi, initiez le paiement
         const selectedServiceOption =
           transactionSteps[msg.from]?.selectedServiceOption;
-        MonetBil.processPayment(
-          msg,
-          phoneNumber,
-          selectedServiceOption,
-          transactionSteps
-        );
+        MonetBil.processPayment(msg, phoneNumber, transactionSteps);
       } else {
         const invalidPhoneNumberMessage =
           "Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).";
@@ -439,12 +430,9 @@ const UserCommander = async (msg) => {
       if (/^(?:\+237)?6(?:9|8|7|5)\d{7}$/.test(phoneNumber)) {
         // L'utilisateur a confirmé le paiement, vous pouvez maintenant traiter la transaction avec Monetbil
         const selectedProduct = transactionSteps[msg.from]?.selectedProduct;
-        MonetBil.processPayment(
-          msg,
-          phoneNumber,
-          selectedProduct,
-          transactionSteps
-        );
+        transactionSteps[msg.from].selectedService =
+          transactionSteps[msg.from]?.selectedProduct;
+        MonetBil.processPayment(msg, phoneNumber, transactionSteps);
         transactionSteps[msg.from].step = "start";
       } else {
         const invalidPhoneNumberMessage =
@@ -467,11 +455,40 @@ const UserCommander = async (msg) => {
       userResponse === COMMAND_NAME.PRODUITS &&
       !transactionSteps[msg.from]
     ) {
-      const invalidRequestMessage = `Aucun produits et services disponibles pour le moment...`;
-      msg.reply(invalidRequestMessage);
+      const allSubsriptions = await getAllUserSubscriptions(
+        msg.from.replace(/@c\.us$/, "")
+      );
+      if (allSubsriptions.success) {
+        const services = allSubsriptions.products;
 
-      delete transactionSteps[msg.from];
-      msg.reply(MenuPrincipal);
+        // Affichez les types d'enseignement à l'utilisateur avec des numéros
+        const replyMessage =
+          `Consultez la liste de vos produits et services en cours
+          \n\n` +
+          services
+            .map((service, index) => {
+              return `${index + 1}. ${service.productId.name}`;
+            })
+            .join("\n");
+        msg.reply(replyMessage + "\n\n#. Menu principal");
+
+        // Enregistrez l'étape de la transaction pour cet utilisateur
+        transactionSteps[msg.from] = {
+          step: "awaitSubscriptionType",
+          type: "PRODUITS",
+          services,
+        };
+      } else {
+        const replyMessage =
+          "Erreur lors de la récupération de vos produits et services.";
+        msg.reply(replyMessage);
+        delete transactionSteps[msg.from];
+      }
+
+      // Enregistrez l'étape de la transaction pour cet utilisateur
+      transactionSteps[msg.from] = {
+        step: "awaitModetype",
+      };
     } else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
@@ -526,7 +543,6 @@ const UserCommander = async (msg) => {
     }
   }
 };
-
 
 module.exports = {
   UserCommander,

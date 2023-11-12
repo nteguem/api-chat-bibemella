@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
     expirationDate: { type: Date },
     isOption: { type: Boolean, default: false},
     optionId: { type: String },
-    productType: { type: String, required: true, enum: itemTypes },
+    productType: { type: String, required: true, enum: itemTypes, default: 'service' },
   }],
 });
 

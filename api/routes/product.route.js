@@ -11,6 +11,8 @@ const setupProductRoutes = (app) => {
   app.use("/product", router);
   router.post('/create-product', productHanlder.createProductService);
   router.get('/all-Products', productHanlder.getAllProducts); 
+  router.post('/add-product-to-user', productHanlder.addProductToUser);
+  router.get('/user-subscriptions/:phoneNumber', productHanlder.getAllSubscriptionsUser); 
 };
 
 module.exports = { setupProductRoutes };
