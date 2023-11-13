@@ -102,7 +102,7 @@ async function addProductToUser(phoneNumber, addSubscription) {
 //   }
 // }
 
-async function findActiveSubscribers(isOption, productId, optionId) {
+async function findActiveSubscribers(isOption, id) {
   try {
       const currentDate = new Date();
       let filter = {
@@ -110,22 +110,28 @@ async function findActiveSubscribers(isOption, productId, optionId) {
       };
 
       if (isOption) {
-          filter['subscriptions.isOption'] = true;
-          filter['subscriptions.productId'] = productId;
-          filter['subscriptions.optionId'] = optionId;
+          filter['subscriptions'] = {
+              $elemMatch: {
+                  optionId: id
+              }
+          };
       } else {
-          filter['subscriptions.productId'] = productId;
+          filter['subscriptions'] = {
+              $elemMatch: {
+                  productId: id,
+              }
+          };
       }
 
-      const activeSubscribers = await User.find(filter)
-          .populate('subscriptions.productId'); 
+      const activeSubscribers = await User.find(filter);
 
       return { success: true, activeSubscribers: activeSubscribers };
   } catch (error) {
-      console.error("Erreur dans findActiveSubscribers:", error);
-      return { success: false, error: "Erreur lors de la recherche des abonnés actifs" };
+      console.error("Error in findActiveSubscribers:", error);
+      return { success: false, error: "Error while searching for active subscribers" };
   }
 }
+
 
 
 async function getAllUserSubscriptions(phoneNumber, type = "all") {

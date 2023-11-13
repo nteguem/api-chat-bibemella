@@ -150,7 +150,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
-                const activeSubscribers = await findActiveSubscribers();
+                const activeSubscribers = await findActiveSubscribers(false, selectedService._id);
 
                 // Create a notification
                 await createNotification({
@@ -191,14 +191,14 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
-                const AllUsers = await getAllUser();
+                const AllUsers = await findActiveSubscribers(true, selectedServiceOption._id);
 
                 // Create a notification
                 await createNotification({
                     sender: sender,
                     notifications: [
                         {
-                            type: selectedServiceChoice.type,
+                            type: selectedServiceOption.category,
                             description: content
                         }
                     ]

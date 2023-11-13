@@ -34,13 +34,13 @@ const getAllProducts = async (req, res) => {
 
 const getActiveSubscribers = async (req, res) => {
     try {
-        const { isOption, productId, optionId } = req.body;
+        const { isOption, id } = req.body;
 
-        if (isOption === undefined || productId === undefined) {
+        if (isOption === undefined || id === undefined) {
             return res.status(400).json({ message: 'Paramètres manquants dans le corps de la requête' });
         }
 
-        const response = await productService.findActiveSubscribers(isOption, productId, optionId);
+        const response = await productService.findActiveSubscribers(isOption, id);
 
         if (response.success) {
             res.json(response.activeSubscribers);
