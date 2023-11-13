@@ -120,7 +120,7 @@ const UserCommander = async (msg) => {
 
       // Vérifiez si le type contient des données dans le sous-type
       if (!selectedService.hasSub) {
-        // Si l'objet a un sous-type
+        // Si l'objet n'a pas de sous-type
         msg.reply(
           `*${selectedService.name} : ${selectedService.price} XAF*\nSouhaitez-vous recevoir des informations sur le ${selectedService.name} ?\n\nRépondez par "Oui" ou "Non".`
         );
@@ -452,7 +452,8 @@ const UserCommander = async (msg) => {
           const replyMessage =
             `Consultez la liste de vos produits et services en cours\n\n` +
             services.map((service, index) => {
-              return `${index + 1}. ${service.productId.name}`;
+              let n = service.isOption ? service.productId.category + ":" + service.productId.name : service.productId.name;
+              return `${index + 1}. ${n}`;
             }).join("\n");
           msg.reply(replyMessage + "\n\n#. Menu principal");
 
@@ -474,7 +475,13 @@ const UserCommander = async (msg) => {
       transactionSteps[msg.from] = {
         step: "awaitModetype",
       };
-    } else {
+    } 
+    // else if (transactionSteps[msg.from] &&transactionSteps[msg.from].step === "awaitSubscriptionType") {
+    //   const userServiceNumber = parseInt(userResponse, 10);
+    //   const services = transactionSteps[msg.from].services;
+    //   const selectedService = services[userServiceNumber - 1];
+    // }
+    else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
           "Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"

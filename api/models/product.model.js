@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 
-const itemTypes = ['service', 'product'];
+const itemTypes = ['service', 'product', 'welness'];
 
 // Subservice schema (nested within the product/service schema)
 const subserviceSchema = new mongoose.Schema({
   name: { type: String },
   price: { type: Number },
-  durationInDay: {type: Number }
+  durationInDay: {type: Number },
+  category: { type: String }
 });
 
 // Product/Service schema

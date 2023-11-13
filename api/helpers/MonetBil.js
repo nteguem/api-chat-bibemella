@@ -14,6 +14,7 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     hasSub: inputObject.selectedService.hasSub,
     selectedServiceOption: inputObject.selectedService.hasSub ? inputObject.selectedServiceOption : null,
     price: inputObject.selectedService.hasSub ? inputObject?.selectedServiceOption?.price : inputObject.selectedService.price,
+  
   };
 
   const paymentData = {

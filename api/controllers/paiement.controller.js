@@ -17,7 +17,7 @@ async function handlePaymentSuccess(req, res, client) {
       ...serviceData,
       ...(serviceData?.durationInDays != 0 ? { "expirationDate": formattedExpirationDate } : {}),
     };
-    const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,item_ref,operator,amount,serviceData?.durationInDays, serviceData?.image);
+    const pdfBuffer = await generatePDFBuffer(user,phone,operator_transaction_id,serviceData?.name,operator,amount,serviceData?.durationInDays, serviceData?.image);
     const pdfBase64 = pdfBuffer.toString('base64');
     const pdfName = 'facture.pdf';
     const documentType = 'application/pdf';

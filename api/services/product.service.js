@@ -102,7 +102,33 @@ async function addProductToUser(phoneNumber, addSubscription) {
 //   }
 // }
 
-async function getAllUserSubscriptions(phoneNumber) {
+async function findActiveSubscribers(isOption, productId, optionId) {
+  try {
+      const currentDate = new Date();
+      let filter = {
+          'subscriptions.expirationDate': { $gt: currentDate }
+      };
+
+      if (isOption) {
+          filter['subscriptions.isOption'] = true;
+          filter['subscriptions.productId'] = productId;
+          filter['subscriptions.optionId'] = optionId;
+      } else {
+          filter['subscriptions.productId'] = productId;
+      }
+
+      const activeSubscribers = await User.find(filter)
+          .populate('subscriptions.productId'); 
+
+      return { success: true, activeSubscribers: activeSubscribers };
+  } catch (error) {
+      console.error("Erreur dans findActiveSubscribers:", error);
+      return { success: false, error: "Erreur lors de la recherche des abonnés actifs" };
+  }
+}
+
+
+async function getAllUserSubscriptions(phoneNumber, type = "all") {
   try {
     const user = await User.findOne({ phoneNumber }).populate(
       "subscriptions.productId"
@@ -126,6 +152,8 @@ async function getAllUserSubscriptions(phoneNumber) {
           (sub) => sub._id.toString() === service.optionId
         );
 
+
+
         return {
           expirationDate: service.expirationDate,
           isOption: service.isOption,
@@ -137,7 +165,17 @@ async function getAllUserSubscriptions(phoneNumber) {
       return service;
     });
 
-    return { success: true, products: [...products, ...transformedServices] };
+    let result = []
+
+    if (type === "service") {
+      result = transformedServices;
+    } else if (type === 'product') {
+      result = products;
+    } else {
+      result = [...products, ...transformedServices];
+    }
+
+    return { success: true, products: result };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -149,6 +187,7 @@ module.exports = {
   //   updateSubscription,
   //   deleteSubscription,
   //   findActiveSubscribers,
+  findActiveSubscribers,
   getAllUserSubscriptions,
   addProductToUser,
 };

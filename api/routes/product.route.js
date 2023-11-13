@@ -13,6 +13,7 @@ const setupProductRoutes = (app) => {
   router.get('/all-Products', productHanlder.getAllProducts); 
   router.post('/add-product-to-user', productHanlder.addProductToUser);
   router.get('/user-subscriptions/:phoneNumber', productHanlder.getAllSubscriptionsUser); 
+  router.get('/active-subscribers', productHanlder.getActiveSubscribers );
 };
 
 module.exports = { setupProductRoutes };

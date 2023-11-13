@@ -1,9 +1,8 @@
-const { findActiveSubscribers } = require("../../services/subscription.service");
 const { sendMessageToNumber } = require("./whatsappMessaging");
 const { createNotification } = require("../../services/notification.service");
-const { getAllTeachings } = require("../../services/teaching.service");
 const { getAllUser } = require("../../services/user.service");
 const { MessageMedia } = require('whatsapp-web.js');
+const { getAllProducts, findActiveSubscribers } = require("../../services/product.service");
 
 const SUCCESS_MESSAGE_ENSEIGNEMENTS = "L'enseignement a été publié à toute la communauté avec succès.";
 const SUCCESS_MESSAGE_ANNONCE = "L'annonce a été partagé à toute la communauté avec succès.";
@@ -42,54 +41,55 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             delete transactions[msg.from];
             msg.reply(MenuPrincipal);
         } else if (userResponse === COMMAND_NAME.ENSEIGNEMENTS && !transactions[msg.from]) {
-            const allTeachingsResponse = await getAllTeachings();
-            if (allTeachingsResponse.success) {
-                const teachings = allTeachingsResponse.teachings;
+            const allServices = await getAllProducts("service");
+            if (allServices.success) {
+                const services = allServices.products;
 
                 // Affichez les types d'enseignement à l'utilisateur avec des numéros
                 const replyMessage = 'Choisissez un enseignement en répondant avec son numéro :\n' +
-                    teachings.map((teaching, index) => {
-                        return `${index + 1}. ${teaching.type}`;
+                    services.map((service, index) => {
+                        return `${index + 1}. ${service.name}`;
                     }).join('\n');
                 msg.reply(replyMessage + '\n\n#. Menu principal');
 
                 // Enregistrez l'étape de la transaction pour cet utilisateur
-                transactions[msg.from] = { step: 'awaitTeachingType', type: 'ENSEIGNEMENTS', teachings };
+                transactions[msg.from] = { step: 'awaitTeachingType', type: 'ENSEIGNEMENTS', services };
             } else {
                 const replyMessage = 'Erreur lors de la récupération des enseignements.';
                 msg.reply(replyMessage);
             }
         } else if (transactions[msg.from] && transactions[msg.from].step === 'awaitTeachingType') {
             const userChoice = parseInt(userResponse);
-            const teachings = transactions[msg.from].teachings;
-            const selectedTeaching = teachings[userChoice - 1];
-            const selectedTeachingChoice = teachings[userChoice - 1];
+            const services = transactions[msg.from].services;
+            const selectedService = services[userChoice - 1];
+            const selectedServiceChoice = services[userChoice - 1];
 
             // Vérifiez si le type contient des données dans l'objet "name"
-            if (selectedTeaching.name.length === 0) {
+            if (!selectedService.hasSub) {
                 // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
-                msg.reply(`Entrez le contenu du ${selectedTeaching.type} que vous souhaitez partager avec votre communauté.`);
+                msg.reply(`Entrez le contenu du ${selectedService.name} que vous souhaitez partager avec votre communauté.`);
                 transactions[msg.from].step = "pre_confirm_send_message";
-                transactions[msg.from].selectedTeaching = selectedTeaching;
+                transactions[msg.from].selectedService = selectedService;
             } else {
                 // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
-                const teachingOptions = selectedTeachingChoice.name.map((teachingOption, index) => {
-                    return `${index + 1}. ${teachingOption.name}`;
+                const serviceOptions = selectedServiceChoice.subservices.map((serviceOption, index) => {
+                    return `${index + 1}. ${serviceOption.name}`;
                 });
-                const teachingOptionsMessage = `Choisissez un enseignement pour les ${selectedTeachingChoice.type} en entrant son numéro :\n${teachingOptions.join('\n')}
+                const serviceOptionsMessage = `Choisissez un enseignement pour les ${selectedServiceChoice.name} 
+                en entrant son numéro :\n${serviceOptions.join('\n')}
               \n*. Menu précédent\n#. Menu principal`;
-                msg.reply(teachingOptionsMessage);
+                msg.reply(serviceOptionsMessage);
 
                 // Attendez que l'utilisateur choisisse une sous-option et demandez-lui s'il souhaite intégrer cette sous-option
                 transactions[msg.from].step = 'awaitSubTeachingChoice';
-                transactions[msg.from].selectedTeachingChoice = selectedTeachingChoice;
+                transactions[msg.from].selectedServiceChoice = selectedServiceChoice;
             }
         } else if (transactions[msg.from] && transactions[msg.from].step === "pre_confirm_send_message") {
-            const selectedTeaching = transactions[msg.from].selectedTeaching;
-            const teachingMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
-            const AllUsers = await getAllUser();
-            if (AllUsers.success) {
-                const users = AllUsers.users;
+            const selectedService = transactions[msg.from].selectedService;
+            const serviceMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
+            const activeSubscribers = await findActiveSubscribers();
+            if (activeSubscribers.success) {
+                const users = activeSubscribers.activeSubscribers;
                 if (msg.hasMedia) {
                     // Télécharger le média
                     const media = await msg.downloadMedia();
@@ -100,33 +100,32 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                 }
             }
 
-            msg.reply(`Vous êtes sur le point de publier le ${selectedTeaching.type} suivant :\n\n*${teachingMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
+            msg.reply(`Vous êtes sur le point de publier le ${selectedService.name} suivant :\n\n*${serviceMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message";
-            transactions[msg.from].selectedTeaching = selectedTeaching; // Stockez le message de l'enseignement dans une variable distincte
-            transactions[msg.from].teachingMessage = teachingMessage;
+            transactions[msg.from].selectedService = selectedService; // Stockez le message de l'enseignement dans une variable distincte
+            transactions[msg.from].serviceMessage = serviceMessage;
         } else if (transactions[msg.from] && transactions[msg.from].step === "awaitSubTeachingChoice") {
             const teachingOptionNumber = parseInt(userResponse);
-            const selectedTeachingChoice = transactions[msg.from].selectedTeachingChoice;
 
-            if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedTeachingChoice.name.length) {
-                const selectedTeachingOption = selectedTeachingChoice.name[teachingOptionNumber - 1];
-                const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedTeachingChoice.type} ${selectedTeachingOption.name} que vous souhaitez envoyer à votre communauté`;
+            if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedServiceChoice.subservices.length) {
+                const selectedServiceOption = selectedServiceChoice.subservices[teachingOptionNumber - 1];
+                const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedServiceOption.category} ${selectedServiceOption.name} que vous souhaitez envoyer à votre communauté`;
 
                 msg.reply(TeachingDetailsMessage);
 
                 // Enregistrez l'étape de la transaction pour l'adhésion
                 transactions[msg.from].step = 'pre_confirm_send_message_teaching';
-                transactions[msg.from].selectedTeachingOption = selectedTeachingOption;
+                transactions[msg.from].selectedServiceOption = selectedServiceOption;
             } else if (userResponse === '*') {
                 // L'utilisateur veut revenir à l'étape précédente
-                const allTeachingsResponse = await getAllTeachings();
-                const teachings = allTeachingsResponse.teachings;
+                const allServices = await getAllProducts("service");
+                const services = allServices.products;
 
                 // Affichez les types d'enseignement à l'utilisateur avec des numéros
                 const replyMessage = 'Choisissez un enseignement en répondant avec son numéro :\n' +
-                    teachings.map((teaching, index) => {
-                        return `${index + 1}. ${teaching.type}`;
+                    services.map((service, index) => {
+                        return `${index + 1}. ${service.name}`;
                     }).join('\n');
                 msg.reply(replyMessage + '\n\n#. Menu principal');
                 transactions[msg.from].step = 'awaitTeachingType'
@@ -135,46 +134,46 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                 msg.reply(invalidTeachingOptionMessage);
             }
         } else if (transactions[msg.from] && transactions[msg.from].step === "pre_confirm_send_message_teaching") {
-            const selectedTeachingChoice = transactions[msg.from].selectedTeachingChoice;
             const teachingMessageChoice = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte 
-            const selectedTeachingOption = transactions[msg.from].selectedTeachingOption
-            msg.reply(`Vous êtes sur le point de publier le ${selectedTeachingChoice.type} ${selectedTeachingOption.name} suivant :\n\n*${teachingMessageChoice}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
+            const selectedServiceOption = transactions[msg.from].selectedServiceOption
+            msg.reply(`Vous êtes sur le point de publier le ${selectedServiceOption.category} ${selectedServiceOption.name} ci-dessous :\n\n*${teachingMessageChoice}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`);
 
             transactions[msg.from].step = "confirm_publish_message_teaching";
-            transactions[msg.from].selectedTeachingChoice = selectedTeachingChoice; // Stockez le message de l'enseignement dans une variable distincte
             transactions[msg.from].teachingMessageChoice = teachingMessageChoice;
         } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_publish_message" && userResponse.toLowerCase() === "oui") {
             // L'utilisateur a confirmé, gérer l'envoi
-            const selectedTeaching = transactions[msg.from].selectedTeaching;
-            const teachingMessage = transactions[msg.from].teachingMessage; // This is the message entered by the user
+            const selectedService = transactions[msg.from].selectedService;
+            const serviceMessage = transactions[msg.from].serviceMessage; // This is the message entered by the user
 
             // Define the content for the message
-            const content = `Cher utilisateur VIP, voici le ${selectedTeaching.type} pour aujourd'hui :\n\n*${teachingMessage}* \n\n Bonne lecture !`;
+            const content = `Cher utilisateur VIP, voici le ${selectedService.name} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
-                const AllUsers = await getAllUser();
+                const activeSubscribers = await findActiveSubscribers();
 
                 // Create a notification
                 await createNotification({
                     sender: sender,
                     notifications: [
                         {
-                            type: selectedTeaching.type,
+                            type: selectedService.name,
                             description: content
                         }
                     ]
                 });
 
                 // Send the message to each subscriber
-                for (const users of AllUsers.users) {
-                    // Implement the logic for sending messages to subscribers
-                    await sendMessageToNumber(client, `${users.phoneNumber}@c.us`, content);
+                for (const activeSubscriber of activeSubscribers.activeSubscribers) {
+                    if (activeSubscribers.activeSubscribers.subscription === 'false') {
+                        // Implement the logic for sending messages to subscribers
+                        await sendMessageToNumber(client, `${activeSubscriber.phoneNumber}@c.us`, content);
+                    }
                 }
-
-                // Send a success message to the user
+                // Send a success message to the user 
                 msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
                 msg.reply(MenuPrincipal);
+
             } catch (error) {
                 console.error("Error sending messages:", error);
                 msg.reply("Une erreur s'est produite lors de l'envoi des messages.");
@@ -184,12 +183,11 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             }
         } else if (transactions[msg.from] && transactions[msg.from].step === "confirm_publish_message_teaching" && userResponse.toLowerCase() === "oui") {
             // L'utilisateur a confirmé, gérer l'envoi
-            const selectedTeachingChoice = transactions[msg.from].selectedTeachingChoice;
             const teachingMessageChoice = transactions[msg.from].teachingMessageChoice; // This is the message entered by the user
-            const selectedTeachingOption = transactions[msg.from].selectedTeachingOption
+            const selectedServiceOption = transactions[msg.from].selectedServiceOption
 
             // Define the content for the message
-            const content = `Cher utilisateur VIP, voici le ${selectedTeachingChoice.type} ${selectedTeachingOption.name} pour aujourd'hui :\n\n*${teachingMessageChoice}* \n\n Bonne lecture !`;
+            const content = `Cher utilisateur VIP, voici le ${selectedServiceOption.category} ${selectedServiceOption.name} pour aujourd'hui :\n\n*${teachingMessageChoice}* \n\n Bonne lecture !`;
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
@@ -200,7 +198,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                     sender: sender,
                     notifications: [
                         {
-                            type: selectedTeachingChoice.type,
+                            type: selectedServiceChoice.type,
                             description: content
                         }
                     ]
@@ -249,7 +247,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                     ]
                 });
 
-                for (const users of AllUsers.users) { 
+                for (const users of AllUsers.users) {
                     await sendMessageToNumber(
                         client,
                         `${users.phoneNumber}@c.us`,

@@ -1,35 +1,56 @@
 const productService = require("../services/product.service");
 
 const createProductService = async (req, res) => {
-  const productData = req.body;
-  console.log("hellooo");
-  const response = await productService.createProductService(productData);
+    const productData = req.body;
+    console.log("hellooo");
+    const response = await productService.createProductService(productData);
 
-  if (response.success) {
-    res.json({ message: response.message });
-  } else {
-    res.status(500).json({
-      message: "Erreur lors de la création du forfait",
-      error: response.error,
-    });
-  }
+    if (response.success) {
+        res.json({ message: response.message });
+    } else {
+        res.status(500).json({
+            message: "Erreur lors de la création du forfait",
+            error: response.error,
+        });
+    }
 };
 
 const getAllProducts = async (req, res) => {
-  const { type } = req.body;
-  console.log("ghkgjk");
-  const response = await productService.getAllProducts(type);
+    const { type } = req.body;
+    console.log("ghkgjk");
+    const response = await productService.getAllProducts(type);
 
-  if (response.success) {
-    res.json(response.products);
-  } else {
-    res
-      .status(500)
-      .json({
-        message: "Erreur lors de la récupération des produit",
-        error: response.error,
-      });
-  }
+    if (response.success) {
+        res.json(response.products);
+    } else {
+        res
+            .status(500)
+            .json({
+                message: "Erreur lors de la récupération des produit",
+                error: response.error,
+            });
+    }
+};
+
+const getActiveSubscribers = async (req, res) => {
+    try {
+        const { isOption, productId, optionId } = req.body;
+
+        if (isOption === undefined || productId === undefined) {
+            return res.status(400).json({ message: 'Paramètres manquants dans le corps de la requête' });
+        }
+
+        const response = await productService.findActiveSubscribers(isOption, productId, optionId);
+
+        if (response.success) {
+            res.json(response.activeSubscribers);
+        } else {
+            res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs actifs', error: response.error });
+        }
+    } catch (error) {
+        console.error("Erreur dans getActiveSubscribers:", error);
+        res.status(500).json({ message: 'Erreur interne du serveur lors de la récupération des utilisateurs actifs' });
+    }
 };
 
 //   const updateSubscription = async (req, res) => {
@@ -88,37 +109,38 @@ const getAllSubscriptionsUser = async (req, res) => {
 };
 
 const addProductToUser = async (req, res) => {
-  const { phoneNumber } = req.body;
-  const addSubscription = req.body;
-  
-  const response = await productService.addProductToUser(
-    phoneNumber,
-    addSubscription
-  );
+    const { phoneNumber } = req.body;
+    const addSubscription = req.body;
 
-  if (response.success) {
-    res.json({
-      message: response.message,
-      subscription: response.subscription,
-    });
-  } else {
-    res
-      .status(500)
-      .json({
-        message: "Erreur lors de l'ajout de la souscription",
-        error: response.error,
-      });
-  }
+    const response = await productService.addProductToUser(
+        phoneNumber,
+        addSubscription
+    );
+
+    if (response.success) {
+        res.json({
+            message: response.message,
+            subscription: response.subscription,
+        });
+    } else {
+        res
+            .status(500)
+            .json({
+                message: "Erreur lors de l'ajout de la souscription",
+                error: response.error,
+            });
+    }
 };
 
 module.exports = {
-  createProductService,
-  // getActiveSubscribers,
-  getAllSubscriptionsUser,
+    createProductService,
+    // getActiveSubscribers,
+    getAllSubscriptionsUser,
 
-  addProductToUser,
+    addProductToUser,
+    getActiveSubscribers,
 
-  getAllProducts,
-  // updateSubscription,
-  // deleteSubscription
+    getAllProducts,
+    // updateSubscription,
+    // deleteSubscription
 };
