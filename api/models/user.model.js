@@ -1,7 +1,7 @@
 require('dotenv').config(); // Load environment variables from the .env file
 const mongoose = require('mongoose');
 
-const itemTypes = ['service', 'product', 'welness'];
+const itemTypes = ['service', 'product', 'wellness'];
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },

@@ -12,7 +12,7 @@ const transactionSteps = {};
 const COMMAND_NAME = {
   ENSEIGNEMENTS: "1",
   NFT: "2",
-  WELNESS: "3",
+  WELLNESS: "3",
   IA: "4",
   PRODUITS: "5",
 };
@@ -428,12 +428,21 @@ const UserCommander = async (msg) => {
           "Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).";
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.WELNESS) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
-      msg.reply(invalidRequestMessage);
+    } else if (userResponse === COMMAND_NAME.WELLNESS) { 
+      const allServices = await getAllProducts("wellness");
+      if (allServices.success) {
+        const services = allServices.products;
 
-      delete transactionSteps[msg.from];
-      msg.reply(MenuPrincipal);
+        const replyMessage = services.length > 0 ? services[0].description : "Aucun service disponible.";
+        msg.reply(replyMessage + "\n\n#. Menu principal");
+
+        // Enregistrez l'étape de la transaction pour cet utilisateur
+        transactionSteps[msg.from] = { step: "await-wellness-description" };
+      } else {
+        const replyMessage =
+          "Erreur lors de la récupération des wellness center.";
+        msg.reply(replyMessage);
+      }
     } else if (userResponse === COMMAND_NAME.IA) {
       const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
       msg.reply(invalidRequestMessage);
