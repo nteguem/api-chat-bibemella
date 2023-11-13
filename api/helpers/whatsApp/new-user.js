@@ -445,20 +445,24 @@ const UserCommander = async (msg) => {
       if (allSubsriptions.success) {
         const services = allSubsriptions.products;
 
-        // Affichez les types d'enseignement à l'utilisateur avec des numéros
-        const replyMessage =
-          `Consultez la liste de vos produits et services en cours\n\n` +
-          services.map((service, index) => {
-            return `${index + 1}. ${service.productId.name}`;
-          }).join("\n");
-        msg.reply(replyMessage + "\n\n#. Menu principal");
+        if (services.length === 0) {
+          msg.reply("*Aucun produit et service disponible pour l'instant.*\n\n#. Menu principal");
+        } else {
+          // Affichez les types d'enseignement à l'utilisateur avec des numéros
+          const replyMessage =
+            `Consultez la liste de vos produits et services en cours\n\n` +
+            services.map((service, index) => {
+              return `${index + 1}. ${service.productId.name}`;
+            }).join("\n");
+          msg.reply(replyMessage + "\n\n#. Menu principal");
 
-        // Enregistrez l'étape de la transaction pour cet utilisateur
-        transactionSteps[msg.from] = {
-          step: "awaitSubscriptionType",
-          type: "PRODUITS",
-          services,
-        };
+          // Enregistrez l'étape de la transaction pour cet utilisateur
+          transactionSteps[msg.from] = {
+            step: "awaitSubscriptionType",
+            type: "PRODUITS",
+            services,
+          };
+        }
       } else {
         const replyMessage =
           "Erreur lors de la récupération de vos produits et services.";

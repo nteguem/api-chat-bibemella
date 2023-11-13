@@ -3,7 +3,7 @@ const axios = require('axios');
 
 async function processPayment(msg, phoneNumber, transactionSteps) {
   const contact = await msg.getContact();
-  let inputObject = transactionSteps[msg.from];
+  let inputObject = transactionSteps[msg.from]; 
 
   const resultObject = {
     itemId: inputObject.selectedService._id,
