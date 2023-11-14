@@ -614,7 +614,7 @@ const UserCommander = async (client, msg) => {
           const pdfBase64 = pdfBuffer.toString('base64');
           const pdfName = 'facture.pdf';
           const documentType = 'application/pdf';
-          // await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
+          // await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName) 
         } else if (selectedItem.productType === 'service' && !selectedItem.isOption) {
           const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDay, "", moment(selectedItem?.subscriptionDate));
           const pdfBase64 = pdfBuffer.toString('base64');

@@ -43,9 +43,9 @@ async function addProductToUser(phoneNumber, addSubscription) {
       isOption: addSubscription.hasSub,
       optionId: addSubscription?.selectedServiceOption?._id,
       productType: addSubscription.type,
-      transaction_id: addSubscription.type === 'service' ? addSubscription.transaction_id : undefined,
-      operator: addSubscription.type === 'service' ? addSubscription.operator : undefined,
-      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined,
+      transaction_id: addSubscription.transaction_id ,
+      operator: addSubscription.operator ,
+      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined, 
     });
 
     await user.save();

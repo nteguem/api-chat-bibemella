@@ -34,9 +34,9 @@ async function handlePaymentSuccess(req, res, client) {
           expirationDate:
             serviceData?.type === "service" ? formattedExpirationDate : null,
           transaction_id:
-            serviceData?.type === "service" ? operator_transaction_id : null,
+            operator_transaction_id,
           operator:
-            serviceData?.type === "service" ? operator : null,
+            operator,
         }
         : {}),
     };
