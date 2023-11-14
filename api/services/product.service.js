@@ -43,8 +43,8 @@ async function addProductToUser(phoneNumber, addSubscription) {
       isOption: addSubscription.hasSub,
       optionId: addSubscription?.selectedServiceOption?._id,
       productType: addSubscription.type,
-      transaction_id: addSubscription.transaction_id ,
-      operator: addSubscription.operator ,
+      transaction_id: addSubscription.hasSub ? addSubscription?.selectedServiceOption?.transaction_id : addSubscription?.transaction_id ,
+      operator: addSubscription.hasSub ? addSubscription?.selectedServiceOption?.operator : addSubscription?.operator ,
       tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined, 
     });
 
