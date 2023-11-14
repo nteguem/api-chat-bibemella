@@ -133,8 +133,6 @@ async function findActiveSubscribers(isOption, id) {
   }
 }
 
-
-
 async function getAllUserSubscriptions(phoneNumber, type = "all") {
   try {
     const user = await User.findOne({ phoneNumber }).populate(

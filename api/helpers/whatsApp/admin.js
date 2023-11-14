@@ -107,10 +107,11 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             transactions[msg.from].serviceMessage = serviceMessage;
         } else if (transactions[msg.from] && transactions[msg.from].step === "awaitSubTeachingChoice") {
             const teachingOptionNumber = parseInt(userResponse);
+            const selectedServiceChoice = transactions[msg.from].selectedServiceChoice
 
             if (teachingOptionNumber >= 1 && teachingOptionNumber <= selectedServiceChoice.subservices.length) {
                 const selectedServiceOption = selectedServiceChoice.subservices[teachingOptionNumber - 1];
-                const TeachingDetailsMessage = `Entrez le ${transactions[msg.from].selectedServiceOption.category} ${selectedServiceOption.name} que vous souhaitez envoyer à votre communauté`;
+                const TeachingDetailsMessage = `Entrez le ${selectedServiceOption.category} ${selectedServiceOption.name} que vous souhaitez envoyer à votre communauté`;
 
                 msg.reply(TeachingDetailsMessage);
 
@@ -191,7 +192,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
             // Implement the logic for sending the message here (you can use the sendMessageToNumber function)
             try {
-                const AllUsers = await findActiveSubscribers(true, selectedServiceOption._id);
+                const activeSubscribers = await findActiveSubscribers(true, selectedServiceOption._id);
 
                 // Create a notification
                 await createNotification({
@@ -205,9 +206,9 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                 });
 
                 // Send the message to each subscriber
-                for (const users of AllUsers.users) {
+                for (const activeSubscriber of activeSubscribers.activeSubscribers) {
                     // Implement the logic for sending messages to subscribers
-                    await sendMessageToNumber(client, `${users.phoneNumber}@c.us`, content);
+                    await sendMessageToNumber(client, `${activeSubscriber.phoneNumber}@c.us`, content);
                 }
 
                 // Send a success message to the user

@@ -12,7 +12,7 @@ const transactionSteps = {};
 const COMMAND_NAME = {
   ENSEIGNEMENTS: "1",
   NFT: "2",
-  WELNESS: "3",
+  WELLNESS: "3",
   IA: "4",
   PRODUITS: "5",
 };
