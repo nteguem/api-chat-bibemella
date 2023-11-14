@@ -33,10 +33,6 @@ async function handlePaymentSuccess(req, res, client) {
         ? {
           expirationDate:
             serviceData?.type === "service" ? formattedExpirationDate : null,
-          transaction_id:
-            operator_transaction_id,
-          operator:
-            operator,
         }
         : {}),
     };
@@ -55,7 +51,7 @@ async function handlePaymentSuccess(req, res, client) {
     const documentType = "application/pdf";
     await Promise.all([
       sendMediaToNumber(client, `${email}@c\.us`, documentType, pdfBase64, pdfName),
-      addProductToUser(email, addSubscription),
+      addProductToUser(email, addSubscription, operator_transaction_id, operator),
       sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);
     if (serviceData?.image != "") {
