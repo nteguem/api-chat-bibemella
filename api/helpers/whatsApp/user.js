@@ -130,12 +130,14 @@ const UserCommander = async (msg) => {
         // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
         const servicesOptions = selectedService.subservices.map(
           (serviceOption, index) => {
-            return `${index + 1}. ${serviceOption.name} - ${serviceOption.price
-              } XAF`;
+            return `${index + 1}. ${serviceOption.name} - ${
+              serviceOption.price
+            } XAF`;
           }
         );
-        const servicesOptionsMessage = `Choisissez un enseignement pour les ${selectedService.type
-          } en entrant son numéro :\n${servicesOptions.join("\n")}
+        const servicesOptionsMessage = `Choisissez un enseignement pour les ${
+          selectedService.type
+        } en entrant son numéro :\n${servicesOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(servicesOptionsMessage);
 
@@ -201,7 +203,8 @@ const UserCommander = async (msg) => {
         teachingOptionNumber <= selectedService.subservices.length
       ) {
         // L'utilisateur a choisi un enseignement, affichez les détails de l'enseignement
-        const selectedServiceOption = selectedService.subservices[teachingOptionNumber - 1];
+        const selectedServiceOption =
+          selectedService.subservices[teachingOptionNumber - 1];
         const serviceDetailsMessage =
           `*Enseignement choisi :* \n${selectedService.name}: ${selectedServiceOption.name}\n` +
           `Prix : ${selectedServiceOption.price} XAF\n` +
@@ -310,13 +313,16 @@ const UserCommander = async (msg) => {
 
       if (selectedProduct) {
         // Afficher les détails du produit
-        const productDetailsMessage = `*${selectedProduct.name
-          }*\n\n*Description :*\n${selectedProduct.description
-          }\n\n*Avantage* :\n${selectedProduct.advantage
-            .split("\n")
-            .map((advantage) => `• ${advantage}`)
-            .join("\n")}\n\n*Prix :* ${selectedProduct.price
-          }\n\nPour plus de détails : ${selectedProduct.link}`;
+        const productDetailsMessage = `*${
+          selectedProduct.name
+        }*\n\n*Description :*\n${
+          selectedProduct.description
+        }\n\n*Avantage* :\n${selectedProduct.advantage
+          .split("\n")
+          .map((advantage) => `• ${advantage}`)
+          .join("\n")}\n\n*Prix :* ${
+          selectedProduct.price
+        }\n\nPour plus de détails : ${selectedProduct.link}`;
         msg.reply(productDetailsMessage);
 
         // Demander si l'utilisateur souhaite acheter le produit
@@ -337,9 +343,11 @@ const UserCommander = async (msg) => {
     ) {
       if (userResponse.toLowerCase() === "oui") {
         // Demander au client de confirmer l'achat
-        const confirmationMessage = `Vous avez choisi d'acheter le NFT:\n*${transactionSteps[msg.from].selectedProduct.name
-          } - ${transactionSteps[msg.from].selectedProduct.price
-          } XAF*. \n\nConfirmez vous l'achat de ce NFT? "Oui" ou "Non".`;
+        const confirmationMessage = `Vous avez choisi d'acheter le NFT:\n*${
+          transactionSteps[msg.from].selectedProduct.name
+        } - ${
+          transactionSteps[msg.from].selectedProduct.price
+        } XAF*. \n\nConfirmez vous l'achat de ce NFT? "Oui" ou "Non".`;
         msg.reply(confirmationMessage);
 
         transactionSteps[msg.from].step = "awaitBuyConfirmationConfirmation";
@@ -428,33 +436,112 @@ const UserCommander = async (msg) => {
           "Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).";
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.WELNESS) {
+    } else if (
+      userResponse === COMMAND_NAME.WELNESS &&
+      !transactionSteps[msg.from]
+    ) {
       const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
       delete transactionSteps[msg.from];
       msg.reply(MenuPrincipal);
-    } else if (userResponse === COMMAND_NAME.IA) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
-      msg.reply(invalidRequestMessage);
+    } else if (
+      userResponse === COMMAND_NAME.IA &&
+      !transactionSteps[msg.from]
+    ) {
+      //we check first if the user has a chatgpt active service
+      let phoneNumber = msg.from.replace(/@c\.us$/, "");
+      const checkChatgpt = await getAllUserSubscriptions(
+        phoneNumber,
+        "chatgpt"
+      );
+      if (checkChatgpt.success && checkChatgpt.products.length > 0) {
+        transactionSteps[msg.from].step = "awaitGptPrompt";
+        const replyMessage =
+          "Hello, je suis votre assistant personnel. Comment puis-je vous aider aujourd'hui ?";
+        msg.reply(replyMessage);
+      } else {
+        const allAiProductsResponse = await getAllProducts("chatgpt");
+        if (allAiProductsResponse.success) {
+          console.log("ldjfkd", allAiProductsResponse);
+          const aiMessage = allAiProductsResponse.products[0].subservices.map(
+            (product, index) => {
+              return `${index + 1}. ${product.name} - ${product.price} XAF\n`;
+            }
+          );
 
-      delete transactionSteps[msg.from];
-      msg.reply(MenuPrincipal);
-    } else if (userResponse === COMMAND_NAME.PRODUITS && !transactionSteps[msg.from]) {
-      const allSubsriptions = await getAllUserSubscriptions(msg.from.replace(/@c\.us$/, ""));
+          const aiListMessage =
+            "😞Oups, votre credit d'access a notre intelligence artificielle est de 0. Veuillez recharger votre compte\n\n" +
+            aiMessage.join("") +
+            `\n*Sélectionnez un forfait en entrant son numéro*
+          \nNB: 1 credit = 1 message.
+          \n\n#. Menu principal`;
+          
+          msg.reply(aiListMessage);
+          transactionSteps[msg.from] = {
+            step: "awaitChatgptBundle",
+            type: "IA",
+            selectedService: allAiProductsResponse.products[0],
+          };
+        } else {
+          const replyMessage = "Une erreur s'est produite.";
+          msg.reply(replyMessage);
+        }
+      }
+    }else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitChatgptBundle"
+    ) {
+      const bundleNumber = parseInt(userResponse);
+      const selectedService = transactionSteps[msg.from].selectedService;
+
+      if (
+        bundleNumber >= 1 &&
+        bundleNumber <= selectedService.subservices.length
+      ){
+        //user selected a bundle
+        const selectedChatgptBundle =
+          selectedService.subservices[bundleNumber - 1];
+          const serviceDetailsMessage =
+          `*Forfait choisi :* \n${selectedService.name}\n` +
+          `Prix : ${selectedChatgptBundle.price} XAF\n` +
+          `Crédit : ${selectedChatgptBundle.durationInDay}\n\n` +
+          `Voulez-vous souscrire à ce forfait ? \nRépondez par "Oui" ou "Non".`;
+
+        msg.reply(serviceDetailsMessage);
+
+        // Enregistrez l'étape de la transaction pour l'adhésion
+        transactionSteps[msg.from].step = "awaitBuyConfirmation";
+        transactionSteps[msg.from].selectedServiceOption =
+        selectedChatgptBundle;
+      }
+    }
+     else if (
+      userResponse === COMMAND_NAME.PRODUITS &&
+      !transactionSteps[msg.from]
+    ) {
+      const allSubsriptions = await getAllUserSubscriptions(
+        msg.from.replace(/@c\.us$/, "")
+      );
       if (allSubsriptions.success) {
         const services = allSubsriptions.products;
 
         if (services.length === 0) {
-          msg.reply("*Aucun produit et service disponible pour l'instant.*\n\n#. Menu principal");
+          msg.reply(
+            "*Aucun produit et service disponible pour l'instant.*\n\n#. Menu principal"
+          );
         } else {
           // Affichez les types d'enseignement à l'utilisateur avec des numéros
           const replyMessage =
             `Consultez la liste de vos produits et services en cours\n\n` +
-            services.map((service, index) => {
-              let n = service.isOption ? service.productId.category + ":" + service.productId.name : service.productId.name;
-              return `${index + 1}. ${n}`;
-            }).join("\n");
+            services
+              .map((service, index) => {
+                let n = service.isOption
+                  ? service.productId.category + ":" + service.productId.name
+                  : service.productId.name;
+                return `${index + 1}. ${n}`;
+              })
+              .join("\n");
           msg.reply(replyMessage + "\n\n#. Menu principal");
 
           // Enregistrez l'étape de la transaction pour cet utilisateur
@@ -475,12 +562,7 @@ const UserCommander = async (msg) => {
       transactionSteps[msg.from] = {
         step: "awaitModetype",
       };
-    } 
-    // else if (transactionSteps[msg.from] &&transactionSteps[msg.from].step === "awaitSubscriptionType") {
-    //   const userServiceNumber = parseInt(userResponse, 10);
-    //   const services = transactionSteps[msg.from].services;
-    //   const selectedService = services[userServiceNumber - 1];
-    // }
+    }
     else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(

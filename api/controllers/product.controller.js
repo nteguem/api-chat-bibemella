@@ -17,7 +17,6 @@ const createProductService = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
     const { type } = req.body;
-    console.log("ghkgjk");
     const response = await productService.getAllProducts(type);
 
     if (response.success) {
@@ -99,7 +98,8 @@ const getActiveSubscribers = async (req, res) => {
 
 const getAllSubscriptionsUser = async (req, res) => {
     const phoneNumber = req.params.phoneNumber;
-    const response = await productService.getAllUserSubscriptions(phoneNumber);
+    const type = req.body.type;
+    const response = await productService.getAllUserSubscriptions(phoneNumber, type);
 
     if (response.success) {
         res.json(response);

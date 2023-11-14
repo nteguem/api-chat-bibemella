@@ -39,10 +39,11 @@ async function addProductToUser(phoneNumber, addSubscription) {
 
     user.subscriptions.push({
       productId: addSubscription.itemId,
-      expirationDate: addSubscription.expirationDate,
+      expirationDate: addSubscription.type === 'service' ? addSubscription.expirationDate : undefined,
       isOption: addSubscription.hasSub,
       optionId: addSubscription?.selectedServiceOption?._id,
       productType: addSubscription.type,
+      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined,
     });
 
     await user.save();
@@ -147,8 +148,13 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
     const services = user.subscriptions.filter(
       (sub) => sub.productType === "service" && sub.expirationDate > new Date()
     );
+    
     const products = user.subscriptions.filter(
       (sub) => sub.productType === "product"
+    );
+
+    const chatgptService = user.subscriptions.filter(
+      (sub) => sub.productType === "chatgpt" && sub.tokens > 0
     );
 
     //we transform the services here
@@ -177,8 +183,10 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
       result = transformedServices;
     } else if (type === 'product') {
       result = products;
+    }else if (type === 'chatgpt') {
+      result = chatgptService;
     } else {
-      result = [...products, ...transformedServices];
+      result = [...products, ...transformedServices, ...chatgptService];
     }
 
     return { success: true, products: result };
