@@ -133,14 +133,12 @@ const UserCommander = async (client, msg) => {
         // Si l'objet "name" contient des données, affichez ces données à l'utilisateur avec des numéros pour chaque sous-option
         const servicesOptions = selectedService.subservices.map(
           (serviceOption, index) => {
-            return `${index + 1}. ${serviceOption.name} - ${
-              serviceOption.price
-            } XAF`;
+            return `${index + 1}. ${serviceOption.name} - ${serviceOption.price
+              } XAF`;
           }
         );
-        const servicesOptionsMessage = `Choisissez un enseignement pour les ${
-          selectedService.type
-        } en entrant son numéro :\n${servicesOptions.join("\n")}
+        const servicesOptionsMessage = `Choisissez un enseignement pour les ${selectedService.type
+          } en entrant son numéro :\n${servicesOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(servicesOptionsMessage);
 
@@ -316,16 +314,13 @@ const UserCommander = async (client, msg) => {
 
       if (selectedProduct) {
         // Afficher les détails du produit
-        const productDetailsMessage = `*${
-          selectedProduct.name
-        }*\n\n*Description :*\n${
-          selectedProduct.description
-        }\n\n*Avantage* :\n${selectedProduct.advantage
-          .split("\n")
-          .map((advantage) => `• ${advantage}`)
-          .join("\n")}\n\n*Prix :* ${
-          selectedProduct.price
-        }\n\nPour plus de détails : ${selectedProduct.link}`;
+        const productDetailsMessage = `*${selectedProduct.name
+          }*\n\n*Description :*\n${selectedProduct.description
+          }\n\n*Avantage* :\n${selectedProduct.advantage
+            .split("\n")
+            .map((advantage) => `• ${advantage}`)
+            .join("\n")}\n\n*Prix :* ${selectedProduct.price
+          }\n\nPour plus de détails : ${selectedProduct.link}`;
         msg.reply(productDetailsMessage);
 
         // Demander si l'utilisateur souhaite acheter le produit
@@ -346,11 +341,9 @@ const UserCommander = async (client, msg) => {
     ) {
       if (userResponse.toLowerCase() === "oui") {
         // Demander au client de confirmer l'achat
-        const confirmationMessage = `Vous avez choisi d'acheter le NFT:\n*${
-          transactionSteps[msg.from].selectedProduct.name
-        } - ${
-          transactionSteps[msg.from].selectedProduct.price
-        } XAF*. \n\nConfirmez vous l'achat de ce NFT? "Oui" ou "Non".`;
+        const confirmationMessage = `Vous avez choisi d'acheter le NFT:\n*${transactionSteps[msg.from].selectedProduct.name
+          } - ${transactionSteps[msg.from].selectedProduct.price
+          } XAF*. \n\nConfirmez vous l'achat de ce NFT? "Oui" ou "Non".`;
         msg.reply(confirmationMessage);
 
         transactionSteps[msg.from].step = "awaitBuyConfirmationConfirmation";
@@ -491,7 +484,7 @@ const UserCommander = async (client, msg) => {
             `\n*Sélectionnez un forfait en entrant son numéro*
           \nNB: 1 credit = 1 message.
           \n\n#. Menu principal`;
-          
+
           msg.reply(aiListMessage);
           transactionSteps[msg.from] = {
             step: "awaitChatgptBundle",
@@ -503,7 +496,7 @@ const UserCommander = async (client, msg) => {
           msg.reply(replyMessage);
         }
       }
-    }else if (
+    } else if (
       transactionSteps[msg.from] &&
       transactionSteps[msg.from].step === "awaitChatgptBundle"
     ) {
@@ -513,11 +506,11 @@ const UserCommander = async (client, msg) => {
       if (
         bundleNumber >= 1 &&
         bundleNumber <= selectedService.subservices.length
-      ){
+      ) {
         //user selected a bundle
         const selectedChatgptBundle =
           selectedService.subservices[bundleNumber - 1];
-          const serviceDetailsMessage =
+        const serviceDetailsMessage =
           `*Forfait choisi :* \n${selectedService.name}\n` +
           `Prix : ${selectedChatgptBundle.price} XAF\n` +
           `Crédit : ${selectedChatgptBundle.durationInDay}\n\n` +
@@ -528,10 +521,10 @@ const UserCommander = async (client, msg) => {
         // Enregistrez l'étape de la transaction pour l'adhésion
         transactionSteps[msg.from].step = "awaitBuyConfirmation";
         transactionSteps[msg.from].selectedServiceOption =
-        selectedChatgptBundle;
+          selectedChatgptBundle;
       }
     }
-     else if (
+    else if (
       userResponse === COMMAND_NAME.PRODUITS &&
       !transactionSteps[msg.from]
     ) {
@@ -592,36 +585,46 @@ const UserCommander = async (client, msg) => {
         const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
         msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
 
-        transactionSteps[msg.from].step = "awaitConfirmationRequestOption";
+        transactionSteps[msg.from].step = "awaitConfirmationRequest";
         transactionSteps[msg.from].selectedItem = selectedItem;
       }
     }
     else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitConfirmationRequest") {
       const userWord = userResponse;
       const selectedItem = transactionSteps[msg.from].selectedItem;
-      const services = transactionSteps[msg.from].services;
+
       if (userWord.toLowerCase() === 'facture') {
-        const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays, selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
-        const pdfBase64 = pdfBuffer.toString('base64');
-        const pdfName = 'facture.pdf';
-        const documentType = 'application/pdf'; 
-        await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
+        if (selectedItem.productType === 'product') {
+          const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDay, selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
+          const pdfBase64 = pdfBuffer.toString('base64');
+          const pdfName = 'facture.pdf';
+          const documentType = 'application/pdf';
+          await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
+        } else if (selectedItem.productType === 'service' && selectedItem.isOption) {
+          console.log(contact.pushname)
+          console.log(msg.from.replace(/@c\.us$/, ""))
+          console.log(selectedItem?.transaction_id)
+          console.log(selectedItem.productId?.name)
+          console.log(selectedItem?.operator)
+          console.log(selectedItem.productId?.price)
+          console.log(selectedItem.productId?.durationInDay)
+          console.log("")
+          console.log(moment(selectedItem?.subscriptionDate))
+          const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDay, "", moment(selectedItem?.subscriptionDate));
+          const pdfBase64 = pdfBuffer.toString('base64');
+          const pdfName = 'facture.pdf';
+          const documentType = 'application/pdf';
+          // await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
+        } else if (selectedItem.productType === 'service' && !selectedItem.isOption) {
+          const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDay, "", moment(selectedItem?.subscriptionDate));
+          const pdfBase64 = pdfBuffer.toString('base64');
+          const pdfName = 'facture.pdf';
+          const documentType = 'application/pdf';
+          await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
+        }
+
       }
-    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitConfirmationRequestOption") {
-      if (userWord.toLowerCase() === 'facture') {
-        const pdfBuffer = selectedItem.isOption ?
-          await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id,
-            selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays,
-            selectedItem.productId?.image, moment(selectedItem?.subscriptionDate)) :
-          await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id,
-            selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays,
-            selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
-        const pdfBase64 = pdfBuffer.toString('base64');
-        const pdfName = 'facture.pdf';
-        const documentType = 'application/pdf';
-        await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName) 
-      }
-    }
+    } 
     else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
