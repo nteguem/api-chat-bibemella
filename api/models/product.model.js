@@ -5,6 +5,7 @@ const itemTypes = ['service', 'product', 'wellness'];
 // Subservice schema (nested within the product/service schema)
 const subserviceSchema = new mongoose.Schema({
   name: { type: String },
+  description: { type: String },
   price: { type: Number },
   durationInDay: {type: Number },
   category: { type: String }

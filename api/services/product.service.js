@@ -22,7 +22,7 @@ async function getAllProducts(type) {
   }
 }
 
-async function addProductToUser(phoneNumber, addSubscription) {
+async function addProductToUser(phoneNumber, addSubscription, transaction_id, operator) {
   try {
     console.log(addSubscription, "dkjf", phoneNumber);
     const user = await User.findOne({ phoneNumber });
@@ -43,6 +43,8 @@ async function addProductToUser(phoneNumber, addSubscription) {
       isOption: addSubscription.hasSub,
       optionId: addSubscription?.selectedServiceOption?._id,
       productType: addSubscription.type,
+      transaction_id: transaction_id,
+      operator: operator
     });
 
     await user.save();

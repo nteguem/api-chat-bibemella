@@ -5,6 +5,9 @@ const { updateUser } = require("../../services/user.service");
 const { welcomeData, menuData } = require("../../data");
 const { getAllProducts } = require("../../services/product.service");
 const { getAllUserSubscriptions } = require("../../services/product.service");
+const generatePDFBuffer = require("../pdfGenerator");
+const { sendMediaToNumber } = require("./whatsappMessaging");
+const moment = require('moment');
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -17,7 +20,7 @@ const COMMAND_NAME = {
   PRODUITS: "5",
 };
 
-const UserCommander = async (msg) => {
+const UserCommander = async (client, msg) => {
   const contact = await msg.getContact();
   const welcomeMessage = welcomeData(contact.pushname);
 
@@ -428,7 +431,7 @@ const UserCommander = async (msg) => {
           "Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).";
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.WELLNESS) { 
+    } else if (userResponse === COMMAND_NAME.WELLNESS && !transactionSteps[msg.from]) {
       const allServices = await getAllProducts("wellness");
       if (allServices.success) {
         const services = allServices.products;
@@ -443,7 +446,7 @@ const UserCommander = async (msg) => {
           "Erreur lors de la récupération des wellness center.";
         msg.reply(replyMessage);
       }
-    } else if (userResponse === COMMAND_NAME.IA) {
+    } else if (userResponse === COMMAND_NAME.IA && !transactionSteps[msg.from]) {
       const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
       msg.reply(invalidRequestMessage);
 
@@ -461,35 +464,78 @@ const UserCommander = async (msg) => {
           const replyMessage =
             `Consultez la liste de vos produits et services en cours\n\n` +
             services.map((service, index) => {
-              let n = service.isOption ? service.productId.category + ":" + service.productId.name : service.productId.name;
+              let n = service.isOption ? service.productId.category + " : " + service.productId.name : service.productId.name;
               return `${index + 1}. ${n}`;
             }).join("\n");
           msg.reply(replyMessage + "\n\n#. Menu principal");
-
-          // Enregistrez l'étape de la transaction pour cet utilisateur
-          transactionSteps[msg.from] = {
-            step: "awaitSubscriptionType",
-            type: "PRODUITS",
-            services,
-          };
         }
+        // Enregistrez l'étape de la transaction pour cet utilisateur
+        transactionSteps[msg.from] = { step: "awaitSubscriptionType", type: "PRODUITS", services };
       } else {
         const replyMessage =
           "Erreur lors de la récupération de vos produits et services.";
         msg.reply(replyMessage);
-        delete transactionSteps[msg.from];
       }
+    }
+    else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitSubscriptionType") {
+      const userItemNumber = parseInt(userResponse, 10);
+      const services = transactionSteps[msg.from].services;
+      const selectedItem = services[userItemNumber - 1];
+      console.log(selectedItem)
 
-      // Enregistrez l'étape de la transaction pour cet utilisateur
-      transactionSteps[msg.from] = {
-        step: "awaitModetype",
-      };
-    } 
-    // else if (transactionSteps[msg.from] &&transactionSteps[msg.from].step === "awaitSubscriptionType") {
-    //   const userServiceNumber = parseInt(userResponse, 10);
-    //   const services = transactionSteps[msg.from].services;
-    //   const selectedService = services[userServiceNumber - 1];
-    // }
+      if (selectedItem.productType === 'product') {
+        const productDetailsMessage = `*${selectedItem.productId.name
+          }*\n\n*Description :*\n${selectedItem.productId.description
+          }\n\n*Avantage* :\n${selectedItem.productId.advantage
+            .split("\n")
+            .map((advantage) => `• ${advantage}`)
+            .join("\n")}\n\nPour plus de détails : ${selectedItem.productId.link}`;
+        msg.reply(productDetailsMessage);
+
+        // Demander si l'utilisateur souhaite acheter le produit
+        const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
+        msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+
+        transactionSteps[msg.from].step = "awaitConfirmationRequest";
+        transactionSteps[msg.from].selectedItem = selectedItem;
+      } else if (selectedItem.productType === 'service') {
+        const serviceDetailsMessage = selectedItem.isOption ? `${selectedItem.productId.category} : *${selectedItem.productId.name}*\n\n${selectedItem.productId.description}` : `*${selectedItem.productId.name}* :\n\n${selectedItem.productId.description}`;
+        msg.reply(serviceDetailsMessage);
+
+        // Demander si l'utilisateur souhaite acheter le produit
+        const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
+        msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+
+        transactionSteps[msg.from].step = "awaitConfirmationRequestOption";
+        transactionSteps[msg.from].selectedItem = selectedItem;
+      }
+    }
+    else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitConfirmationRequest") {
+      const userWord = userResponse;
+      const selectedItem = transactionSteps[msg.from].selectedItem;
+      const services = transactionSteps[msg.from].services;
+      if (userWord.toLowerCase() === 'facture') {
+        const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays, selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
+        const pdfBase64 = pdfBuffer.toString('base64');
+        const pdfName = 'facture.pdf';
+        const documentType = 'application/pdf'; 
+        await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
+      }
+    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitConfirmationRequestOption") {
+      if (userWord.toLowerCase() === 'facture') {
+        const pdfBuffer = selectedItem.isOption ?
+          await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id,
+            selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays,
+            selectedItem.productId?.image, moment(selectedItem?.subscriptionDate)) :
+          await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id,
+            selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays,
+            selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
+        const pdfBase64 = pdfBuffer.toString('base64');
+        const pdfName = 'facture.pdf';
+        const documentType = 'application/pdf';
+        await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName) 
+      }
+    }
     else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
