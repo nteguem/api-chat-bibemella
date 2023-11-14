@@ -560,7 +560,6 @@ const UserCommander = async (client, msg) => {
       const userItemNumber = parseInt(userResponse, 10);
       const services = transactionSteps[msg.from].services;
       const selectedItem = services[userItemNumber - 1];
-      console.log(selectedItem)
 
       if (selectedItem.productType === 'product') {
         const productDetailsMessage = `*${selectedItem.productId.name
@@ -594,37 +593,30 @@ const UserCommander = async (client, msg) => {
       const selectedItem = transactionSteps[msg.from].selectedItem;
 
       if (userWord.toLowerCase() === 'facture') {
-        if (selectedItem.productType === 'product') {
-          const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDay, selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
-          const pdfBase64 = pdfBuffer.toString('base64');
-          const pdfName = 'facture.pdf';
-          const documentType = 'application/pdf';
-          await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
-        } else if (selectedItem.productType === 'service' && selectedItem.isOption) {
-          console.log(contact.pushname)
-          console.log(msg.from.replace(/@c\.us$/, ""))
-          console.log(selectedItem?.transaction_id)
-          console.log(selectedItem.productId?.name)
-          console.log(selectedItem?.operator)
-          console.log(selectedItem.productId?.price)
-          console.log(selectedItem.productId?.durationInDay)
-          console.log("")
-          console.log(moment(selectedItem?.subscriptionDate))
-          const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDay, "", moment(selectedItem?.subscriptionDate));
-          const pdfBase64 = pdfBuffer.toString('base64');
-          const pdfName = 'facture.pdf';
-          const documentType = 'application/pdf';
-          // await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName) 
-        } else if (selectedItem.productType === 'service' && !selectedItem.isOption) {
-          const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDay, "", moment(selectedItem?.subscriptionDate));
-          const pdfBase64 = pdfBuffer.toString('base64');
-          const pdfName = 'facture.pdf';
-          const documentType = 'application/pdf';
-          await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
-        }
+        const pdfBuffer =
+          await generatePDFBuffer(
+            contact.pushname,
+            msg.from.replace(/@c\.us$/, ""),
+            selectedItem?.transaction_id,
+            selectedItem.productId?.name,
+            selectedItem?.operator,
+            selectedItem.productId?.price,
+            selectedItem.productId?.durationInDay,
+            selectedItem.productType === 'product' ? selectedItem.productId?.image : "",
+            moment(selectedItem?.subscriptionDate)
+          );
+        const pdfBase64 = pdfBuffer.toString('base64');
+        const pdfName = 'facture.pdf';
+        const documentType = 'application/pdf';
+        await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
 
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
+      } else {
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
       }
-    } 
+    }
     else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(

@@ -171,6 +171,8 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
           isOption: service.isOption,
           productType: service.productType,
           subscriptionDate: service.subscriptionDate,
+          transaction_id: service.transaction_id,
+          operator: service.operator,
           productId: subData,
         };
       }

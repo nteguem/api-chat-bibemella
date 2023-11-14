@@ -110,11 +110,13 @@ const getAllSubscriptionsUser = async (req, res) => {
 
 const addProductToUser = async (req, res) => {
     const { phoneNumber } = req.body;
-    const addSubscription = req.body;
+    const {addSubscription, transaction_id, operator} = req.body;
 
     const response = await productService.addProductToUser(
         phoneNumber,
-        addSubscription
+        addSubscription, 
+        transaction_id, 
+        operator
     );
 
     if (response.success) {
