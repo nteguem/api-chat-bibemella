@@ -42,7 +42,7 @@ const handleIncomingMessages = (client) => {
       await AdminCommander(client, msg, transactionSteps);
     }
     else {
-      await UserCommander(msg, transactionSteps);
+      await UserCommander(client, msg, transactionSteps);
     }
   });
 };

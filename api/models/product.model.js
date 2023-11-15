@@ -5,6 +5,7 @@ const itemTypes = ['service', 'product', 'welness', 'chatgpt'];
 // Subservice schema (nested within the product/service schema)
 const subserviceSchema = new mongoose.Schema({
   name: { type: String },
+  description: { type: String },
   price: { type: Number },
   durationInDay: {type: Number }, //for service, it represent the days but for chatgpt, it represent number of tokens.
   category: { type: String }

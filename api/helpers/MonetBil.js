@@ -18,8 +18,8 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
       inputObject.selectedService.type === "product"
         ? 0
         : inputObject.selectedService.hasSub
-        ? inputObject?.selectedServiceOption?.durationInDay
-        : inputObject.selectedService?.durationInDay,
+          ? inputObject?.selectedServiceOption?.durationInDay
+          : inputObject.selectedService?.durationInDay,
     type: inputObject.selectedService.type,
     hasSub: inputObject.selectedService.hasSub,
     selectedServiceOption: inputObject.selectedService.hasSub
@@ -28,6 +28,12 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     price: inputObject.selectedService.hasSub
       ? inputObject?.selectedServiceOption?.price
       : inputObject.selectedService.price,
+    transaction_id: inputObject.selectedService.hasSub
+      ? inputObject?.selectedServiceOption?.transaction_id
+      : inputObject.selectedService.transaction_id,
+    operator: inputObject.selectedService.hasSub
+      ? inputObject?.selectedServiceOption?.operator
+      : inputObject.selectedService.operator,
   };
 
   console.log('kkk', resultObject);

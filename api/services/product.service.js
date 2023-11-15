@@ -22,7 +22,7 @@ async function getAllProducts(type) {
   }
 }
 
-async function addProductToUser(phoneNumber, addSubscription) {
+async function addProductToUser(phoneNumber, addSubscription, transaction_id, operator) {
   try {
     console.log(addSubscription, "dkjf", phoneNumber);
     const user = await User.findOne({ phoneNumber });
@@ -43,7 +43,9 @@ async function addProductToUser(phoneNumber, addSubscription) {
       isOption: addSubscription.hasSub,
       optionId: addSubscription?.selectedServiceOption?._id,
       productType: addSubscription.type,
-      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined,
+      transaction_id: transaction_id ,
+      operator: operator ,
+      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined, 
     });
 
     await user.save();
@@ -169,6 +171,8 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
           isOption: service.isOption,
           productType: service.productType,
           subscriptionDate: service.subscriptionDate,
+          transaction_id: service.transaction_id,
+          operator: service.operator,
           productId: subData,
         };
       }

@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: true, unique: true },
   password: { type: String, required: true},
   username_ejara: { type: String},
-  engagementLevel:{type: Number}, 
+  engagementLevel:{type: Number},
   subscriptions: [{
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'productservices' },
     subscriptionDate: { type: Date, default: Date.now },
@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
     isOption: { type: Boolean, default: false}, //pour service et chatgpt
     optionId: { type: String }, //pour un sous service et forfait chatgpt
     productType: { type: String, required: true, enum: itemTypes, default: 'service' },
+    transaction_id: { type: String, required: true },
+    operator: { type: String, required: true },
     tokens: { type: Number } //pour chatgpt uniquement
   }],
 });

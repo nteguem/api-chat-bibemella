@@ -3,7 +3,7 @@ const axios = require('axios');
 const moment = require('moment');
 require('moment/locale/fr'); // Importez la localisation française
 
-async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amount,due,nft) {
+async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amount,due,nft, now = moment()) {
   return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument();
     let nftResponse;
@@ -31,7 +31,6 @@ async function generatePDFBuffer(user,phone,idTransaction,forfait,operator,amoun
 
     // Header (Logo and Watermark)
     doc.image(logoImage, 70, 60, { width: 100 });
-    const now = moment();
     // Définissez la langue locale sur le français
     now.locale('fr');
     // Ajoutez les jours à la date actuelle

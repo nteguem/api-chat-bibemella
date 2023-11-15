@@ -31,9 +31,9 @@ async function handlePaymentSuccess(req, res, client) {
       ...serviceData,
       ...(serviceData?.durationInDays != 0
         ? {
-            expirationDate:
-              serviceData?.type === "service" ? formattedExpirationDate : null,
-          }
+          expirationDate:
+            serviceData?.type === "service" ? formattedExpirationDate : null,
+        }
         : {}),
     };
     const pdfBuffer = await generatePDFBuffer(
@@ -50,14 +50,8 @@ async function handlePaymentSuccess(req, res, client) {
     const pdfName = "facture.pdf";
     const documentType = "application/pdf";
     await Promise.all([
-      sendMediaToNumber(
-        client,
-        `${email}@c\.us`,
-        documentType,
-        pdfBase64,
-        pdfName
-      ),
-      addProductToUser(email, addSubscription),
+      sendMediaToNumber(client, `${email}@c\.us`, documentType, pdfBase64, pdfName),
+      addProductToUser(email, addSubscription, operator_transaction_id, operator),
       sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);
     if (serviceData?.image != "") {
