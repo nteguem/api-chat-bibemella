@@ -559,35 +559,41 @@ const UserCommander = async (client, msg) => {
     else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitSubscriptionType") {
       const userItemNumber = parseInt(userResponse, 10);
       const services = transactionSteps[msg.from].services;
-      const selectedItem = services[userItemNumber - 1];
-
-      if (selectedItem.productType === 'product') {
-        const productDetailsMessage = `*${selectedItem.productId.name
-          }*\n\n*Description :*\n${selectedItem.productId.description
-          }\n\n*Avantage* :\n${selectedItem.productId.advantage
-            .split("\n")
-            .map((advantage) => `• ${advantage}`)
-            .join("\n")}\n\nPour plus de détails : ${selectedItem.productId.link}`;
-        msg.reply(productDetailsMessage);
-
-        // Demander si l'utilisateur souhaite acheter le produit
-        const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
-        msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
-
-        transactionSteps[msg.from].step = "awaitConfirmationRequest";
-        transactionSteps[msg.from].selectedItem = selectedItem;
-      } else if (selectedItem.productType === 'service') {
-        const serviceDetailsMessage = selectedItem.isOption ? `${selectedItem.productId.category} : *${selectedItem.productId.name}*\n\n${selectedItem.productId.description}` : `*${selectedItem.productId.name}* :\n\n${selectedItem.productId.description}`;
-        msg.reply(serviceDetailsMessage);
-
-        // Demander si l'utilisateur souhaite acheter le produit
-        const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
-        msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
-
-        transactionSteps[msg.from].step = "awaitConfirmationRequest";
-        transactionSteps[msg.from].selectedItem = selectedItem;
+    
+      // Vérifier si le numéro saisi est valide
+      if (userItemNumber >= 1 && userItemNumber <= services.length) {
+        const selectedItem = services[userItemNumber - 1];
+    
+        if (selectedItem.productType === 'product') {
+          const productDetailsMessage = `*${selectedItem.productId.name
+            }*\n\n*Description :*\n${selectedItem.productId.description
+            }\n\n*Avantage* :\n${selectedItem.productId.advantage
+         .split("\n")
+              .map((advantage) => `• ${advantage}`)
+              .join("\n")}\n\nPour plus de détails : ${selectedItem.productId.link}`;
+          msg.reply(productDetailsMessage);
+    
+          // Demander si l'utilisateur souhaite acheter le produit
+          const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
+          msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+    
+          transactionSteps[msg.from].step = "awaitConfirmationRequest";
+          transactionSteps[msg.from].selectedItem = selectedItem;
+        } else if (selectedItem.productType === 'service') {
+          const serviceDetailsMessage = selectedItem.isOption ? `${selectedItem.productId.category} : *${selectedItem.productId.name}*\n\n${selectedItem.productId.description}` : `*${selectedItem.productId.name}* :\n\n${selectedItem.productId.description}`;
+          msg.reply(serviceDetailsMessage);
+    
+          // Demander si l'utilisateur souhaite acheter le produit
+          const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
+          msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+    
+          transactionSteps[msg.from].step = "awaitConfirmationRequest";
+          transactionSteps[msg.from].selectedItem = selectedItem;
+        }
+      } else {
+        msg.reply("Numéro invalide. Veuillez sélectionner un numéro valide de la liste.");
       }
-    }
+    }    
     else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitConfirmationRequest") {
       const userWord = userResponse;
       const selectedItem = transactionSteps[msg.from].selectedItem;
