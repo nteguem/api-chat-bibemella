@@ -5,6 +5,11 @@ const { updateUser } = require("../../services/user.service");
 const { welcomeData, menuData } = require("../../data");
 const { getAllProducts } = require("../../services/product.service");
 const { getAllUserSubscriptions } = require("../../services/product.service");
+const {
+  addMessageToConversation,
+  getAllConversations,
+} = require("../../services/conversation.service");
+const chatCompletion = require("../chatCompletion");
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -456,7 +461,10 @@ const UserCommander = async (msg) => {
         "chatgpt"
       );
       if (checkChatgpt.success && checkChatgpt.products.length > 0) {
-        transactionSteps[msg.from].step = "awaitGptPrompt";
+        transactionSteps[msg.from] = {
+          step: "awaitGptPrompt",
+          type: "IA",
+        };
         const replyMessage =
           "Hello, je suis votre assistant personnel. Comment puis-je vous aider aujourd'hui ?";
         msg.reply(replyMessage);
@@ -476,7 +484,7 @@ const UserCommander = async (msg) => {
             `\n*Sélectionnez un forfait en entrant son numéro*
           \nNB: 1 credit = 1 message.
           \n\n#. Menu principal`;
-          
+
           msg.reply(aiListMessage);
           transactionSteps[msg.from] = {
             step: "awaitChatgptBundle",
@@ -488,7 +496,7 @@ const UserCommander = async (msg) => {
           msg.reply(replyMessage);
         }
       }
-    }else if (
+    } else if (
       transactionSteps[msg.from] &&
       transactionSteps[msg.from].step === "awaitChatgptBundle"
     ) {
@@ -498,11 +506,11 @@ const UserCommander = async (msg) => {
       if (
         bundleNumber >= 1 &&
         bundleNumber <= selectedService.subservices.length
-      ){
+      ) {
         //user selected a bundle
         const selectedChatgptBundle =
           selectedService.subservices[bundleNumber - 1];
-          const serviceDetailsMessage =
+        const serviceDetailsMessage =
           `*Forfait choisi :* \n${selectedService.name}\n` +
           `Prix : ${selectedChatgptBundle.price} XAF\n` +
           `Crédit : ${selectedChatgptBundle.durationInDay}\n\n` +
@@ -513,10 +521,43 @@ const UserCommander = async (msg) => {
         // Enregistrez l'étape de la transaction pour l'adhésion
         transactionSteps[msg.from].step = "awaitBuyConfirmation";
         transactionSteps[msg.from].selectedServiceOption =
-        selectedChatgptBundle;
+          selectedChatgptBundle;
       }
-    }
-     else if (
+    } else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitGptPrompt"
+    ) {
+      let message = { role: "user", content: userResponse };
+      let phone = msg.from.replace(/@c\.us$/, "");
+
+      if (!transactionSteps[msg.from].userConversation) {
+        const userConversation = await getAllConversations(phone);
+        console.log(userConversation, "helloo");
+        if (userConversation.success) {
+          transactionSteps[msg.from].userConversation =
+            userConversation.conversation[0].messages?.map((message)=>{
+              return{
+                role: message.role,
+                content: message.content
+              }
+            });
+        } else {
+          //gerer erreur
+          return;
+        }
+      }
+      
+      let myConversation = transactionSteps[msg.from].userConversation;
+      myConversation.push(message);
+      let chatResult = await chatCompletion(myConversation);
+      if (chatResult.success) {
+        msg.reply(chatResult.completion.message.content);
+        myConversation.push(chatResult.completion.message);
+        transactionSteps[msg.from].userConversation = myConversation;
+        await addMessageToConversation(phone, message);
+        await addMessageToConversation(phone, chatResult.completion.message, chatResult.tokens);
+      }
+    } else if (
       userResponse === COMMAND_NAME.PRODUITS &&
       !transactionSteps[msg.from]
     ) {
@@ -537,7 +578,9 @@ const UserCommander = async (msg) => {
             services
               .map((service, index) => {
                 let n = service.isOption
-                  ? service.productId.category + ":" + service.productId.name
+                  ? service.productType === "service"
+                    ? service.productId.category + ": " + service.productId.name
+                    : service.productId.category
                   : service.productId.name;
                 return `${index + 1}. ${n}`;
               })
@@ -562,8 +605,7 @@ const UserCommander = async (msg) => {
       transactionSteps[msg.from] = {
         step: "awaitModetype",
       };
-    }
-    else {
+    } else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
           "Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"

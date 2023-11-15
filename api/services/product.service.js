@@ -175,6 +175,26 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
       return service;
     });
 
+    //transform the gpt services as well
+    const transformedChatgptServices = chatgptService.map((service) => {
+      if (service.isOption) {
+        const subData = service.productId.subservices.find(
+          (sub) => sub._id.toString() === service.optionId
+        );
+
+
+
+        return {
+          expirationDate: service.expirationDate,
+          isOption: service.isOption,
+          productType: service.productType,
+          subscriptionDate: service.subscriptionDate,
+          productId: subData,
+        };
+      }
+      return service;
+    });
+
     let result = []
 
     if (type === "service") {
@@ -182,9 +202,9 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
     } else if (type === 'product') {
       result = products;
     }else if (type === 'chatgpt') {
-      result = chatgptService;
+      result = transformedChatgptServices;
     } else {
-      result = [...products, ...transformedServices, ...chatgptService];
+      result = [...products, ...transformedServices, ...transformedChatgptServices];
     }
 
     return { success: true, products: result };
