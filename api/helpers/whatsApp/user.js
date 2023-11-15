@@ -180,7 +180,7 @@ const UserCommander = async (client, msg) => {
         msg.reply(replyMessage);
 
         transactionSteps[msg.from].step = "awaitTeachingType";
-      } else {
+      } else  {
         const invalidConfirmationMessage = 'Répondez par "Oui" ou "Non".';
         msg.reply(invalidConfirmationMessage);
       }
@@ -268,6 +268,9 @@ const UserCommander = async (client, msg) => {
             .join("\n");
         msg.reply(replyMessage + "\n\n#. Menu principal");
         transactionSteps[msg.from].step = "awaitTeachingType";
+      } else if (userResponseLower === "non" && transactionSteps[msg.from].type === 'IA'){
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
       } else {
         const invalidConfirmationMessage = 'Répondez par "Oui" ou "Non".';
         msg.reply(invalidConfirmationMessage);
