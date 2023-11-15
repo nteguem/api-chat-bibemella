@@ -549,13 +549,18 @@ const UserCommander = async (client, msg) => {
         const userConversation = await getAllConversations(phone);
        
         if (userConversation.success) {
-          transactionSteps[msg.from].userConversation =
+          if(userConversation.conversation.length>0){
+            transactionSteps[msg.from].userConversation =
             userConversation.conversation[0].messages?.map((message) => {
               return {
                 role: message.role,
                 content: message.content,
               };
             });
+          }else{
+            transactionSteps[msg.from].userConversation = []
+          }
+          
         } else {
           //gerer erreur
           return;
