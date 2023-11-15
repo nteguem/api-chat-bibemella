@@ -452,12 +452,6 @@ const UserCommander = async (client, msg) => {
           "Erreur lors de la récupération des wellness center.";
         msg.reply(replyMessage);
       }
-    } else if (userResponse === COMMAND_NAME.IA && !transactionSteps[msg.from]) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
-      msg.reply(invalidRequestMessage);
-
-      delete transactionSteps[msg.from];
-      msg.reply(MenuPrincipal);
     } else if (
       userResponse === COMMAND_NAME.IA &&
       !transactionSteps[msg.from]
