@@ -255,7 +255,7 @@ const UserCommander = async (client, msg) => {
         msg.reply(phoneNumberMessage);
 
         transactionSteps[msg.from].step = "await-phone-number";
-      } else if (userResponseLower === "non") {
+      } else if (userResponseLower === "non" && transactionSteps[msg.from].type === 'ENSEIGNEMENTS') {
         // Redirigez l'utilisateur vers le choix du type d'enseignement
         const allProductsResponse = await getAllProducts("service");
         const services = allProductsResponse.products;
@@ -479,6 +479,7 @@ const UserCommander = async (client, msg) => {
         transactionSteps[msg.from] = {
           step: "awaitGptPrompt",
           type: "IA",
+          availablesCredits: checkChatgpt.products[0].remainingTokens
         };
         const replyMessage =
           "Hello, je suis votre assistant personnel. Comment puis-je vous aider aujourd'hui ?";
@@ -550,13 +551,14 @@ const UserCommander = async (client, msg) => {
        
         if (userConversation.success) {
           if(userConversation.conversation.length>0){
-            transactionSteps[msg.from].userConversation =
-            userConversation.conversation[0].messages?.map((message) => {
+            transactionSteps[msg.from].userConversation = userConversation.success
+            ? userConversation.conversation[0]?.messages?.map((message) => {
               return {
                 role: message.role,
                 content: message.content,
               };
-            });
+            }) || []
+            : [];
           }else{
             transactionSteps[msg.from].userConversation = []
           }
@@ -569,17 +571,46 @@ const UserCommander = async (client, msg) => {
 
       let myConversation = transactionSteps[msg.from].userConversation;
       myConversation.push(message);
+      if(transactionSteps[msg.from].availablesCredits <= 0){
+        // code a refactorer
+        const allAiProductsResponse = await getAllProducts("chatgpt");
+        if (allAiProductsResponse.success) {
+         
+          const aiMessage = allAiProductsResponse.products[0].subservices.map(
+            (product, index) => {
+              return `${index + 1}. ${product.name} - ${product.price} XAF\n`;
+            }
+          );
+
+          const aiListMessage =
+            "😞Oups, votre credit d'access a notre intelligence artificielle est de 0. Veuillez recharger votre compte\n\n" +
+            aiMessage.join("") +
+            `\n*Sélectionnez un forfait en entrant son numéro*
+          \nNB: 1 credit = 1 message.
+          \n\n#. Menu principal`;
+
+          msg.reply(aiListMessage);
+          transactionSteps[msg.from] = {
+            step: "awaitChatgptBundle",
+            type: "IA",
+            selectedService: allAiProductsResponse.products[0],
+          };
+        } else {
+          const replyMessage = "Une erreur s'est produite.";
+          msg.reply(replyMessage);
+        }
+        return;
+      }
       let chatResult = await chatCompletion(myConversation);
       if (chatResult.success) {
         msg.reply(chatResult.completion.message.content);
         myConversation.push(chatResult.completion.message);
         transactionSteps[msg.from].userConversation = myConversation;
-        await addMessageToConversation(phone, message);
-        await addMessageToConversation(
-          phone,
-          chatResult.completion.message,
-          chatResult.tokens
-        );
+        transactionSteps[msg.from].availablesCredits -= chatResult.tokens
+        await Promise.all([
+          addMessageToConversation(phone, message),
+          addMessageToConversation(phone, chatResult.completion.message, chatResult.tokens)
+        ]);
       }
     } else if (
       userResponse === COMMAND_NAME.PRODUITS &&
