@@ -2,7 +2,7 @@ const productService = require("../services/product.service");
 
 const createProductService = async (req, res) => {
     const productData = req.body;
-    console.log("hellooo");
+    
     const response = await productService.createProductService(productData);
 
     if (response.success) {
@@ -47,7 +47,7 @@ const getActiveSubscribers = async (req, res) => {
             res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs actifs', error: response.error });
         }
     } catch (error) {
-        console.error("Erreur dans getActiveSubscribers:", error);
+        
         res.status(500).json({ message: 'Erreur interne du serveur lors de la récupération des utilisateurs actifs' });
     }
 };

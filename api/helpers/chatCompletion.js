@@ -16,7 +16,7 @@ async function chatCompletion(context) {
 
   console.log(completion.choices[0]);
   if (completion.choices) {
-    return { success: true, completion: completion.choices[0], tokens: completion.usage.total_tokens };
+    return { success: true, completion: completion.choices[0], tokens: completion.usage.completion_tokens };
   } else {
     return { success: false };
   }

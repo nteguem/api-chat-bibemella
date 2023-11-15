@@ -27,16 +27,8 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
       : null,
     price: inputObject.selectedService.hasSub
       ? inputObject?.selectedServiceOption?.price
-      : inputObject.selectedService.price,
-    transaction_id: inputObject.selectedService.hasSub
-      ? inputObject?.selectedServiceOption?.transaction_id
-      : inputObject.selectedService.transaction_id,
-    operator: inputObject.selectedService.hasSub
-      ? inputObject?.selectedServiceOption?.operator
-      : inputObject.selectedService.operator,
+      : inputObject.selectedService.price
   };
-
-  console.log('kkk', resultObject);
 
   const paymentData = {
     service: process.env.PAYMENT_SERVICE_ID,

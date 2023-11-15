@@ -45,7 +45,7 @@ async function addMessageToConversation(phoneNumber, message, tokens=0) {
             if(matchingSubscriptions.length<=0){
                 return { success: false, error: "Oups! votre credit d'access a l'assistant personnel est epuisé" };
             }
-            console.log(matchingSubscriptions, 'matching subscriptions');
+            
             let optionId = matchingSubscriptions[0].optionId;
             let userId = user._id;
 
@@ -54,18 +54,18 @@ async function addMessageToConversation(phoneNumber, message, tokens=0) {
                 { $inc: { 'subscriptions.$.tokens': -tokens } }
               );
           } else {
-            console.log('User not found');
+           
             return { success: false, message: "Cette utilisateur n'existe pas." };
           }
     }
 
-    // conversation.messages.push({
-    //   role: message.role,
-    //   content: message.content,
-    //   tokens: tokens
-    // });
+    conversation.messages.push({
+      role: message.role,
+      content: message.content,
+      tokens: tokens
+    });
 
-    // await conversation.save();
+    await conversation.save();
 
     return {
       success: true,
