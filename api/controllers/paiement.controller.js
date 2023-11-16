@@ -124,12 +124,12 @@ async function handlePaymentNotification(req, res, client) {
   try {
     if (req.body.message === "FAILED") {
       await handlePaymentFailure(req, res, client);
-    } else if (req.body.message === "SUCCESS") {
-      await handlePaymentSuccess(req, res, client);
-    } else {
+    } else if (req.body.message === "INTERNAL_PROCESSING_ERROR") {
       const operatorMessage = `Désolé, Votre paiement mobile a rencontré une erreur due à un problème technique avec le service ${req.body.operator}. Nous travaillons sur la résolution de ce problème. En attendant, nous vous recommandons d'essayer à nouveau plus tard. Désolé pour le dérangement. 
       Cordialement, L'équipe Bibemella`;
       await handlePaymentFailure(req, res, client, operatorMessage);
+    } else {
+      await handlePaymentSuccess(req, res, client);
     }
   } catch (error) {
     console.error(error);
