@@ -25,8 +25,12 @@ async function handlePaymentSuccess(req, res, client) {
     serviceData.operator = operator;
     serviceData.transactionNumber = phone;
 
+    let servName = serviceData.hasSub
+      ? serviceData.name + ": " + `*${serviceData?.selectedServiceOption.name}*`
+      : `*${serviceData.name}*`;
+
     const dateSubscription = moment().format("YYYY-MM-DD");
-    const successMessage = `Félicitations ! Votre paiement pour  *${serviceData.name}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
+    const successMessage = `Félicitations ! Votre paiement pour  *${servName}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
     const expirationDate = moment(dateSubscription).add(
       serviceData?.durationInDays,
       "days"
@@ -82,7 +86,6 @@ async function handlePaymentSuccess(req, res, client) {
 
     res.status(200).send("Success");
   } catch (error) {
-    console.error(error);
     res.status(500).send("Erreur lors du traitement.");
   }
 }
@@ -132,7 +135,6 @@ async function handlePaymentNotification(req, res, client) {
       await handlePaymentSuccess(req, res, client);
     }
   } catch (error) {
-    console.error(error);
     res.status(500).send("Erreur lors du traitement.");
   }
 }

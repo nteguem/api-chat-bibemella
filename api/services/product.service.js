@@ -132,7 +132,7 @@ async function findActiveSubscribers(isOption, id) {
 
       return { success: true, activeSubscribers: activeSubscribers };
   } catch (error) {
-      console.error("Error in findActiveSubscribers:", error);
+     
       return { success: false, error: "Error while searching for active subscribers" };
   }
 }
