@@ -74,9 +74,11 @@ async function saveUser(phoneNumber, contactName) {
 }
 
 
-async function getAllUser() {
+async function getAllUser(phoneNumber) {
+    let query = phoneNumber ? {phoneNumber} : {};
+
     try {
-        const users = await User.find();
+        const users = await User.find(query);
         return { success: true, users };
     } catch (error) {
         return { success: false, error: error.message };
