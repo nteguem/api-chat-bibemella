@@ -13,6 +13,7 @@ const chatCompletion = require("../chatCompletion");
 const generatePDFBuffer = require("../pdfGenerator");
 const { sendMediaToNumber } = require("./whatsappMessaging");
 const moment = require("moment");
+const simulateTyping = require("../sendReplyState");
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -604,8 +605,14 @@ const UserCommander = async (client, msg) => {
         }
         return;
       }
+      let currentChat = await client.getChatById(msg.from);
+     
+      const typingIntervalId = simulateTyping(currentChat, 30);
+
       let chatResult = await chatCompletion(myConversation);
       if (chatResult.success) {
+        clearInterval(typingIntervalId); // Stop resending typing state
+        currentChat.clearState(); 
         msg.reply(chatResult.completion.message.content);
         myConversation.push(chatResult.completion.message);
         transactionSteps[msg.from].userConversation = myConversation;
@@ -614,6 +621,10 @@ const UserCommander = async (client, msg) => {
           addMessageToConversation(phone, message),
           addMessageToConversation(phone, chatResult.completion.message, chatResult.tokens)
         ]);
+      }else{
+        clearInterval(typingIntervalId); // Stop resending typing state
+        currentChat.clearState(); 
+        msg.reply('Erreur lors de la generation de la reponse.');
       }
     } else if (
       userResponse === COMMAND_NAME.PRODUITS &&
