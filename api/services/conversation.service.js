@@ -51,7 +51,7 @@ async function addMessageToConversation(phoneNumber, message, tokens=0) {
 
             const updateResult = await User.updateOne(
                 { _id: userId, 'subscriptions.optionId': optionId },
-                { $inc: { 'subscriptions.$.tokens': -tokens } }
+                { $inc: { 'subscriptions.$.tokens': -1 } }
               );
           } else {
            

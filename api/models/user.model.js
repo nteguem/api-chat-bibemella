@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     productType: { type: String, required: true, enum: itemTypes, default: 'service' },
     transaction_id: { type: String, required: true },
     operator: { type: String, required: true },
-    tokens: { type: Number } //pour chatgpt uniquement
+    tokens: { type: Number } //pour chatgpt uniquement, represente le nombre de requete restant pour user
   }],
 });
 

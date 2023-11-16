@@ -105,11 +105,13 @@ async function addProductToUser(phoneNumber, addSubscription, transaction_id, op
 //   }
 // }
 
+//uniquement pour les utilisateurs qui ont souscrit a un enseignement.
 async function findActiveSubscribers(isOption, id) {
   try {
       const currentDate = new Date();
       let filter = {
           'subscriptions.expirationDate': { $gt: currentDate }
+
       };
 
       if (isOption) {

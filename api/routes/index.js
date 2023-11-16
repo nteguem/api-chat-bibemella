@@ -7,6 +7,7 @@ const { setupPaiementRoutes } = require('./paiement.route');
 const { setupUserRoutes } = require('./user.route');
 const { setupProductRoutes } = require('./product.route');
 const { setupConversationRoutes } = require('./conversation.route');
+const { setupTransactionsRoutes } = require('./transactions.route');
 
 /* GET home page. */
 // Define a route for the home page ('/') that renders the 'index' template with the title 'Bibemella'.
@@ -25,6 +26,7 @@ const setupAppRoutes = (client) => {
   setupUserRoutes(app);
   setupProductRoutes(app);
   setupConversationRoutes(app);
+  setupTransactionsRoutes(app);
   return app;
 }
 
