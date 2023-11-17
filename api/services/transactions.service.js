@@ -59,7 +59,24 @@ async function addTransaction(data) {
   }
 }
 
+async function getTotalSuccessAmount() {
+  try {
+    const totalSuccessAmount = await Transactions
+      .find({ status: 'SUCCESS' }) // Filtrer par statut 'SUCCESS'
+      .select('amount'); // Sélectionner seulement le champ 'amount'
+
+    const totalAmount = totalSuccessAmount.reduce((sum, transaction) => sum + transaction.amount, 0);
+
+    return { success: true, totalAmount };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+
+
 module.exports = {
   getAllTransactions,
   addTransaction,
+  getTotalSuccessAmount
 };

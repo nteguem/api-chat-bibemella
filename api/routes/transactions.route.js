@@ -10,6 +10,7 @@ const setupTransactionsRoutes = (app) => {
   // Mount the 'router' to handle routes with the base path '/Product'.
   app.use("/transactions", router);
   router.get('/all-transactions', transactionHandle.getAllTransactions); 
+  router.get('/total-amount-transactions', transactionHandle.getTotalSuccessAmount);
   router.post('/add-transaction', transactionHandle.addTransaction); 
 };
 

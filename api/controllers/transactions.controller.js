@@ -8,26 +8,41 @@ const getAllTransactions = async (req, res) => {
     res.json(response.transaction);
   } else {
     res.status(500).json({
-      message: "Erreur lors de la récupération de la conversation",
+      message: "Erreur lors de la récupération de la transaction",
       error: response.error,
     });
   }
 };
 
 const addTransaction = async (req, res) => {
-    const response = await transactionService.addTransaction(req.body);
-  
-    if (response.success) {
-      res.json(response);
-    } else {
-      res.status(500).json({
-        message: "Erreur lors l'ajout de la conversation",
-        error: response,
-      });
-    }
-  };
+  const response = await transactionService.addTransaction(req.body);
 
-module.exports = {
-    getAllTransactions,
-    addTransaction
+  if (response.success) {
+    res.json(response);
+  } else {
+    res.status(500).json({
+      message: "Erreur lors l'ajout de la conversation",
+      error: response,
+    });
+  }
+};
+
+const getTotalSuccessAmount = async (req, res) => {
+  const response = await transactionService.getTotalSuccessAmount();
+
+  if (response.success) {
+    res.json({ totalAmount: response.totalAmount });
+  } else {
+    res.status(500).json({
+      message: "Erreur lors de la récupération de la transaction",
+      error: response.error,
+    });
+  }
+};
+
+
+module.exports = { 
+  getAllTransactions,
+  addTransaction,
+  getTotalSuccessAmount
 };
