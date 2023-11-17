@@ -26,7 +26,10 @@ async function getAllTransactions(phoneNumber) {
           status: 1,
           amount: 1,
           transactionNumber: 1,
-          userNumber: 1
+          userNumber: 1,
+          isOption: 1,
+          optionId: 1,
+          productId: 1,
         },
       },
     ]);
@@ -46,9 +49,9 @@ async function addTransaction(data) {
       amount: data.price,
       transactionNumber: data.transactionNumber,
       userNumber: data.userPhoneNumber,
-      productId: data.itemId,
+      productId: data.name,
       isOption: data.hasSub,
-      optionId: data.hasSub ? data.selectedServiceOption._id : undefined
+      optionId: data.hasSub ? data.selectedServiceOption.name : undefined
     });
 
     await transaction.save();
