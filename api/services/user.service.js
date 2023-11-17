@@ -78,8 +78,20 @@ async function getAllUser(phoneNumber) {
     let query = phoneNumber ? {phoneNumber} : {};
 
     try {
-        const users = await User.find(query);
-        return { success: true, users };
+        const users = await User.find(query).populate({
+            path: 'subscriptions.productId',
+            model: 'productservices',
+            select: 'name subservices' // Add the fields you want to select
+        });
+        const updatedUsers = users.map(user => {
+            user.subscriptions.forEach(subscription => {
+                if (subscription.productId && subscription.isOption) {
+                    subscription.productId.subservices = subscription.productId.subservices.filter(subservice => subservice._id.equals(subscription.optionId));
+                }
+            });
+            return user;
+        });
+        return { success: true, users: updatedUsers };
     } catch (error) {
         return { success: false, error: error.message };
     }
