@@ -12,7 +12,7 @@ const setupTransactionsRoutes = (app) => {
   router.get('/all-transactions', transactionHandle.getAllTransactions); 
   router.post('/add-amount-transaction', transactionHandle.addAmountToTransaction);
   router.post('/add-transaction', transactionHandle.addTransaction); 
-  router.get('/get-total-transactions-amount', transactionHandle.getTotalSuccessAmount); 
+  router.get('/total-amount-transactions', transactionHandle.getTotalSuccessAmount); 
 };
 
 module.exports = { setupTransactionsRoutes };
