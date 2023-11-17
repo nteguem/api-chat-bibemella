@@ -31,32 +31,23 @@ async function addMessageToConversation(phoneNumber, message, tokens=0) {
     }
 
     if(tokens > 0){
-        let filter = {
-            // 'subscriptions.tokens': { $gt: 0 },
-            'phoneNumber': {$eq: phoneNumber},
-            // 'subscriptions.productType': {$eq: 'chatgpt'}
-        };
-        let user = await User.findOne(filter);
-        if (user) {
-            // Filter subscriptions based on the criteria
-            const matchingSubscriptions = user.subscriptions.filter(subscription => (
-              subscription.tokens > 0 && subscription.productType === 'chatgpt'
-            ));
-            if(matchingSubscriptions.length<=0){
-                return { success: false, error: "Oups! votre credit d'access a l'assistant personnel est epuisé" };
-            }
-            
-            let optionId = matchingSubscriptions[0].optionId;
-            let userId = user._id;
-
-            const updateResult = await User.updateOne(
-                { _id: userId, 'subscriptions.optionId': optionId },
-                { $inc: { 'subscriptions.$.tokens': -1 } }
-              );
-          } else {
-           
-            return { success: false, message: "Cette utilisateur n'existe pas." };
-          }
+      const filter = {
+        phoneNumber: phoneNumber,
+        'subscriptions.tokens': { $gt: 0 },
+        'subscriptions.productType': 'chatgpt'
+      };
+      
+      const updateOperation = {
+        $inc: { 'subscriptions.$.tokens': -1 }
+      };
+      
+      const updateResult = await User.findOneAndUpdate(filter, updateOperation);
+      
+      if (updateResult) {
+        // 
+      } else {
+        return { success: false, error: "Oups! Votre crédit d'accès à l'assistant personnel est épuisé" };
+      }
     }
 
     conversation.messages.push({

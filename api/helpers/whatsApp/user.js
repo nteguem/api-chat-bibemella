@@ -619,7 +619,7 @@ const UserCommander = async (client, msg) => {
         transactionSteps[msg.from].availablesCredits -= 1
         await Promise.all([
           addMessageToConversation(phone, message),
-          addMessageToConversation(phone, chatResult.completion.message, 1)
+          addMessageToConversation(phone, chatResult.completion.message, chatResult.tokens)
         ]);
       }else{
         clearInterval(typingIntervalId); // Stop resending typing state
