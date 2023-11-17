@@ -46,6 +46,9 @@ async function addTransaction(data) {
       amount: data.price,
       transactionNumber: data.transactionNumber,
       userNumber: data.userPhoneNumber,
+      productId: data.itemId,
+      isOption: data.hasSub,
+      optionId: data.hasSub ? data.selectedServiceOption._id : undefined
     });
 
     await transaction.save();
