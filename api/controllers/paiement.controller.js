@@ -31,7 +31,7 @@ async function handlePaymentSuccess(req, res, client) {
       : `*${serviceData.name}*`;
 
     const dateSubscription = moment().format("YYYY-MM-DD");
-    const successMessage = `Félicitations ! Votre paiement pour  *${servName}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
+    const successMessage = `Félicitations ! Votre paiement pour  ${servName} a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
     const expirationDate = moment(dateSubscription).add(
       serviceData?.durationInDays,
       "days"
@@ -50,7 +50,7 @@ async function handlePaymentSuccess(req, res, client) {
       user,
       phone,
       operator_transaction_id,
-      serviceData?.name,
+      servName,
       operator,
       amount,
       serviceData?.durationInDays,

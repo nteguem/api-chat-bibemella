@@ -6,6 +6,9 @@ const {
   getAllProducts,
   findActiveSubscribers,
 } = require("../../services/product.service");
+const {
+  getTotalSuccessAmount,
+} = require("../../services/totalTransaction.service");
 
 const SUCCESS_MESSAGE_ENSEIGNEMENTS =
   "L'enseignement a été publié à toute la communauté avec succès.";
@@ -13,7 +16,7 @@ const SUCCESS_MESSAGE_ANNONCE =
   "L'annonce a été partagé à toute la communauté avec succès.";
 
 const welcomeStatusUser = {};
-const COMMAND_NAME = { ENSEIGNEMENTS: "1", ANNONCE: "2" };
+const COMMAND_NAME = { ENSEIGNEMENTS: "1", ANNONCE: "2", SOLDE: "3" };
 
 const AdminCommander = async (client, msg, transactions) => {
   const contact = await msg.getContact();
@@ -22,6 +25,7 @@ const AdminCommander = async (client, msg, transactions) => {
 En tant qu'administrateur de la Fondation Bibemella, voici les actions que vous pouvez effectuer :
 1️⃣ Pour publier un enseignement, tapez 1.
 2️⃣ Pour faire une annonce à tous, tapez 2.
+3️⃣ Pour consulter le solde de tous les transactions, tapez 3.
   
 Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella ! 🙌`;
 
@@ -29,6 +33,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
 1️⃣ Pour publier un enseignement, tapez 1.
 2️⃣ Pour faire une annonce à tous, tapez 2.
+3️⃣ Pour consulter le solde de tous les transactions, tapez 3.
 
 Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella ! 🙌`;
 
@@ -292,8 +297,25 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         // Reset the transaction
         delete transactions[msg.from];
       }
+    } else if (userResponse === COMMAND_NAME.SOLDE && !transactions[msg.from]) {
+      //consulter le solde
+      const resultTotal = await getTotalSuccessAmount();
+      if (resultTotal.success) {
+        
+        let amount = resultTotal.totalAmount[0].amount;
+        let num = resultTotal.totalAmount[0].number;
+        let amountMessage =
+          "Le solde total de tous les transactions effectuées est de: " +
+          `*${amount} FCFA*\n\n` +
+          "Nombre de transaction: " +
+          `*${num}*\n` +
+          "\n\n#. Menu principal";
+          delete transactions[msg.from];
+          msg.reply(amountMessage);
+      }else{
+        msg.reply("Une erreur s'est produite lors de la recuperation du solde");
+      }
     } else {
-      // Gérer d'autres cas d'utilisation ou afficher un message d'erreur
       delete transactions[msg.from];
       msg.reply(MenuPrincipal);
     }

@@ -4,7 +4,7 @@ async function addAmountToTotal(data) {
   try {
     const filter = {}; // An empty filter to match any document
     const updateOperation = {
-      $inc: { amount: data.price },
+      $inc: { amount: data.price, number: 1 },
     };
 
     const options = {
@@ -31,8 +31,7 @@ async function addAmountToTotal(data) {
 async function getTotalSuccessAmount() {
   try {
     const totalAmount = await TotalTransactions
-      .find() // Filtrer par statut 'SUCCESS'
-      .select('amount'); // Sélectionner seulement le champ 'amount'
+      .find();
 
     return { success: true, totalAmount };
   } catch (error) {
