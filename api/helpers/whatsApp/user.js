@@ -5,9 +5,15 @@ const { updateUser } = require("../../services/user.service");
 const { welcomeData, menuData } = require("../../data");
 const { getAllProducts } = require("../../services/product.service");
 const { getAllUserSubscriptions } = require("../../services/product.service");
+const {
+  addMessageToConversation,
+  getAllConversations,
+} = require("../../services/conversation.service");
+const chatCompletion = require("../chatCompletion");
 const generatePDFBuffer = require("../pdfGenerator");
 const { sendMediaToNumber } = require("./whatsappMessaging");
-const moment = require('moment');
+const moment = require("moment");
+const simulateTyping = require("../sendReplyState");
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -175,7 +181,7 @@ const UserCommander = async (client, msg) => {
         msg.reply(replyMessage);
 
         transactionSteps[msg.from].step = "awaitTeachingType";
-      } else {
+      } else  {
         const invalidConfirmationMessage = 'Répondez par "Oui" ou "Non".';
         msg.reply(invalidConfirmationMessage);
       }
@@ -250,7 +256,7 @@ const UserCommander = async (client, msg) => {
         msg.reply(phoneNumberMessage);
 
         transactionSteps[msg.from].step = "await-phone-number";
-      } else if (userResponseLower === "non") {
+      } else if (userResponseLower === "non" && transactionSteps[msg.from].type === 'ENSEIGNEMENTS') {
         // Redirigez l'utilisateur vers le choix du type d'enseignement
         const allProductsResponse = await getAllProducts("service");
         const services = allProductsResponse.products;
@@ -263,6 +269,9 @@ const UserCommander = async (client, msg) => {
             .join("\n");
         msg.reply(replyMessage + "\n\n#. Menu principal");
         transactionSteps[msg.from].step = "awaitTeachingType";
+      } else if (userResponseLower === "non" && transactionSteps[msg.from].type === 'IA'){
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
       } else {
         const invalidConfirmationMessage = 'Répondez par "Oui" ou "Non".';
         msg.reply(invalidConfirmationMessage);
@@ -439,12 +448,18 @@ const UserCommander = async (client, msg) => {
           "Le numéro de téléphone est invalide. Veuillez saisir un numéro de téléphone au format valide (ex: 6xxxxxxxx).";
         msg.reply(invalidPhoneNumberMessage);
       }
-    } else if (userResponse === COMMAND_NAME.WELLNESS && !transactionSteps[msg.from]) {
+    } else if (
+      userResponse === COMMAND_NAME.WELLNESS &&
+      !transactionSteps[msg.from]
+    ) {
       const allServices = await getAllProducts("wellness");
       if (allServices.success) {
         const services = allServices.products;
 
-        const replyMessage = services.length > 0 ? services[0].description : "Aucun service disponible.";
+        const replyMessage =
+          services.length > 0
+            ? services[0].description
+            : "Aucun service disponible.";
         msg.reply(replyMessage + "\n\n#. Menu principal");
 
         // Enregistrez l'étape de la transaction pour cet utilisateur
@@ -454,12 +469,6 @@ const UserCommander = async (client, msg) => {
           "Erreur lors de la récupération des wellness center.";
         msg.reply(replyMessage);
       }
-    } else if (userResponse === COMMAND_NAME.IA && !transactionSteps[msg.from]) {
-      const invalidRequestMessage = `Bot en cours de développement pour répondre à  ce service ultérieurement.`;
-      msg.reply(invalidRequestMessage);
-
-      delete transactionSteps[msg.from];
-      msg.reply(MenuPrincipal);
     } else if (
       userResponse === COMMAND_NAME.IA &&
       !transactionSteps[msg.from]
@@ -471,14 +480,18 @@ const UserCommander = async (client, msg) => {
         "chatgpt"
       );
       if (checkChatgpt.success && checkChatgpt.products.length > 0) {
-        transactionSteps[msg.from].step = "awaitGptPrompt";
+        transactionSteps[msg.from] = {
+          step: "awaitGptPrompt",
+          type: "IA",
+          availablesCredits: checkChatgpt.products[0].remainingTokens
+        };
         const replyMessage =
           "Hello, je suis votre assistant personnel. Comment puis-je vous aider aujourd'hui ?";
         msg.reply(replyMessage);
       } else {
         const allAiProductsResponse = await getAllProducts("chatgpt");
         if (allAiProductsResponse.success) {
-          console.log("ldjfkd", allAiProductsResponse);
+         
           const aiMessage = allAiProductsResponse.products[0].subservices.map(
             (product, index) => {
               return `${index + 1}. ${product.name} - ${product.price} XAF\n`;
@@ -491,7 +504,7 @@ const UserCommander = async (client, msg) => {
             `\n*Sélectionnez un forfait en entrant son numéro*
           \nNB: 1 credit = 1 message.
           \n\n#. Menu principal`;
-          
+
           msg.reply(aiListMessage);
           transactionSteps[msg.from] = {
             step: "awaitChatgptBundle",
@@ -503,7 +516,7 @@ const UserCommander = async (client, msg) => {
           msg.reply(replyMessage);
         }
       }
-    }else if (
+    } else if (
       transactionSteps[msg.from] &&
       transactionSteps[msg.from].step === "awaitChatgptBundle"
     ) {
@@ -513,11 +526,11 @@ const UserCommander = async (client, msg) => {
       if (
         bundleNumber >= 1 &&
         bundleNumber <= selectedService.subservices.length
-      ){
+      ) {
         //user selected a bundle
         const selectedChatgptBundle =
           selectedService.subservices[bundleNumber - 1];
-          const serviceDetailsMessage =
+        const serviceDetailsMessage =
           `*Forfait choisi :* \n${selectedService.name}\n` +
           `Prix : ${selectedChatgptBundle.price} XAF\n` +
           `Crédit : ${selectedChatgptBundle.durationInDay}\n\n` +
@@ -528,10 +541,92 @@ const UserCommander = async (client, msg) => {
         // Enregistrez l'étape de la transaction pour l'adhésion
         transactionSteps[msg.from].step = "awaitBuyConfirmation";
         transactionSteps[msg.from].selectedServiceOption =
-        selectedChatgptBundle;
+          selectedChatgptBundle;
       }
-    }
-     else if (
+    } else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitGptPrompt"
+    ) {
+      let message = { role: "user", content: userResponse };
+      let phone = msg.from.replace(/@c\.us$/, "");
+
+      if (!transactionSteps[msg.from].userConversation) {
+        const userConversation = await getAllConversations(phone);
+       
+        if (userConversation.success) {
+          if(userConversation.conversation.length>0){
+            transactionSteps[msg.from].userConversation = userConversation.success
+            ? userConversation.conversation[0]?.messages?.map((message) => {
+              return {
+                role: message.role,
+                content: message.content,
+              };
+            }) || []
+            : [];
+          }else{
+            transactionSteps[msg.from].userConversation = []
+          }
+          
+        } else {
+          //gerer erreur
+          return;
+        }
+      }
+
+      let myConversation = transactionSteps[msg.from].userConversation;
+      myConversation.push(message);
+      if(transactionSteps[msg.from].availablesCredits <= 0){
+        // code a refactorer
+        const allAiProductsResponse = await getAllProducts("chatgpt");
+        if (allAiProductsResponse.success) {
+         
+          const aiMessage = allAiProductsResponse.products[0].subservices.map(
+            (product, index) => {
+              return `${index + 1}. ${product.name} - ${product.price} XAF\n`;
+            }
+          );
+
+          const aiListMessage =
+            "😞Oups, votre credit d'access a notre intelligence artificielle est de 0. Veuillez recharger votre compte\n\n" +
+            aiMessage.join("") +
+            `\n*Sélectionnez un forfait en entrant son numéro*
+          \nNB: 1 credit = 1 message.
+          \n\n#. Menu principal`;
+
+          msg.reply(aiListMessage);
+          transactionSteps[msg.from] = {
+            step: "awaitChatgptBundle",
+            type: "IA",
+            selectedService: allAiProductsResponse.products[0],
+          };
+        } else {
+          const replyMessage = "Une erreur s'est produite.";
+          msg.reply(replyMessage);
+        }
+        return;
+      }
+      let currentChat = await client.getChatById(msg.from);
+     
+      const typingIntervalId = simulateTyping(currentChat, 30);
+
+      let chatResult = await chatCompletion(myConversation);
+      if (chatResult.success) {
+        clearInterval(typingIntervalId); // Stop resending typing state
+        currentChat.clearState(); 
+        msg.reply(chatResult.completion.message.content);
+        myConversation.push(chatResult.completion.message);
+        transactionSteps[msg.from].userConversation = myConversation;
+        transactionSteps[msg.from].availablesCredits -= 1
+        await Promise.all([
+          addMessageToConversation(phone, message),
+          addMessageToConversation(phone, chatResult.completion.message, 1)
+        ]);
+      }else{
+        clearInterval(typingIntervalId); // Stop resending typing state
+        currentChat.clearState(); 
+        msg.reply('Erreur lors de la generation de la reponse.');
+      }
+    } else if (
       userResponse === COMMAND_NAME.PRODUITS &&
       !transactionSteps[msg.from]
     ) {
@@ -549,80 +644,119 @@ const UserCommander = async (client, msg) => {
           // Affichez les types d'enseignement à l'utilisateur avec des numéros
           const replyMessage =
             `Consultez la liste de vos produits et services en cours\n\n` +
-            services.map((service, index) => {
-              let n = service.isOption ? service.productId.category + " : " + service.productId.name : service.productId.name;
-              return `${index + 1}. ${n}`;
-            }).join("\n");
+            services
+              .map((service, index) => {
+                let n = service.isOption
+                  ? service.productType === "service"
+                    ? service.productId.category + ": " + service.productId.name
+                    : service.productId.category
+                  : service.productId.name;
+                return `${index + 1}. ${n}`;
+              })
+              .join("\n");
           msg.reply(replyMessage + "\n\n#. Menu principal");
         }
         // Enregistrez l'étape de la transaction pour cet utilisateur
-        transactionSteps[msg.from] = { step: "awaitSubscriptionType", type: "PRODUITS", services };
+        transactionSteps[msg.from] = {
+          step: "awaitSubscriptionType",
+          type: "PRODUITS",
+          services,
+        };
       } else {
         const replyMessage =
           "Erreur lors de la récupération de vos produits et services.";
         msg.reply(replyMessage);
       }
-    }
-    else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitSubscriptionType") {
+    } else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitSubscriptionType"
+    ) {
       const userItemNumber = parseInt(userResponse, 10);
       const services = transactionSteps[msg.from].services;
-      const selectedItem = services[userItemNumber - 1];
-      console.log(selectedItem)
 
-      if (selectedItem.productType === 'product') {
-        const productDetailsMessage = `*${selectedItem.productId.name
-          }*\n\n*Description :*\n${selectedItem.productId.description
+      // Vérifier si le numéro saisi est valide
+      if (userItemNumber >= 1 && userItemNumber <= services.length) {
+        const selectedItem = services[userItemNumber - 1];
+
+        if (selectedItem.productType === "product") {
+          const productDetailsMessage = `*${
+            selectedItem.productId.name
+          }*\n\n*Description :*\n${
+            selectedItem.productId.description
           }\n\n*Avantage* :\n${selectedItem.productId.advantage
             .split("\n")
             .map((advantage) => `• ${advantage}`)
-            .join("\n")}\n\nPour plus de détails : ${selectedItem.productId.link}`;
-        msg.reply(productDetailsMessage);
+            .join("\n")}\n\nPour plus de détails : ${
+            selectedItem.productId.link
+          }`;
+          msg.reply(productDetailsMessage);
 
-        // Demander si l'utilisateur souhaite acheter le produit
-        const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
-        msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+          // Demander si l'utilisateur souhaite acheter le produit
+          const regenerateFactureMessage =
+            "Si vous souhaitez regénérer votre facture entrez *Facture*";
+          msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
 
-        transactionSteps[msg.from].step = "awaitConfirmationRequest";
-        transactionSteps[msg.from].selectedItem = selectedItem;
-      } else if (selectedItem.productType === 'service') {
-        const serviceDetailsMessage = selectedItem.isOption ? `${selectedItem.productId.category} : *${selectedItem.productId.name}*\n\n${selectedItem.productId.description}` : `*${selectedItem.productId.name}* :\n\n${selectedItem.productId.description}`;
-        msg.reply(serviceDetailsMessage);
+          transactionSteps[msg.from].step = "awaitConfirmationRequest";
+          transactionSteps[msg.from].selectedItem = selectedItem;
+        } else if (selectedItem.productType === "service" || selectedItem.productType === "chatgpt") {
+          const serviceDetailsMessage = selectedItem.isOption
+            ? `${selectedItem.productId.category} : *${selectedItem.productId.name}*\n${selectedItem.productId.description || ''}\n`+
+            `${selectedItem.productType === "service" ? '' : '*Credit restant*' + ': ' + selectedItem.remainingTokens}`
+            : `*${selectedItem.productId.name}* :\n\n${selectedItem.productId.description}`;
+            msg.reply(serviceDetailsMessage);
 
-        // Demander si l'utilisateur souhaite acheter le produit
-        const regenerateFactureMessage = 'Si vous souhaitez regénérer votre facture entrez *Facture*';
-        msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+          // Demander si l'utilisateur souhaite acheter le produit
+          const regenerateFactureMessage =
+            "Si vous souhaitez regénérer votre facture entrez *Facture*";
+          msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
 
-        transactionSteps[msg.from].step = "awaitConfirmationRequestOption";
-        transactionSteps[msg.from].selectedItem = selectedItem;
+          transactionSteps[msg.from].step = "awaitConfirmationRequest";
+          transactionSteps[msg.from].selectedItem = selectedItem;
+        }
+      } else {
+        msg.reply(
+          "Numéro invalide. Veuillez sélectionner un numéro valide de la liste."
+        );
       }
-    }
-    else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitConfirmationRequest") {
+    } else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitConfirmationRequest"
+    ) {
       const userWord = userResponse;
       const selectedItem = transactionSteps[msg.from].selectedItem;
-      const services = transactionSteps[msg.from].services;
-      if (userWord.toLowerCase() === 'facture') {
-        const pdfBuffer = await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id, selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays, selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
-        const pdfBase64 = pdfBuffer.toString('base64');
-        const pdfName = 'facture.pdf';
-        const documentType = 'application/pdf'; 
-        await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName)
+
+      if (userWord.toLowerCase() === "facture") {
+        const pdfBuffer = await generatePDFBuffer(
+          contact.pushname,
+          msg.from.replace(/@c\.us$/, ""),
+          selectedItem?.transaction_id,
+          selectedItem.productId?.name,
+          selectedItem?.operator,
+          selectedItem.productId?.price,
+          selectedItem.productId?.durationInDay,
+          selectedItem.productType === "product"
+            ? selectedItem.productId?.image
+            : "",
+          moment(selectedItem?.subscriptionDate)
+        );
+        const pdfBase64 = pdfBuffer.toString("base64");
+        const pdfName = "facture.pdf";
+        const documentType = "application/pdf";
+        await sendMediaToNumber(
+          client,
+          `${msg.from}`,
+          documentType,
+          pdfBase64,
+          pdfName
+        );
+
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
+      } else {
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
       }
-    } else if (transactionSteps[msg.from] && transactionSteps[msg.from].step === "awaitConfirmationRequestOption") {
-      if (userWord.toLowerCase() === 'facture') {
-        const pdfBuffer = selectedItem.isOption ?
-          await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id,
-            selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays,
-            selectedItem.productId?.image, moment(selectedItem?.subscriptionDate)) :
-          await generatePDFBuffer(contact.pushname, msg.from.replace(/@c\.us$/, ""), selectedItem?.transaction_id,
-            selectedItem.productId?.name, selectedItem?.operator, selectedItem.productId?.price, selectedItem.productId?.durationInDays,
-            selectedItem.productId?.image, moment(selectedItem?.subscriptionDate));
-        const pdfBase64 = pdfBuffer.toString('base64');
-        const pdfName = 'facture.pdf';
-        const documentType = 'application/pdf';
-        await sendMediaToNumber(client, `${msg.from}`, documentType, pdfBase64, pdfName) 
-      }
-    }
-    else {
+    } else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
           "Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"

@@ -5,6 +5,7 @@ const {
 } = require("../helpers/whatsApp/whatsappMessaging");
 const generatePDFBuffer = require("../helpers/pdfGenerator");
 const { addProductToUser } = require("../services/product.service");
+const { addTransaction } = require("../services/transactions.service");
 
 async function handlePaymentSuccess(req, res, client) {
   try {
@@ -19,6 +20,10 @@ async function handlePaymentSuccess(req, res, client) {
     } = req.body;
 
     let serviceData = JSON.parse(item_ref);
+    serviceData.status = "SUCCESS";
+    serviceData.transactionId = operator_transaction_id;
+    serviceData.operator = operator;
+    serviceData.transactionNumber = phone;
 
     const dateSubscription = moment().format("YYYY-MM-DD");
     const successMessage = `Félicitations ! Votre paiement pour  *${serviceData.name}* a été effectué avec succès. Profitez de nos services premium ! Ci-joint la facture de paiement.`;
@@ -50,8 +55,20 @@ async function handlePaymentSuccess(req, res, client) {
     const pdfName = "facture.pdf";
     const documentType = "application/pdf";
     await Promise.all([
-      sendMediaToNumber(client, `${email}@c\.us`, documentType, pdfBase64, pdfName),
-      addProductToUser(email, addSubscription, operator_transaction_id, operator), 
+      sendMediaToNumber(
+        client,
+        `${email}@c\.us`,
+        documentType,
+        pdfBase64,
+        pdfName
+      ),
+      addProductToUser(
+        email,
+        addSubscription,
+        operator_transaction_id,
+        operator
+      ),
+      addTransaction(serviceData),
       sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);
     if (serviceData?.image != "") {
@@ -72,13 +89,30 @@ async function handlePaymentSuccess(req, res, client) {
 
 async function handlePaymentFailure(req, res, client, operatorMessage) {
   try {
+    const {
+      user,
+      phone,
+      operator_transaction_id,
+      item_ref,
+      amount,
+      operator,
+      email,
+    } = req.body;
+
+    let serviceData = JSON.parse(item_ref);
+    serviceData.status = "FAILED";
+    serviceData.transactionId = operator_transaction_id;
+    serviceData.operator = operator;
+    serviceData.transactionNumber = phone;
+
     const failureMessage =
       operatorMessage ||
       `Désolé, Votre paiement mobile pour le forfait ${req.body.item_ref} a échoué en raison d'un problème de transaction. Veuillez vérifier vos détails de paiement et réessayer. Si le problème persiste, contactez-nous pour de l'aide. Nous nous excusons pour tout désagrément.
-    
-    
     Cordialement, L'équipe de Bibemella`;
-    await sendMessageToNumber(client, `${req.body.user}@c\.us`, failureMessage);
+    await Promise.all([
+      addTransaction(serviceData),
+      sendMessageToNumber(client, `${req.body.user}@c\.us`, failureMessage),
+    ]);
     res.status(200).send("Failure");
   } catch (error) {
     console.error(error);
@@ -92,8 +126,6 @@ async function handlePaymentNotification(req, res, client) {
       await handlePaymentFailure(req, res, client);
     } else if (req.body.message === "INTERNAL_PROCESSING_ERROR") {
       const operatorMessage = `Désolé, Votre paiement mobile a rencontré une erreur due à un problème technique avec le service ${req.body.operator}. Nous travaillons sur la résolution de ce problème. En attendant, nous vous recommandons d'essayer à nouveau plus tard. Désolé pour le dérangement. 
-      
-      
       Cordialement, L'équipe Bibemella`;
       await handlePaymentFailure(req, res, client, operatorMessage);
     } else {

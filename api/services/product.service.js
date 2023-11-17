@@ -24,7 +24,7 @@ async function getAllProducts(type) {
 
 async function addProductToUser(phoneNumber, addSubscription, transaction_id, operator) {
   try {
-    console.log(addSubscription, "dkjf", phoneNumber);
+    
     const user = await User.findOne({ phoneNumber });
     const product = await ProductService.findOne({
       _id: addSubscription.itemId,
@@ -45,7 +45,7 @@ async function addProductToUser(phoneNumber, addSubscription, transaction_id, op
       productType: addSubscription.type,
       transaction_id: transaction_id,
       operator: operator,
-      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined,
+      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined, 
     });
 
     await user.save();
@@ -105,11 +105,13 @@ async function addProductToUser(phoneNumber, addSubscription, transaction_id, op
 //   }
 // }
 
+//uniquement pour les utilisateurs qui ont souscrit a un enseignement.
 async function findActiveSubscribers(isOption, id) {
   try {
       const currentDate = new Date();
       let filter = {
           'subscriptions.expirationDate': { $gt: currentDate }
+
       };
 
       if (isOption) {
@@ -164,6 +166,26 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
           (sub) => sub._id.toString() === service.optionId
         );
 
+        return {
+          expirationDate: service.expirationDate,
+          isOption: service.isOption,
+          productType: service.productType,
+          subscriptionDate: service.subscriptionDate,
+          transaction_id: service.transaction_id,
+          operator: service.operator,
+          productId: subData
+        };
+      }
+      return service;
+    });
+
+    //transform the gpt services as well
+    const transformedChatgptServices = chatgptService.map((service) => {
+      if (service.isOption) {
+        const subData = service.productId.subservices.find(
+          (sub) => sub._id.toString() === service.optionId
+        );
+
 
 
         return {
@@ -172,6 +194,7 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
           productType: service.productType,
           subscriptionDate: service.subscriptionDate,
           productId: subData,
+          remainingTokens: service.tokens
         };
       }
       return service;
@@ -184,9 +207,9 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
     } else if (type === 'product') {
       result = products;
     }else if (type === 'chatgpt') {
-      result = chatgptService;
+      result = transformedChatgptServices;
     } else {
-      result = [...products, ...transformedServices, ...chatgptService];
+      result = [...products, ...transformedServices, ...transformedChatgptServices];
     }
 
     return { success: true, products: result };

@@ -92,6 +92,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                 const users = activeSubscribers.activeSubscribers;
                 if (msg.hasMedia) {
                     // Télécharger le média
+                    console.log('je suis sur le point devoyer un media')
                     const media = await msg.downloadMedia();
                     const targetUser = `${users.phoneNumber}@c.us`; // Replace with the actual index or logic to select a user
                     console.log(targetUser);
