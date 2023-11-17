@@ -6,6 +6,7 @@ const {
 const generatePDFBuffer = require("../helpers/pdfGenerator");
 const { addProductToUser } = require("../services/product.service");
 const { addTransaction } = require("../services/transactions.service");
+const { addAmountToTotal } = require("../services/totalTransaction.service");
 
 async function handlePaymentSuccess(req, res, client) {
   try {
@@ -72,6 +73,7 @@ async function handlePaymentSuccess(req, res, client) {
         operator_transaction_id,
         operator
       ),
+      addAmountToTotal({price: serviceData.price}),
       addTransaction(serviceData),
       sendMessageToNumber(client, `${email}@c\.us`, successMessage),
     ]);

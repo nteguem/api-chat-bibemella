@@ -1,4 +1,5 @@
 const transactionService = require("../services/transactions.service");
+const TotalTransactionsService = require("../services/totalTransaction.service");
 
 const getAllTransactions = async (req, res) => {
   const { phoneNumber } = req.body;
@@ -27,8 +28,21 @@ const addTransaction = async (req, res) => {
   }
 };
 
+const addAmountToTransaction = async (req, res) => {
+  const response = await TotalTransactionsService.addAmountToTotal(req.body);
+
+  if (response.success) {
+    res.json({ sucess: true, totalAmount: response.totalAmount });
+  } else {
+    res.status(500).json({
+      message: "Erreur lors de la récupération de la transaction",
+      error: response.error,
+    });
+  }
+};
+
 const getTotalSuccessAmount = async (req, res) => {
-  const response = await transactionService.getTotalSuccessAmount();
+  const response = await TotalTransactionsService.getTotalSuccessAmount();
 
   if (response.success) {
     res.json({ totalAmount: response.totalAmount });
@@ -41,8 +55,11 @@ const getTotalSuccessAmount = async (req, res) => {
 };
 
 
+
+
 module.exports = { 
   getAllTransactions,
   addTransaction,
+  addAmountToTransaction,
   getTotalSuccessAmount
 };
