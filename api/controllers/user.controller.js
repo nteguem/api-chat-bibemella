@@ -24,7 +24,8 @@ const loginUser = async (req, res) => {
 };
 
 const getAllUser = async (req, res) => {
-  const response = await userService.getAllUser();
+  let { phoneNumber } = req.body;
+  const response = await userService.getAllUser(phoneNumber || null);
 
   if (response.success) {
     res.json(response.users);

@@ -1,7 +1,7 @@
 require('dotenv').config(); // Load environment variables from the .env file
 const { Client } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
- const { saveUser } = require('../../services/user.service');
+ const { saveUser, getAllUser } = require('../../services/user.service');
 const {AdminCommander} = require("./admin");
 const {UserCommander} = require("./user");
 
@@ -37,8 +37,13 @@ const handleIncomingMessages = (client) => {
    const contact = await msg.getContact();
    const contactName = contact.pushname; // Récupérer le nom de l'utilisateur
    await saveUser(msg.from, contactName);
+   if (!transactionSteps?.userType) {
+    let response = await getAllUser(msg.from.replace(/@c\.us$/, ""));
+    let user = response.users[0];
+    transactionSteps.userType = user?.role || 'user';
+  }
 
-     if (msg.from == process.env.NUMBER_ADMIN && !msg.isGroupMsg) {
+  if (transactionSteps.userType==='admin' && !msg.isGroupMsg) {
       await AdminCommander(client, msg, transactionSteps);
     }
     else {
