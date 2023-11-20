@@ -75,7 +75,7 @@ async function saveUser(phoneNumber, contactName) {
 
 
 async function getAllUser(phoneNumber) {
-    let query = phoneNumber ? {phoneNumber} : {};
+    let query = phoneNumber ? {phoneNumber} : {}; 
 
     try {
         const users = await User.find(query);
