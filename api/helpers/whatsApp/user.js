@@ -14,6 +14,7 @@ const generatePDFBuffer = require("../pdfGenerator");
 const { sendMediaToNumber } = require("./whatsappMessaging");
 const moment = require("moment");
 const simulateTyping = require("../sendReplyState");
+const { getAllEvents } = require("../../services/events.service");
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -24,6 +25,7 @@ const COMMAND_NAME = {
   WELLNESS: "3",
   IA: "4",
   PRODUITS: "5",
+  EVENTS: "6",
 };
 
 const UserCommander = async (client, msg) => {
@@ -181,7 +183,7 @@ const UserCommander = async (client, msg) => {
         msg.reply(replyMessage);
 
         transactionSteps[msg.from].step = "awaitTeachingType";
-      } else  {
+      } else {
         const invalidConfirmationMessage = 'Répondez par "Oui" ou "Non".';
         msg.reply(invalidConfirmationMessage);
       }
@@ -256,7 +258,10 @@ const UserCommander = async (client, msg) => {
         msg.reply(phoneNumberMessage);
 
         transactionSteps[msg.from].step = "await-phone-number";
-      } else if (userResponseLower === "non" && transactionSteps[msg.from].type === 'ENSEIGNEMENTS') {
+      } else if (
+        userResponseLower === "non" &&
+        transactionSteps[msg.from].type === "ENSEIGNEMENTS"
+      ) {
         // Redirigez l'utilisateur vers le choix du type d'enseignement
         const allProductsResponse = await getAllProducts("service");
         const services = allProductsResponse.products;
@@ -269,7 +274,10 @@ const UserCommander = async (client, msg) => {
             .join("\n");
         msg.reply(replyMessage + "\n\n#. Menu principal");
         transactionSteps[msg.from].step = "awaitTeachingType";
-      } else if (userResponseLower === "non" && transactionSteps[msg.from].type === 'IA'){
+      } else if (
+        userResponseLower === "non" &&
+        transactionSteps[msg.from].type === "IA"
+      ) {
         delete transactionSteps[msg.from];
         msg.reply(MenuPrincipal);
       } else {
@@ -483,7 +491,7 @@ const UserCommander = async (client, msg) => {
         transactionSteps[msg.from] = {
           step: "awaitGptPrompt",
           type: "IA",
-          availablesCredits: checkChatgpt.products[0].remainingTokens
+          availablesCredits: checkChatgpt.products[0].remainingTokens,
         };
         const replyMessage =
           "Hello, je suis votre assistant personnel. Comment puis-je vous aider aujourd'hui ?";
@@ -491,7 +499,6 @@ const UserCommander = async (client, msg) => {
       } else {
         const allAiProductsResponse = await getAllProducts("chatgpt");
         if (allAiProductsResponse.success) {
-         
           const aiMessage = allAiProductsResponse.products[0].subservices.map(
             (product, index) => {
               return `${index + 1}. ${product.name} - ${product.price} XAF\n`;
@@ -552,21 +559,21 @@ const UserCommander = async (client, msg) => {
 
       if (!transactionSteps[msg.from].userConversation) {
         const userConversation = await getAllConversations(phone);
-       
+
         if (userConversation.success) {
-          if(userConversation.conversation.length>0){
-            transactionSteps[msg.from].userConversation = userConversation.success
-            ? userConversation.conversation[0]?.messages?.map((message) => {
-              return {
-                role: message.role,
-                content: message.content,
-              };
-            }) || []
-            : [];
-          }else{
-            transactionSteps[msg.from].userConversation = []
+          if (userConversation.conversation.length > 0) {
+            transactionSteps[msg.from].userConversation =
+              userConversation.success
+                ? userConversation.conversation[0]?.messages?.map((message) => {
+                    return {
+                      role: message.role,
+                      content: message.content,
+                    };
+                  }) || []
+                : [];
+          } else {
+            transactionSteps[msg.from].userConversation = [];
           }
-          
         } else {
           //gerer erreur
           return;
@@ -575,11 +582,10 @@ const UserCommander = async (client, msg) => {
 
       let myConversation = transactionSteps[msg.from].userConversation;
       myConversation.push(message);
-      if(transactionSteps[msg.from].availablesCredits <= 0){
+      if (transactionSteps[msg.from].availablesCredits <= 0) {
         // code a refactorer
         const allAiProductsResponse = await getAllProducts("chatgpt");
         if (allAiProductsResponse.success) {
-         
           const aiMessage = allAiProductsResponse.products[0].subservices.map(
             (product, index) => {
               return `${index + 1}. ${product.name} - ${product.price} XAF\n`;
@@ -606,25 +612,29 @@ const UserCommander = async (client, msg) => {
         return;
       }
       let currentChat = await client.getChatById(msg.from);
-     
+
       const typingIntervalId = simulateTyping(currentChat, 30);
 
       let chatResult = await chatCompletion(myConversation);
       if (chatResult.success) {
         clearInterval(typingIntervalId); // Stop resending typing state
-        currentChat.clearState(); 
+        currentChat.clearState();
         msg.reply(chatResult.completion.message.content);
         myConversation.push(chatResult.completion.message);
         transactionSteps[msg.from].userConversation = myConversation;
-        transactionSteps[msg.from].availablesCredits -= 1
+        transactionSteps[msg.from].availablesCredits -= 1;
         await Promise.all([
           addMessageToConversation(phone, message),
-          addMessageToConversation(phone, chatResult.completion.message, chatResult.tokens)
+          addMessageToConversation(
+            phone,
+            chatResult.completion.message,
+            chatResult.tokens
+          ),
         ]);
-      }else{
+      } else {
         clearInterval(typingIntervalId); // Stop resending typing state
-        currentChat.clearState(); 
-        msg.reply('Erreur lors de la generation de la reponse.');
+        currentChat.clearState();
+        msg.reply("Erreur lors de la generation de la reponse.");
       }
     } else if (
       userResponse === COMMAND_NAME.PRODUITS &&
@@ -698,12 +708,21 @@ const UserCommander = async (client, msg) => {
 
           transactionSteps[msg.from].step = "awaitConfirmationRequest";
           transactionSteps[msg.from].selectedItem = selectedItem;
-        } else if (selectedItem.productType === "service" || selectedItem.productType === "chatgpt") {
+        } else if (
+          selectedItem.productType === "service" ||
+          selectedItem.productType === "chatgpt"
+        ) {
           const serviceDetailsMessage = selectedItem.isOption
-            ? `${selectedItem.productId.category} : *${selectedItem.productId.name}*\n${selectedItem.productId.description || ''}\n`+
-            `${selectedItem.productType === "service" ? '' : '*Credit restant*' + ': ' + selectedItem.remainingTokens}`
+            ? `${selectedItem.productId.category} : *${
+                selectedItem.productId.name
+              }*\n${selectedItem.productId.description || ""}\n` +
+              `${
+                selectedItem.productType === "service"
+                  ? ""
+                  : "*Credit restant*" + ": " + selectedItem.remainingTokens
+              }`
             : `*${selectedItem.productId.name}* :\n\n${selectedItem.productId.description}`;
-            msg.reply(serviceDetailsMessage);
+          msg.reply(serviceDetailsMessage);
 
           // Demander si l'utilisateur souhaite acheter le produit
           const regenerateFactureMessage =
@@ -755,6 +774,29 @@ const UserCommander = async (client, msg) => {
       } else {
         delete transactionSteps[msg.from];
         msg.reply(MenuPrincipal);
+      }
+    } else if (
+      userResponse === COMMAND_NAME.EVENTS &&
+      !transactionSteps[msg.from]
+    ) {
+      const eventsResponse = await getAllEvents();
+      if (eventsResponse.success) {
+        let events = eventsResponse.events;
+        const replyMessage =
+          "Choisissez un évènements en répondant avec son numéro :\n" +
+          events
+            .map((event, index) => {
+              return `${index + 1}. ${event.name}`;
+            })
+            .join("\n");
+        msg.reply(replyMessage + "\n\n#. Menu principal");
+
+        // Enregistrez l'étape de la transaction pour cet utilisateur
+        transactionSteps[msg.from] = {
+          step: "awaitEventSelect",
+          type: "EVENTS",
+          events,
+        };
       }
     } else {
       if (msg.body.toLowerCase() === "ejara") {

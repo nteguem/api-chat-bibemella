@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const { ProductService } = require("../models/product.model"); // Utilisation du modèle Subscription
+const { ProductService } = require("../models/product.model"); 
 
 async function createProductService(productData) {
   try {
