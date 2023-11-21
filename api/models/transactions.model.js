@@ -7,6 +7,9 @@ const transactionSchema = new mongoose.Schema({
   amount: { type: Number, required: true, },
   transactionNumber: { type: String, required: true, },
   userNumber: { type: String, required: true, },
+  productId: { type: String },
+  optionId: { type: String },
+  isOption: { type: Boolean, default: false},
 });
 
 const Transactions = mongoose.model('transactions', transactionSchema);

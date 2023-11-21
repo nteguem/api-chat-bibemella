@@ -8,9 +8,7 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
   const resultObject = {
     userPhoneNumber: msg.from.replace(/@c\.us$/, ""),
     itemId: inputObject.selectedService._id,
-    name: inputObject.selectedService.hasSub
-      ? inputObject?.selectedServiceOption?.name
-      : inputObject.selectedService.name,
+    name: inputObject.selectedService.name,
     image:
       inputObject.selectedService.type === "product"
         ? inputObject.selectedService?.image

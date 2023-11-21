@@ -78,8 +78,20 @@ async function getAllUser(phoneNumber) {
     let query = phoneNumber ? {phoneNumber} : {}; 
 
     try {
-        const users = await User.find(query);
-        return { success: true, users };
+        const users = await User.find(query).populate({
+            path: 'subscriptions.productId',
+            model: 'productservices',
+            select: 'name subservices' // Add the fields you want to select
+        });
+        const updatedUsers = users.map(user => {
+            user.subscriptions.forEach(subscription => {
+                if (subscription.productId && subscription.isOption) {
+                    subscription.productId.subservices = subscription.productId.subservices.filter(subservice => subservice._id.equals(subscription.optionId));
+                }
+            });
+            return user;
+        });
+        return { success: true, users: updatedUsers };
     } catch (error) {
         return { success: false, error: error.message };
     }
@@ -104,7 +116,13 @@ async function updateUser(phoneNumber, updatedData) {
       // Utilisez findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour username_ejara
       const updatedUser = await User.findOneAndUpdate(
         { phoneNumber: phoneNumber },
-        { $set: { username_ejara: updatedData } },
+        {
+            $set: {
+                password: await bcrypt.hash(updatedData.password, 10),
+                username_ejara: updatedData.username_ejara,
+                role: updatedData.role
+            }
+        },
         { new: true } // Ceci renvoie le document mis à jour plutôt que l'ancien
       );
   
