@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'events' },
     transaction_id: { type: String, required: true },
     operator: { type: String, required: true },
+    productType: { type: String, required: true, default: 'event' },
   }]
 });
 

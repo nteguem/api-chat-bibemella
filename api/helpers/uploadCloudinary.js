@@ -14,10 +14,9 @@ const uploadFileWithFormidable = (file, uploadDir, name = "") => {
         { resource_type: "auto", folder: uploadDir },
         (error, result) => {
           if (result) {
-            console.log(result, "jjjj");
-            const [baseUrl, restOfPath] = result.secure_url.split('/image/upload');
+            const [baseUrl, restOfPath] =
+              result.secure_url.split("/image/upload");
 
-            console.log("Rest of the Path:", restOfPath);
             resolve(restOfPath);
           } else {
             reject(error);

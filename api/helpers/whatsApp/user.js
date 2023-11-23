@@ -657,11 +657,13 @@ const UserCommander = async (client, msg) => {
             `Consultez la liste de vos produits et services en cours\n\n` +
             services
               .map((service, index) => {
-                let n = service.isOption
-                  ? service.productType === "service"
-                    ? service.productId.category + ": " + service.productId.name
-                    : service.productId.category
-                  : service.productId.name;
+                let n = service?.isOption
+                  ? service?.productType === "service"
+                    ? service?.productId.category +
+                      ": " +
+                      service?.productId.name
+                    : service?.productId.category
+                  : service?.productId?.name || service?.eventId?.name;
                 return `${index + 1}. ${n}`;
               })
               .join("\n");
@@ -732,6 +734,28 @@ const UserCommander = async (client, msg) => {
 
           transactionSteps[msg.from].step = "awaitConfirmationRequest";
           transactionSteps[msg.from].selectedItem = selectedItem;
+        } else if (selectedItem.productType === "event") {
+          const mediaMessage = await MessageMedia.fromUrl(
+            process.env.BASE_URL_CLOUD + selectedItem.eventId.previewImage
+          );
+
+          const eventDetailsMessage = `*${selectedItem.eventId.name}*\n\n*Description :*\n${selectedItem.eventId.description}\n\n*Date :*\n${selectedItem.eventId.date}\n\n*Heure :*\n${selectedItem.eventId.time}\n\n*Lieu :*\n${selectedItem.eventId.place}\n\n*Nom du pack :* ${selectedItem?.eventId.pack.name}\n\n*Prix du pack :* ${selectedItem.eventId.pack.price}`;
+          try {
+            // msg.reply(eventDetailsMessage);
+            // // Send the media message
+            await client.sendMessage(msg.from, mediaMessage, {
+              caption: eventDetailsMessage,
+            });
+          } catch (error) {
+            console.log(error, "error");
+            msg.reply(eventDetailsMessage);
+          }
+          const regenerateFactureMessage =
+            "Si vous souhaitez regénérer votre facture entrez *Facture*";
+          msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+
+          transactionSteps[msg.from].step = "awaitConfirmationRequest";
+          transactionSteps[msg.from].selectedItem = selectedItem;
         }
       } else {
         msg.reply(
@@ -750,12 +774,14 @@ const UserCommander = async (client, msg) => {
           contact.pushname,
           msg.from.replace(/@c\.us$/, ""),
           selectedItem?.transaction_id,
-          selectedItem.productId?.name,
+          selectedItem.productType === "event" ? selectedItem.eventId.name : selectedItem.productId?.name,
           selectedItem?.operator,
-          selectedItem.productId?.price,
+          selectedItem.productType === "event" ? selectedItem.eventId.pack.price : selectedItem.productId?.price,
           selectedItem.productId?.durationInDay,
           selectedItem.productType === "product"
-            ? selectedItem.productId?.image
+            ? `https://bibemella.isomora.com/wp-content/uploads/${selectedItem.productId?.image}`
+            : selectedItem.productType === "event"
+            ? process.env.BASE_URL_CLOUD + selectedItem.eventId.previewImage
             : "",
           moment(selectedItem?.subscriptionDate)
         );
@@ -809,23 +835,22 @@ const UserCommander = async (client, msg) => {
 
       if (selectedEvent) {
         // Afficher les détails du produit
-        // const mediaMessage = await MessageMedia.fromUrl(
-        //   process.env.BASE_URL_CLOUD + selectedEvent.previewImage
-        // );
+        const mediaMessage = await MessageMedia.fromUrl(
+          process.env.BASE_URL_CLOUD + selectedEvent.previewImage
+        );
 
         const eventDetailsMessage = `*${selectedEvent.name}*\n\n*Description :*\n${selectedEvent.description}\n\n*Date :*\n${selectedEvent.date}\n\n*Heure :*\n${selectedEvent.time}\n\n*Lieu :*\n${selectedEvent.place}\n\n*Nom du pack :* ${selectedEvent?.pack.name}\n\n*Prix du pack :* ${selectedEvent.pack.price}`;
 
         try {
-          msg.reply(eventDetailsMessage);
+          // msg.reply(eventDetailsMessage);
           // // Send the media message
-          // await client.sendMessage(msg.from, mediaMessage, {
-          //   caption: eventDetailsMessage,
-          // });
+          await client.sendMessage(msg.from, mediaMessage, {
+            caption: eventDetailsMessage,
+          });
         } catch (error) {
           console.log(error, "error");
           msg.reply(eventDetailsMessage);
         }
-        // msg.reply(eventDetailsMessage);
 
         // Demander si l'utilisateur souhaite acheter le produit
         const buyConfirmationMessage =
@@ -867,13 +892,14 @@ const UserCommander = async (client, msg) => {
       const villeMessage = "Veuillez entrer votre ville de residence";
       msg.reply(villeMessage);
       transactionSteps[msg.from].step = "awaitTown";
-    }else if (
+    } else if (
       transactionSteps[msg.from] &&
       transactionSteps[msg.from].step === "awaitTown"
     ) {
       transactionSteps[msg.from].userTown = userResponse;
-      const trasac = "Vos informations ont ete enregistrer avec success.\n\n"+
-      "Veuillez entrer votre numéro de téléphone pour la transaction Mobile Money (ex: 6xxxxxxxx):";
+      const trasac =
+        "Vos informations ont ete enregistrer avec success.\n\n" +
+        "Veuillez entrer votre numéro de téléphone pour la transaction Mobile Money (ex: 6xxxxxxxx):";
       msg.reply(trasac);
       transactionSteps[msg.from].step = "awaitPhoneNumber";
     } else {

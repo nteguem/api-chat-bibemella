@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const { ProductService } = require("../models/product.model"); 
+const { ProductService } = require("../models/product.model");
 
 async function createProductService(productData) {
   try {
@@ -22,9 +22,13 @@ async function getAllProducts(type) {
   }
 }
 
-async function addProductToUser(phoneNumber, addSubscription, transaction_id, operator) {
+async function addProductToUser(
+  phoneNumber,
+  addSubscription,
+  transaction_id,
+  operator
+) {
   try {
-    
     const user = await User.findOne({ phoneNumber });
     const product = await ProductService.findOne({
       _id: addSubscription.itemId,
@@ -39,13 +43,19 @@ async function addProductToUser(phoneNumber, addSubscription, transaction_id, op
 
     user.subscriptions.push({
       productId: addSubscription.itemId,
-      expirationDate: addSubscription.type === 'service' ? addSubscription.expirationDate : undefined,
+      expirationDate:
+        addSubscription.type === "service"
+          ? addSubscription.expirationDate
+          : undefined,
       isOption: addSubscription.hasSub,
       optionId: addSubscription?.selectedServiceOption?._id,
       productType: addSubscription.type,
       transaction_id: transaction_id,
       operator: operator,
-      tokens: addSubscription.type === 'chatgpt' ? addSubscription.durationInDays : undefined, 
+      tokens:
+        addSubscription.type === "chatgpt"
+          ? addSubscription.durationInDays
+          : undefined,
     });
 
     await user.save();
@@ -108,40 +118,52 @@ async function addProductToUser(phoneNumber, addSubscription, transaction_id, op
 //uniquement pour les utilisateurs qui ont souscrit a un enseignement.
 async function findActiveSubscribers(isOption, id) {
   try {
-      const currentDate = new Date();
-      let filter = {
-          'subscriptions.expirationDate': { $gt: currentDate }
+    const currentDate = new Date();
+    let filter = {
+      "subscriptions.expirationDate": { $gt: currentDate },
+    };
 
+    if (isOption) {
+      filter["subscriptions"] = {
+        $elemMatch: {
+          optionId: id,
+        },
       };
+    } else {
+      filter["subscriptions"] = {
+        $elemMatch: {
+          productId: id,
+        },
+      };
+    }
 
-      if (isOption) {
-          filter['subscriptions'] = {
-              $elemMatch: {
-                  optionId: id
-              }
-          };
-      } else {
-          filter['subscriptions'] = {
-              $elemMatch: {
-                  productId: id,
-              }
-          };
-      }
+    const activeSubscribers = await User.find(filter);
 
-      const activeSubscribers = await User.find(filter);
-
-      return { success: true, activeSubscribers: activeSubscribers };
+    return { success: true, activeSubscribers: activeSubscribers };
   } catch (error) {
-     
-      return { success: false, error: "Error while searching for active subscribers" };
+    return {
+      success: false,
+      error: "Error while searching for active subscribers",
+    };
   }
 }
 
 async function getAllUserSubscriptions(phoneNumber, type = "all") {
   try {
-    const user = await User.findOne({ phoneNumber }).populate(
-      "subscriptions.productId"
-    ); // Associez les souscriptions à l'utilisateur
+    const user = await User.findOne({ phoneNumber })
+      .populate({
+        path: "subscriptions.productId",
+        model: "productservices", // Assuming 'ProductService' is the name of the referenced model
+      })
+      .populate({
+        path: "participations.eventId",
+        model: "events",
+        populate: {
+          path: 'pack',
+          model: 'productservices', // Assuming 'ProductService' is the name of the referenced model
+        }, // Assuming 'Event' is the name of the referenced model
+      })
+      .exec(); // Associez les souscriptions à l'utilisateur
 
     if (!user) {
       return { success: false, message: "Utilisateur non trouvé" };
@@ -150,7 +172,7 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
     const services = user.subscriptions.filter(
       (sub) => sub.productType === "service" && sub.expirationDate > new Date()
     );
-    
+
     const products = user.subscriptions.filter(
       (sub) => sub.productType === "product"
     );
@@ -158,6 +180,8 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
     const chatgptService = user.subscriptions.filter(
       (sub) => sub.productType === "chatgpt" && sub.tokens > 0
     );
+
+    let participations = user.participations;
 
     //we transform the services here
     const transformedServices = services.map((service) => {
@@ -173,7 +197,7 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
           subscriptionDate: service.subscriptionDate,
           transaction_id: service.transaction_id,
           operator: service.operator,
-          productId: subData
+          productId: subData,
         };
       }
       return service;
@@ -186,30 +210,33 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
           (sub) => sub._id.toString() === service.optionId
         );
 
-
-
         return {
           expirationDate: service.expirationDate,
           isOption: service.isOption,
           productType: service.productType,
           subscriptionDate: service.subscriptionDate,
           productId: subData,
-          remainingTokens: service.tokens
+          remainingTokens: service.tokens,
         };
       }
       return service;
     });
 
-    let result = []
+    let result = [];
 
     if (type === "service") {
       result = transformedServices;
-    } else if (type === 'product') {
+    } else if (type === "product") {
       result = products;
-    }else if (type === 'chatgpt') {
+    } else if (type === "chatgpt") {
       result = transformedChatgptServices;
     } else {
-      result = [...products, ...transformedServices, ...transformedChatgptServices];
+      result = [
+        ...products,
+        ...transformedServices,
+        ...transformedChatgptServices,
+        ...participations,
+      ];
     }
 
     return { success: true, products: result };
