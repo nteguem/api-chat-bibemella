@@ -47,6 +47,10 @@ async function handlePaymentSuccess(req, res, client) {
           }
         : {}),
     };
+    let img =
+      serviceData?.type === "product"
+        ? `https://bibemella.isomora.com/wp-content/uploads/${serviceData?.image}`
+        : process.env.BASE_URL_CLOUD+serviceData.image;
     const pdfBuffer = await generatePDFBuffer(
       user,
       phone,
@@ -55,15 +59,15 @@ async function handlePaymentSuccess(req, res, client) {
       operator,
       amount,
       serviceData?.durationInDays,
-      serviceData?.image
+      img
     );
     const pdfBase64 = pdfBuffer.toString("base64");
     const pdfName = "facture.pdf";
     const documentType = "application/pdf";
 
-    console.log('we are in the paiement controller: ');
+    console.log("we are in the paiement controller: ");
 
-    if(serviceData?.type==='events'){
+    if (serviceData?.type === "events") {
       await Promise.all([
         sendMediaToNumber(
           client,
@@ -78,11 +82,11 @@ async function handlePaymentSuccess(req, res, client) {
           operator_transaction_id,
           operator
         ),
-        addAmountToTotal({price: serviceData.price}),
+        addAmountToTotal({ price: serviceData.price }),
         addTransaction(serviceData),
         sendMessageToNumber(client, `${email}@c\.us`, successMessage),
       ]);
-    }else{
+    } else {
       await Promise.all([
         sendMediaToNumber(
           client,
@@ -97,12 +101,12 @@ async function handlePaymentSuccess(req, res, client) {
           operator_transaction_id,
           operator
         ),
-        addAmountToTotal({price: serviceData.price}),
+        addAmountToTotal({ price: serviceData.price }),
         addTransaction(serviceData),
         sendMessageToNumber(client, `${email}@c\.us`, successMessage),
       ]);
     }
-    
+
     if (serviceData?.image != "") {
       await sendMessageToNumber(
         client,
