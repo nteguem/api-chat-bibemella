@@ -13,7 +13,7 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     itemId: inputObject.selectedEvent._id,
     name: inputObject.selectedEvent.name,
     image: inputObject.selectedEvent.previewImage,
-    price: inputObject.selectedEvent.pack,
+    price: inputObject.selectedEvent.pack.price,
     location: inputObject.selectedEvent.place,
     date: inputObject.selectedEvent.date,
     time: inputObject.selectedEvent.time,

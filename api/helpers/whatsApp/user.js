@@ -810,10 +810,10 @@ const UserCommander = async (client, msg) => {
       if (selectedEvent) {
         // Afficher les détails du produit
         // const mediaMessage = await MessageMedia.fromUrl(
-        //   selectedEvent.previewImage
+        //   process.env.BASE_URL_CLOUD + selectedEvent.previewImage
         // );
 
-        const eventDetailsMessage = `*${selectedEvent.name}*\n\n*Description :*\n${selectedEvent.description}\n\n*Date :*\n${selectedEvent.date}\n\n*Heure :*\n${selectedEvent.time}\n\n*Lieu :*\n${selectedEvent.place}\n\n*Pack :* ${selectedEvent?.pack}\n\nPour plus de détails : ${selectedEvent.link}`;
+        const eventDetailsMessage = `*${selectedEvent.name}*\n\n*Description :*\n${selectedEvent.description}\n\n*Date :*\n${selectedEvent.date}\n\n*Heure :*\n${selectedEvent.time}\n\n*Lieu :*\n${selectedEvent.place}\n\n*Nom du pack :* ${selectedEvent?.pack.name}\n\n*Prix du pack :* ${selectedEvent.pack.price}`;
 
         try {
           msg.reply(eventDetailsMessage);

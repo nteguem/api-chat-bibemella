@@ -14,7 +14,10 @@ async function createEvent(eventData) {
 
 async function getAllEvents() {
   try {
-    const events = await Events.find({});
+    const events = await Events.find({}).populate({
+            path: 'pack',
+            model: 'productservices',
+        });
     return { success: true, events };
   } catch (error) {
     return { success: false, error: error.message };

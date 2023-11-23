@@ -79,7 +79,7 @@ const updateEvent = async (req, res) => {
       if (files && files.preview && files.preview.name) {
         const url = await uploadFileWithFormidable(
           files.preview,
-          "public/assets/preview"
+          "preview"
         );
         if (url) {
           fields.preview = url;

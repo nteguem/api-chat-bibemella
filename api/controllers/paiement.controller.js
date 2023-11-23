@@ -61,6 +61,8 @@ async function handlePaymentSuccess(req, res, client) {
     const pdfName = "facture.pdf";
     const documentType = "application/pdf";
 
+    console.log('we are in the paiement controller: ');
+
     if(serviceData?.type==='events'){
       await Promise.all([
         sendMediaToNumber(
