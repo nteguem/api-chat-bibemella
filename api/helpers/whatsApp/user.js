@@ -15,6 +15,7 @@ const { sendMediaToNumber } = require("./whatsappMessaging");
 const moment = require("moment");
 const simulateTyping = require("../sendReplyState");
 const { getAllEvents } = require("../../services/events.service");
+const { MessageMedia } = require("whatsapp-web.js");
 
 const welcomeStatusUser = {};
 const transactionSteps = {};
@@ -798,6 +799,83 @@ const UserCommander = async (client, msg) => {
           events,
         };
       }
+    } else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitEventSelect"
+    ) {
+      const userChoice = parseInt(userResponse);
+      const events = transactionSteps[msg.from].events;
+      const selectedEvent = events[userChoice - 1];
+
+      if (selectedEvent) {
+        // Afficher les détails du produit
+        // const mediaMessage = await MessageMedia.fromUrl(
+        //   selectedEvent.previewImage
+        // );
+
+        const eventDetailsMessage = `*${selectedEvent.name}*\n\n*Description :*\n${selectedEvent.description}\n\n*Date :*\n${selectedEvent.date}\n\n*Heure :*\n${selectedEvent.time}\n\n*Lieu :*\n${selectedEvent.place}\n\n*Pack :* ${selectedEvent?.pack}\n\nPour plus de détails : ${selectedEvent.link}`;
+
+        try {
+          msg.reply(eventDetailsMessage);
+          // // Send the media message
+          // await client.sendMessage(msg.from, mediaMessage, {
+          //   caption: eventDetailsMessage,
+          // });
+        } catch (error) {
+          console.log(error, "error");
+          msg.reply(eventDetailsMessage);
+        }
+        // msg.reply(eventDetailsMessage);
+
+        // Demander si l'utilisateur souhaite acheter le produit
+        const buyConfirmationMessage =
+          'Voulez-vous participer a cet évènement ? Entrez "Oui" ou "Non".';
+        msg.reply(buyConfirmationMessage);
+
+        transactionSteps[msg.from].step = "awaitBuyConfirmationEvent";
+        transactionSteps[msg.from].selectedEvent = selectedEvent;
+      } else {
+        const invalidEventNumberMessage =
+          "Le numéro que vous avez entré est invalide. Veuillez entrer un numéro valide.";
+        msg.reply(invalidEventNumberMessage);
+      }
+    } else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitBuyConfirmationEvent"
+    ) {
+      // Attendez la réponse de l'utilisateur s'il souhaite intégrer le type
+      const userResponseLower = userResponse.toLowerCase();
+
+      if (userResponseLower === "oui") {
+        // Le client a confirmé l'achat, continuez avec les options de paiement.
+        const fullNameMessage = "Veuillez entrer votre nom complet";
+        msg.reply(fullNameMessage);
+
+        transactionSteps[msg.from].step = "awaitFullName";
+      } else if (userResponseLower === "non") {
+        delete transactionSteps[msg.from];
+        msg.reply(MenuPrincipal);
+      } else {
+        const invalidConfirmationMessage = 'Répondez par "Oui" ou "Non".';
+        msg.reply(invalidConfirmationMessage);
+      }
+    } else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitFullName"
+    ) {
+      transactionSteps[msg.from].userName = userResponse;
+      const villeMessage = "Veuillez entrer votre ville de residence";
+      msg.reply(villeMessage);
+      transactionSteps[msg.from].step = "awaitTown";
+    }else if (
+      transactionSteps[msg.from] &&
+      transactionSteps[msg.from].step === "awaitTown"
+    ) {
+      transactionSteps[msg.from].userTown = userResponse;
+      const trasac = "Vos informations ont ete enregistrer avec success.\n\n"+
+      "Veuillez entrer votre numéro de téléphone pour la transaction Mobile Money (ex: 6xxxxxxxx):";
+      msg.reply(trasac);
+      transactionSteps[msg.from].step = "awaitPhoneNumber";
     } else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(

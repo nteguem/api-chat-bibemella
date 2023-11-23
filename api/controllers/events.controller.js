@@ -102,28 +102,35 @@ const updateEvent = async (req, res) => {
       const eventId = req.params.id || fields.id;
 
       if (!eventId) {
-        return res.status(400).json({ success: false, message: "Event ID is required" });
+        return res
+          .status(400)
+          .json({ success: false, message: "Event ID is required" });
       }
 
       // Find the event by ID
       const responseEvent = await eventService.findEventById(eventId);
 
       if (!responseEvent.success) {
-        return res.status(404).json({ success: false, message: "Event not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Event not found" });
       }
-      console.log(responseEvent)
+
       let existingEvent = responseEvent.event;
       // Update the event fields
       existingEvent.name = fields.name || existingEvent.name;
       existingEvent.previewImage = fields.preview || existingEvent.previewImage;
-      existingEvent.description = fields.description || existingEvent.description;
+      existingEvent.description =
+        fields.description || existingEvent.description;
       existingEvent.date = fields.date || existingEvent.date;
       existingEvent.time = fields.time || existingEvent.time;
       existingEvent.place = fields.place || existingEvent.place;
       existingEvent.pack = fields.pack || existingEvent.pack;
 
       if (gallery.length > 0) {
-        existingEvent.gallery = existingEvent.gallery ? existingEvent.gallery.concat(gallery) : gallery;
+        existingEvent.gallery = existingEvent.gallery
+          ? existingEvent.gallery.concat(gallery)
+          : gallery;
       }
 
       // Save the updated event
@@ -143,7 +150,6 @@ const updateEvent = async (req, res) => {
     res.status(400).json({ success: false });
   }
 };
-
 
 module.exports = {
   createEvent,

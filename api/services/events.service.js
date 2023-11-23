@@ -1,4 +1,5 @@
 const Events = require("../models/events.model");
+const User = require("../models/user.model");
 
 async function createEvent(eventData) {
   try {
@@ -34,8 +35,44 @@ async function findEventById(id) {
   }
 }
 
+async function addEventToUser(phoneNumber, addSubscription, transaction_id, operator) {
+  try {
+    
+    const user = await User.findOne({ phoneNumber });
+    const product = await Events.findOne({
+      _id: addSubscription.itemId,
+    });
+
+    if (!user || !product) {
+      return {
+        success: false,
+        message: "Utilisateur ou evenement non trouvé",
+      };
+    }
+
+    user.participations.push({
+      eventId: addSubscription.itemId,
+      transaction_id: transaction_id,
+      operator: operator
+    });
+
+    await user.save();
+
+    const addedEvent = await Events.findById(product._id);
+
+    return {
+      success: true,
+      message: "Souscription ajoutée avec succès",
+      subscription: addedEvent,
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   createEvent,
   getAllEvents,
   findEventById,
+  addEventToUser
 };

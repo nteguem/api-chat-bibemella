@@ -7,6 +7,7 @@ const generatePDFBuffer = require("../helpers/pdfGenerator");
 const { addProductToUser } = require("../services/product.service");
 const { addTransaction } = require("../services/transactions.service");
 const { addAmountToTotal } = require("../services/totalTransaction.service");
+const { addEventToUser } = require("../services/events.service");
 
 async function handlePaymentSuccess(req, res, client) {
   try {
@@ -26,7 +27,7 @@ async function handlePaymentSuccess(req, res, client) {
     serviceData.operator = operator;
     serviceData.transactionNumber = phone;
 
-    let servName = serviceData.hasSub
+    let servName = serviceData?.hasSub
       ? serviceData.name + ": " + `*${serviceData?.selectedServiceOption.name}*`
       : `*${serviceData.name}*`;
 
@@ -59,24 +60,47 @@ async function handlePaymentSuccess(req, res, client) {
     const pdfBase64 = pdfBuffer.toString("base64");
     const pdfName = "facture.pdf";
     const documentType = "application/pdf";
-    await Promise.all([
-      sendMediaToNumber(
-        client,
-        `${email}@c\.us`,
-        documentType,
-        pdfBase64,
-        pdfName
-      ),
-      addProductToUser(
-        email,
-        addSubscription,
-        operator_transaction_id,
-        operator
-      ),
-      addAmountToTotal({price: serviceData.price}),
-      addTransaction(serviceData),
-      sendMessageToNumber(client, `${email}@c\.us`, successMessage),
-    ]);
+
+    if(serviceData?.type==='events'){
+      await Promise.all([
+        sendMediaToNumber(
+          client,
+          `${email}@c\.us`,
+          documentType,
+          pdfBase64,
+          pdfName
+        ),
+        addEventToUser(
+          email,
+          addSubscription,
+          operator_transaction_id,
+          operator
+        ),
+        addAmountToTotal({price: serviceData.price}),
+        addTransaction(serviceData),
+        sendMessageToNumber(client, `${email}@c\.us`, successMessage),
+      ]);
+    }else{
+      await Promise.all([
+        sendMediaToNumber(
+          client,
+          `${email}@c\.us`,
+          documentType,
+          pdfBase64,
+          pdfName
+        ),
+        addProductToUser(
+          email,
+          addSubscription,
+          operator_transaction_id,
+          operator
+        ),
+        addAmountToTotal({price: serviceData.price}),
+        addTransaction(serviceData),
+        sendMessageToNumber(client, `${email}@c\.us`, successMessage),
+      ]);
+    }
+    
     if (serviceData?.image != "") {
       await sendMessageToNumber(
         client,
