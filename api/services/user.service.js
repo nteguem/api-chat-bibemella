@@ -113,28 +113,39 @@ async function getUser(userId) {
 
 async function updateUser(phoneNumber, updatedData) {
     try {
-      // Utilisez findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour username_ejara
+      let updateFields = {
+        username_ejara: updatedData.username_ejara,
+        role: updatedData.role
+      };
+  
+      if (updatedData.password) {
+        // Générer un sel (salt) de manière synchrone
+        const salt = bcrypt.genSaltSync(10);
+        // Utiliser le sel pour hasher le mot de passe
+        const hashedPassword = bcrypt.hashSync(updatedData.password, salt);
+        
+        updateFields.password = hashedPassword;
+      }
+  
+      // Utiliser findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour les champs nécessaires
       const updatedUser = await User.findOneAndUpdate(
         { phoneNumber: phoneNumber },
         {
-            $set: {
-                password: await bcrypt.hash(updatedData.password, 10),
-                username_ejara: updatedData.username_ejara,
-                role: updatedData.role
-            }
+          $set: updateFields
         },
         { new: true } // Ceci renvoie le document mis à jour plutôt que l'ancien
       );
   
       if (updatedUser) {
         return { success: true, message: 'Utilisateur mis à jour avec succès', user: updatedUser };
-    } else {
+      } else {
         return { success: false, message: 'Utilisateur non trouvé' };
-    }
+      }
     } catch (error) {
-        return { success: false, message: 'Erreur lors de la mise à jour de l\'utilisateur' };
+      console.log(error);
+      return { success: false, message: 'Erreur lors de la mise à jour de l\'utilisateur', error };
     }
-  }
+  } 
 
 function generateAccessToken(userId) {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '1h' });

@@ -51,6 +51,7 @@ const createEvent = async (req, res) => {
           message: "Erreur lors de la création de l'evenement",
           error: response.error,
         });
+        console.log(response.error)
       }
     });
   } catch (error) {

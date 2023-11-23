@@ -27,7 +27,7 @@ async function findEventById(id) {
     if (!event) {
       return { success: false, message: "Utilisateur non trouvé" };
     }
-
+ 
     return { success: true, event };
   } catch (error) {
     return { success: false, error: error.message };
