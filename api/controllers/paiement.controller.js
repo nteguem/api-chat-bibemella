@@ -58,7 +58,7 @@ async function handlePaymentSuccess(req, res, client) {
       servName,
       operator,
       amount,
-      serviceData?.durationInDays,
+      serviceData?.durationInDays || 0,
       img
     );
     const pdfBase64 = pdfBuffer.toString("base64");
