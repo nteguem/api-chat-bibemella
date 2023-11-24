@@ -10,7 +10,7 @@ const createEvent = async (req, res) => {
       if (files && files.preview && files.preview.name) {
         const url = await uploadFileWithFormidable(
           files.preview,
-          "public/assets/preview"
+          "preview"
         );
         if (url) {
           fields.preview = url;
@@ -24,7 +24,7 @@ const createEvent = async (req, res) => {
       for (let image of imageFiles) {
         const url = await uploadFileWithFormidable(
           image,
-          "public/assets/gallery"
+          "gallery"
         );
         if (url) gallery.push(url);
       }
@@ -93,7 +93,7 @@ const updateEvent = async (req, res) => {
       for (let image of imageFiles) {
         const url = await uploadFileWithFormidable(
           image,
-          "public/assets/gallery"
+          "gallery"
         );
         if (url) gallery.push(url);
       }

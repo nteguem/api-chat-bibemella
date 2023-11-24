@@ -122,7 +122,7 @@ async function getUser(userId) {
 }
 
 async function updateUser(phoneNumber, updatedData) {
-  console.log(phoneNumber, "ddd", updatedData);
+  
   try {
     // Utilisez findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour username_ejara
     const updatedUser = await User.findOneAndUpdate(
