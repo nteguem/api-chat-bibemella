@@ -13,6 +13,7 @@ const setupEventsRoutes = (app) => {
   router.get('/all-events', eventsHandle.getAllEvents);
   router.put('/update/:id', eventsHandle.updateEvent);
   router.delete("/delete/:id", eventsHandle.deleteEvent);
+  router.get("/users/:id", eventsHandle.getAllEventsUsers);
 };
 
 module.exports = { setupEventsRoutes };

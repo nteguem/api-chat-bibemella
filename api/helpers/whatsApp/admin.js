@@ -354,8 +354,8 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       if(getUsers.success){
         const users = getUsers.users;
         const replyMessage =
-            "Choisissez la liste des utilisateurs ayant souscrit a l'evenment:\n" +
-            selectedEvent?.name + ": \n" + 
+            "La liste des utilisateurs ayant souscrit a l'evenment *" +
+            selectedEvent?.name + ": *\n" + 
             users
               .map((us, index) => {
                 return `${index + 1}. ${us.fullname} (${us.city})`;

@@ -71,6 +71,20 @@ const getAllEvents = async (req, res) => {
   }
 };
 
+const getAllEventsUsers = async (req, res) => {
+  const eventId = req.params.id || fields.id;
+  const response = await eventService.getAllEventsUsers(eventId);
+
+  if (response.success) {
+    res.json(response.events);
+  } else {
+    res.status(500).json({
+      message: "Erreur lors de la récupération des utilisateurs",
+      error: response.error,
+    });
+  }
+};
+
 const updateEvent = async (req, res) => {
   try {
     const form = new formidable.IncomingForm({ multiples: true });
@@ -173,5 +187,6 @@ module.exports = {
   createEvent,
   getAllEvents,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  getAllEventsUsers
 };
