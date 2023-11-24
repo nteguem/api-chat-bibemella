@@ -82,7 +82,7 @@ const UserCommander = async (client, msg) => {
       let cleanedPhoneNumber = phoneNumber.replace(/@c\.us$/, "");
       const userUpdated = await updateUser(
         cleanedPhoneNumber,
-        ejaraNameResponse
+        {username_ejara: ejaraNameResponse}
       );
       if (userUpdated.success) {
         msg.reply(`Votre nom d'utilisateur Ejara a été ajouté avec succès.`);
@@ -897,6 +897,10 @@ const UserCommander = async (client, msg) => {
       transactionSteps[msg.from].step === "awaitTown"
     ) {
       transactionSteps[msg.from].userTown = userResponse;
+      let upda = await updateUser(msg.from.replace(/@c\.us$/, ""), {
+        fullname: transactionSteps[msg.from].userName,
+        city: userResponse
+      });
       const trasac =
         "Vos informations ont ete enregistrer avec success.\n\n" +
         "Veuillez entrer votre numéro de téléphone pour la transaction Mobile Money (ex: 6xxxxxxxx):";

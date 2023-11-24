@@ -116,7 +116,7 @@ async function updateUser(phoneNumber, updatedData) {
       // Utilisez findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour username_ejara
       const updatedUser = await User.findOneAndUpdate(
         { phoneNumber: phoneNumber },
-        { $set: { username_ejara: updatedData } },
+        { $set:  updatedData},
         { new: true } // Ceci renvoie le document mis à jour plutôt que l'ancien
       );
   
