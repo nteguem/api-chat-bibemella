@@ -12,6 +12,7 @@ const setupEventsRoutes = (app) => {
   router.post('/create-event', eventsHandle.createEvent);
   router.get('/all-events', eventsHandle.getAllEvents);
   router.put('/update/:id', eventsHandle.updateEvent);
+  router.delete("/delete/:id", eventsHandle.deleteEvent);
 };
 
 module.exports = { setupEventsRoutes };

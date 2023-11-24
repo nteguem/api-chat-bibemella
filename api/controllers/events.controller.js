@@ -151,8 +151,27 @@ const updateEvent = async (req, res) => {
   }
 };
 
+const deleteEvent = async (req, res) => {
+  // Extract event ID from request parameters
+  const eventId = req.params.id;
+
+  // Call your eventService to delete the event
+  const response = await eventService.deleteEvent(eventId);
+
+  if (response.success) {
+    res.json({ message: "Event deleted successfully" });
+  } else {
+    res.status(500).json({
+      message: "Error deleting the event",
+      error: response.error,
+    });
+  }
+};
+
+
 module.exports = {
   createEvent,
   getAllEvents,
   updateEvent,
+  deleteEvent
 };

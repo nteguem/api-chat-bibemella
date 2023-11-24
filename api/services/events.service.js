@@ -73,9 +73,24 @@ async function addEventToUser(phoneNumber, addSubscription, transaction_id, oper
   }
 }
 
+// eventService.js
+
+const deleteEvent = async (eventId) => {
+  try {
+  
+    const result = await Events.findByIdAndDelete(eventId);
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    return { success: false, error: "Error deleting event" };
+  }
+};
+
+
 module.exports = {
   createEvent,
   getAllEvents,
   findEventById,
-  addEventToUser
+  addEventToUser,
+  deleteEvent
 };
