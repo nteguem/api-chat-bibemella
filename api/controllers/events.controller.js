@@ -76,7 +76,7 @@ const getAllEventsUsers = async (req, res) => {
   const response = await eventService.getAllEventsUsers(eventId);
 
   if (response.success) {
-    res.json(response.events);
+    res.json(response.users);
   } else {
     res.status(500).json({
       message: "Erreur lors de la récupération des utilisateurs",

@@ -7,7 +7,7 @@ const eventSchema = new Schema({
   time: { type: String, required: true },
   place: { type: String, required: true },
   description: { type: String },
-  pack: { type: Schema.Types.ObjectId, ref: "productservices", required: true },
+  pack: [{ type: Schema.Types.ObjectId, ref: "productservices", required: true }],
   previewImage: { type: String },
   gallery: [{ type: String }],
 });

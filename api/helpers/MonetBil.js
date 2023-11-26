@@ -5,7 +5,7 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
   const contact = await msg.getContact();
   let inputObject = transactionSteps[msg.from];
 
-
+  // console.log(inputObject);
 
   const resultObject = inputObject.type === 'EVENTS' ? 
   {
@@ -19,7 +19,8 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     time: inputObject.selectedEvent.time,
     fullName: inputObject.userName,
     userTown: inputObject.userTown,
-    type: 'events'
+    type: 'events',
+    packId: inputObject.selectedPack._id
   }
   :
   {
