@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     transaction_id: { type: String, required: true },
     operator: { type: String, required: true },
     productType: { type: String, required: true, default: 'event' },
+    packId: { type: mongoose.Schema.Types.ObjectId, ref: 'productservices' },
   }]
 });
 

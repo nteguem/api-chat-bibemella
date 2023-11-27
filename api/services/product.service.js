@@ -158,10 +158,13 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
       .populate({
         path: "participations.eventId",
         model: "events",
-        populate: {
-          path: 'pack',
-          model: 'productservices', // Assuming 'ProductService' is the name of the referenced model
-        }, // Assuming 'Event' is the name of the referenced model
+        // populate: {
+        //   path: 'pack',
+        //   model: 'productservices', // Assuming 'ProductService' is the name of the referenced model
+        // }, // Assuming 'Event' is the name of the referenced model
+      }).populate({
+        path: "participations.packId",
+        model: "productservices", // Assuming 'ProductService' is the name of the referenced model
       })
       .exec(); // Associez les souscriptions à l'utilisateur
 

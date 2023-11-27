@@ -67,7 +67,8 @@ async function addEventToUser(phoneNumber, addSubscription, transaction_id, oper
     user.participations.push({
       eventId: addSubscription.itemId,
       transaction_id: transaction_id,
-      operator: operator
+      operator: operator,
+      packId: addSubscription.packId
     });
 
     await user.save();
