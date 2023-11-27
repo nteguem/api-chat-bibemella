@@ -9,6 +9,7 @@ const {
 const {
   getTotalSuccessAmount,
 } = require("../../services/totalTransaction.service");
+const { getAllEvents, getAllEventsUsers } = require("../../services/events.service");
 
 const SUCCESS_MESSAGE_ENSEIGNEMENTS =
   "L'enseignement a été publié à toute la communauté avec succès.";
@@ -16,7 +17,7 @@ const SUCCESS_MESSAGE_ANNONCE =
   "L'annonce a été partagé à toute la communauté avec succès.";
 
 const welcomeStatusUser = {};
-const COMMAND_NAME = { ENSEIGNEMENTS: "1", ANNONCE: "2", SOLDE: "3" };
+const COMMAND_NAME = { ENSEIGNEMENTS: "1", ANNONCE: "2", SOLDE: "3", USERS: '4' };
 
 const AdminCommander = async (client, msg, transactions) => {
   const contact = await msg.getContact();
@@ -26,6 +27,7 @@ En tant qu'administrateur de la Fondation Bibemella, voici les actions que vous 
 1️⃣ Pour publier un enseignement, tapez 1.
 2️⃣ Pour faire une annonce à tous, tapez 2.
 3️⃣ Pour consulter le solde de tous les transactions, tapez 3.
+4️⃣ Pour consulter la liste des utilisateurs ayant souscrit a un evenement, tapez 4.
   
 Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella ! 🙌`;
 
@@ -34,6 +36,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 1️⃣ Pour publier un enseignement, tapez 1.
 2️⃣ Pour faire une annonce à tous, tapez 2.
 3️⃣ Pour consulter le solde de tous les transactions, tapez 3.
+4️⃣ Pour consulter la liste des utilisateurs ayant souscrit a un evenement, tapez 4.
 
 Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella ! 🙌`;
 
@@ -315,7 +318,57 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       }else{
         msg.reply("Une erreur s'est produite lors de la recuperation du solde");
       }
-    } else {
+    }else if (
+      userResponse === COMMAND_NAME.USERS &&
+      !transactions[msg.from]
+    ){
+      const eventsResponse = await getAllEvents();
+      if (eventsResponse.success) {
+        let events = eventsResponse.events;
+        const replyMessage =
+          "Choisissez un évènements en répondant avec son numéro :\n" +
+          events
+            .map((event, index) => {
+              return `${index + 1}. ${event.name}`;
+            })
+            .join("\n");
+        msg.reply(replyMessage + "\n\n#. Menu principal");
+
+        // Enregistrez l'étape de la transaction pour cet utilisateur
+        transactions[msg.from] = {
+          step: "awaitEventSelect",
+          type: "USERS",
+          events,
+        };
+      }
+
+    }else if (
+      transactions[msg.from] &&
+      transactions[msg.from].step === "awaitEventSelect"
+    ) {
+      const userChoice = parseInt(userResponse);
+      const events = transactions[msg.from].events;
+      const selectedEvent = events[userChoice - 1];
+      const getUsers = await getAllEventsUsers(selectedEvent._id);
+      // console.log(getUsers, 'kdjfkdjfk');
+      if(getUsers.success){
+        const users = getUsers.users;
+        const replyMessage =
+            "La liste des utilisateurs ayant souscrit a l'evenment *" +
+            selectedEvent?.name + ": *\n" + 
+            users
+              .map((us, index) => {
+                return `${index + 1}. ${us.fullname} (${us.city})`;
+              })
+              .join("\n");
+          msg.reply(replyMessage + "\n\n#. Menu principal");
+      }else{
+
+      }
+      
+    } 
+    
+    else {
       delete transactions[msg.from];
       msg.reply(MenuPrincipal);
     }

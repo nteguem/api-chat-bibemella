@@ -46,8 +46,8 @@ const getUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const phoneNumber = req.body.phoneNumber; 
-  const updatedData = req.body;
+  // console.log('helllloo', req.body)
+  const {phoneNumber, ...updatedData} = req.body;
   const response = await userService.updateUser(phoneNumber, updatedData);
 
   if (response.success) {

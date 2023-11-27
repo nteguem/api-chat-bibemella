@@ -37,11 +37,11 @@ const handleIncomingMessages = (client) => {
    const contact = await msg.getContact();
    const contactName = contact.pushname; // Récupérer le nom de l'utilisateur
    await saveUser(msg.from, contactName);
-   if (!transactionSteps?.userType) {
+  //  if (!transactionSteps?.userType) {
     let response = await getAllUser(msg.from.replace(/@c\.us$/, ""));
     let user = response.users[0];
     transactionSteps.userType = user?.role || 'user';
-  }
+  // }
 
   if (transactionSteps.userType==='admin' && !msg.isGroupMsg) {
       await AdminCommander(client, msg, transactionSteps);

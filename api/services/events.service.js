@@ -12,6 +12,17 @@ async function createEvent(eventData) {
   }
 }
 
+async function getAllEventsUsers (eventId){
+  try{
+    const users = await User.find(
+        { 'participations.eventId': eventId }
+    );
+    return { success: true, users };
+  }catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 async function getAllEvents() {
   try {
     const events = await Events.find({}).populate({
@@ -92,5 +103,6 @@ module.exports = {
   getAllEvents,
   findEventById,
   addEventToUser,
-  deleteEvent
+  deleteEvent,
+  getAllEventsUsers
 };
