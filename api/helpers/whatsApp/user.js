@@ -746,13 +746,17 @@ const UserCommander = async (client, msg) => {
             console.log(error, "error");
             msg.reply(eventDetailsMessage);
           }
-          
-          const regenerateFactureMessage =
-            "Pour regénérer votre facture, entrez *Facture*.\n" +
-            moment(selectedItem.eventId.date).isBefore(new Date())
-              ? "Pour voir la galerie de cet evenement, entrez *Galerie*.\n"
-              : "";
-          msg.reply(regenerateFactureMessage + "\n\n#. Menu principal");
+
+          const regenerateFactureMessage = moment(
+            selectedItem.eventId.date
+          ).isBefore(new Date())
+            ? "Pour voir la galerie de cet evenement, entrez *Galerie*.\n"
+            : "";
+          msg.reply(
+            "Pour regénérer votre facture, entrez *Facture*.\n\n" +
+              regenerateFactureMessage +
+              "\n\n#. Menu principal"
+          );
 
           transactionSteps[msg.from].step = "awaitConfirmationRequest";
           transactionSteps[msg.from].selectedItem = selectedItem;
@@ -802,13 +806,19 @@ const UserCommander = async (client, msg) => {
 
         delete transactionSteps[msg.from];
         msg.reply(MenuPrincipal);
-      }else if (userWord.toLowerCase() === "galerie"){
-        console.log(selectedItem, 'galeireeee');
-        const photos = selectedItem.gallery;
-        if(photos.length > 0){
+      } else if (userWord.toLowerCase() === "galerie") {
+        console.log(selectedItem, "galeireeee");
+        const photos = selectedItem.eventId.gallery;
+        if (photos.length > 0) {
           msg.reply("Consultez la galerie: ");
-        }else{
-          msg.reply("Aucune image disponible dans la galerie pour l'instant. \n\n#. Menu principal")
+          for (const imageUrl of photos) {
+            const mediaMessage = await MessageMedia.fromUrl(process.env.BASE_URL_CLOUD + imageUrl);
+            await client.sendMessage(msg.from, mediaMessage);
+          }
+        } else {
+          msg.reply(
+            "Aucune image disponible dans la galerie pour l'instant. \n\n#. Menu principal"
+          );
         }
       } else {
         delete transactionSteps[msg.from];
