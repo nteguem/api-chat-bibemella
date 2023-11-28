@@ -91,10 +91,10 @@ async function deleteProduct(id) {
     const deletedSubscription = await ProductService.findByIdAndDelete(id);
 
     if (!deletedSubscription) {
-      return { success: false, message: 'Souscription non trouvée' };
+      return { success: false, message: 'Produit ou service non trouvée' };
     }
 
-    return { success: true, message: 'Souscription supprimée avec succès' };
+    return { success: true, message: 'Produit ou service supprime avec succès' };
   } catch (error) {
     return { success: false, error: error.message };
   }
