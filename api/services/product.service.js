@@ -72,48 +72,33 @@ async function addProductToUser(
   }
 }
 
-// async function updateSubscription(subscriptionId, updatedData) {
-//   try {
-//     const updatedSubscription = await Subscription.findByIdAndUpdate(subscriptionId, updatedData, { new: true });
+async function updateService(id, updatedData) {
+  try {
+    const updatedService = await ProductService.findByIdAndUpdate(id, updatedData, { new: true });
 
-//     if (!updatedSubscription) {
-//       return { success: false, message: 'Souscription non trouvée' };
-//     }
+    if (!updatedService) {
+      return { success: false, message: 'service non trouvé' };
+    }
 
-//     return { success: true, subscription: updatedSubscription };
-//   } catch (error) {
-//     return { success: false, error: error.message };
-//   }
-// }
+    return { success: true, service: updatedService };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 
-// async function deleteSubscription(subscriptionId) {
-//   try {
-//     const deletedSubscription = await Subscription.findByIdAndDelete(subscriptionId);
+async function deleteProduct(id) {
+  try {
+    const deletedSubscription = await ProductService.findByIdAndDelete(id);
 
-//     if (!deletedSubscription) {
-//       return { success: false, message: 'Souscription non trouvée' };
-//     }
+    if (!deletedSubscription) {
+      return { success: false, message: 'Produit ou service non trouvée' };
+    }
 
-//     return { success: true, message: 'Souscription supprimée avec succès' };
-//   } catch (error) {
-//     return { success: false, error: error.message };
-//   }
-// }
-
-// async function findActiveSubscribers(name) {
-//   try {
-//     const query = {
-//       'subscriptions.subscription.name': name,
-//       'subscriptions.expirationDate': { $exists: true },
-//     };
-
-//     const activeSubscribers = await User.find(query).select('phoneNumber');
-
-//     return { success: true, data: activeSubscribers };
-//   } catch (error) {
-//     return { success: false, error: error.message };
-//   }
-// }
+    return { success: true, message: 'Produit ou service supprime avec succès' };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 
 //uniquement pour les utilisateurs qui ont souscrit a un enseignement.
 async function findActiveSubscribers(isOption, id) {
@@ -248,12 +233,26 @@ async function getAllUserSubscriptions(phoneNumber, type = "all") {
   }
 }
 
+async function findProductById(id) {
+  try {
+    const product = await ProductService.findById(id);
+
+    if (!product) {
+      return { success: false, message: "Produit ou service non trouvé" };
+    }
+
+    return { success: true, product };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   createProductService,
   getAllProducts,
-  //   updateSubscription,
-  //   deleteSubscription,
-  //   findActiveSubscribers,
+  findProductById,
+    deleteProduct,
+    updateService,
   findActiveSubscribers,
   getAllUserSubscriptions,
   addProductToUser,

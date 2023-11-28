@@ -15,6 +15,9 @@ const setupProductRoutes = (app) => {
   router.post('/add-product-to-user', productHanlder.addProductToUser);
   router.get('/user-subscriptions/:phoneNumber', productHanlder.getAllSubscriptionsUser); 
   router.get('/active-subscribers', productHanlder.getActiveSubscribers );
+  router.delete('/delete/:id', productHanlder.deleteProductService );
+  router.put('/update-service/:id', productHanlder.updateService );
+  router.put('/update-product/:id', productHanlder.updateProduct );
 };
 
 module.exports = { setupProductRoutes };
