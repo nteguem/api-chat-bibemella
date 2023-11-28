@@ -662,7 +662,9 @@ const UserCommander = async (client, msg) => {
                       ": " +
                       service?.productId.name
                     : service?.productId.category
-                  : service?.productId?.name || service?.eventId?.name;
+                  : service?.productId?.name ||
+                    service?.eventId?.name +
+                      ` (${moment(service?.eventId?.date).format("DD MMM YYYY")})`;
                 return `${index + 1}. ${n}`;
               })
               .join("\n");
@@ -750,7 +752,7 @@ const UserCommander = async (client, msg) => {
           const regenerateFactureMessage = moment(
             selectedItem.eventId.date
           ).isBefore(new Date())
-            ? "Pour voir la galerie de cet evenement, entrez *Galerie*.\n"
+            ? "Pour voir la galerie de cet évènement, entrez *Galerie*.\n"
             : "";
           msg.reply(
             "Pour regénérer votre facture, entrez *Facture*.\n\n" +
@@ -773,7 +775,10 @@ const UserCommander = async (client, msg) => {
       const userWord = userResponse;
       const selectedItem = transactionSteps[msg.from].selectedItem;
 
-      if (userWord.toLowerCase() === "facture") {
+      if (
+        userWord.toLowerCase() === "facture" &&
+        transactionSteps[msg.from].type === COMMAND_NAME.PRODUITS
+      ) {
         const pdfBuffer = await generatePDFBuffer(
           contact.pushname,
           msg.from.replace(/@c\.us$/, ""),
@@ -807,13 +812,18 @@ const UserCommander = async (client, msg) => {
         delete transactionSteps[msg.from];
         msg.reply(MenuPrincipal);
       } else if (userWord.toLowerCase() === "galerie") {
-        console.log(selectedItem, "galeireeee");
-        const photos = selectedItem.eventId.gallery;
+        const photos = selectedItem?.eventId?.gallery || selectedItem?.gallery;
         if (photos.length > 0) {
           msg.reply("Consultez la galerie: ");
-          for (const imageUrl of photos) {
-            const mediaMessage = await MessageMedia.fromUrl(process.env.BASE_URL_CLOUD + imageUrl);
-            await client.sendMessage(msg.from, mediaMessage);
+          try {
+            for (const imageUrl of photos) {
+              const mediaMessage = await MessageMedia.fromUrl(
+                process.env.BASE_URL_CLOUD + imageUrl
+              );
+              await client.sendMessage(msg.from, mediaMessage);
+            }
+          } catch (e) {
+            msg.reply("Une erreur s'est produite lors de l'envoi des medias");
           }
         } else {
           msg.reply(
@@ -835,7 +845,9 @@ const UserCommander = async (client, msg) => {
           "Choisissez un évènements en répondant avec son numéro :\n" +
           events
             .map((event, index) => {
-              return `${index + 1}. ${event.name}`;
+              return `${index + 1}. ${event.name} (${moment(event.date).format(
+                "DD MMM YYYY"
+              )})`;
             })
             .join("\n");
         msg.reply(replyMessage + "\n\n#. Menu principal");
@@ -874,10 +886,17 @@ const UserCommander = async (client, msg) => {
         // Demander si l'utilisateur souhaite acheter le produit
         const buyConfirmationMessage =
           'Voulez-vous participer a cet évènement ? Entrez "Oui" ou "Non".';
-        msg.reply(buyConfirmationMessage);
-
-        transactionSteps[msg.from].step = "awaitSelectEventpack";
-        transactionSteps[msg.from].selectedEvent = selectedEvent;
+        const regenerateFactureMessage =
+          "Cet évènement est terminé.\n Pour consulter la galerie de cet évènement, entrez *Galerie*.\n";
+        if (moment(selectedEvent.date).isBefore(new Date())) {
+          msg.reply(regenerateFactureMessage);
+          transactionSteps[msg.from].step = "awaitConfirmationRequest";
+          transactionSteps[msg.from].selectedItem = selectedEvent;
+        } else {
+          msg.reply(buyConfirmationMessage);
+          transactionSteps[msg.from].step = "awaitSelectEventpack";
+          transactionSteps[msg.from].selectedEvent = selectedEvent;
+        }
       } else {
         const invalidEventNumberMessage =
           "Le numéro que vous avez entré est invalide. Veuillez entrer un numéro valide.";
@@ -890,7 +909,7 @@ const UserCommander = async (client, msg) => {
       if (userResponse.toLowerCase() === "oui") {
         const selectedEvent = transactionSteps[msg.from].selectedEvent;
         const packs = selectedEvent.pack;
-        console.log(packs, "liste pack");
+
         const packMessage =
           "Choisissez un pack en répondant avec son numéro :\n" +
           packs

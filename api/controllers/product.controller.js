@@ -1,6 +1,8 @@
+const uploadFileWithFormidable = require("../helpers/uploadCloudinary");
 const productService = require("../services/product.service");
+const formidable = require("formidable-serverless");
 
-const createProductService = async (req, res) => {
+const createService = async (req, res) => {
     const productData = req.body;
     
     const response = await productService.createProductService(productData);
@@ -14,6 +16,47 @@ const createProductService = async (req, res) => {
         });
     }
 };
+
+const createProduct = async (req, res) => {
+    try {
+        const form = new formidable.IncomingForm({ multiples: true });
+    
+        form.parse(req, async (err, fields, files) => {
+          if (files && files.image && files.image.name) {
+            const url = await uploadFileWithFormidable(
+              files.image,
+              "product"
+            );
+            if (url) {
+              fields.image = url;
+            }
+          }
+    
+          let productData = {
+            name: fields.name,
+            image: fields.image,
+            description: fields.description,
+            price: fields?.price,
+            type: fields?.type,
+            advantage: fields?.advantage,
+            link: fields?.link,
+          };
+    
+          const response = await productService.createProductService(productData);
+    
+          if (response.success) {
+            res.json({ message: response.message });
+          } else {
+            res.status(500).json({
+              message: "Erreur lors de la création de l'evenement",
+              error: response.error,
+            });
+          }
+        });
+      } catch (error) {
+        res.status(400).json({ success: false });
+      }
+}
 
 const getAllProducts = async (req, res) => {
     const { type } = req.body;
@@ -135,7 +178,8 @@ const addProductToUser = async (req, res) => {
 };
 
 module.exports = {
-    createProductService,
+    createProduct,
+    createService,
     // getActiveSubscribers,
     getAllSubscriptionsUser,
 

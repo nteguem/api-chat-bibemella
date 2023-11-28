@@ -9,7 +9,8 @@ const productHanlder = require('../controllers/product.controller');
 const setupProductRoutes = (app) => {
   // Mount the 'router' to handle routes with the base path '/Product'.
   app.use("/product", router);
-  router.post('/create-product', productHanlder.createProductService);
+  router.post('/create-service', productHanlder.createService);
+  router.post('/create-product', productHanlder.createProduct);
   router.get('/all-Products', productHanlder.getAllProducts); 
   router.post('/add-product-to-user', productHanlder.addProductToUser);
   router.get('/user-subscriptions/:phoneNumber', productHanlder.getAllSubscriptionsUser); 
