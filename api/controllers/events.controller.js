@@ -139,7 +139,7 @@ const updateEvent = async (req, res) => {
       existingEvent.date = fields.date || existingEvent.date;
       existingEvent.time = fields.time || existingEvent.time;
       existingEvent.place = fields.place || existingEvent.place;
-      existingEvent.pack = fields.pack || existingEvent.pack;
+      existingEvent.pack = JSON.parse(fields.pack) || existingEvent.pack;
 
       if (gallery.length > 0) {
         existingEvent.gallery = existingEvent.gallery
