@@ -38,7 +38,7 @@ const createEvent = async (req, res) => {
         date: fields?.date,
         time: fields?.time,
         place: fields?.place,
-        pack: fields?.pack,
+        pack: JSON.parse(fields?.pack),
         gallery: gallery,
       };
 
