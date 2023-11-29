@@ -736,7 +736,7 @@ const UserCommander = async (client, msg) => {
           transactionSteps[msg.from].step = "awaitConfirmationRequest";
           transactionSteps[msg.from].selectedItem = selectedItem;
         } else if (selectedItem.productType === "event") {
-          const eventDetailsMessage = `*${selectedItem.eventId.name}*\n\n*Description :*\n${selectedItem.eventId.description}\n\n*📅Date :*\n${selectedItem.eventId.date}\n\n*⏰Heure :*\n${selectedItem.eventId.time}\n\n*📍Lieu :*\n${selectedItem.eventId.place}\n\n*Nom du pack :*${selectedItem.packId.name}\n\n*Prix du pack :*${selectedItem.packId.price}`;
+          const eventDetailsMessage = `*${selectedItem.eventId.name}*\n\n*Description :*\n${selectedItem.eventId.description}\n\n*📅Date :*\n${moment(selectedItem.eventId.date).format('DD MMM YYYY')}\n\n*⏰Heure :*\n${selectedItem.eventId.time}\n\n*📍Lieu :*\n${selectedItem.eventId.place}\n\n*Nom du pack :*${selectedItem.packId.name}\n\n*Prix du pack :*${selectedItem.packId.price}`;
           try {
             const mediaMessage = await MessageMedia.fromUrl(
               process.env.BASE_URL_CLOUD + selectedItem.eventId.previewImage
@@ -869,7 +869,7 @@ const UserCommander = async (client, msg) => {
 
       if (selectedEvent) {
         // Afficher les détails du produit
-        const eventDetailsMessage = `*${selectedEvent.name}*\n\n*Description :*\n${selectedEvent.description}\n\n*📅Date :*\n${selectedEvent.date}\n\n*⏰Heure :*\n${selectedEvent.time}\n\n*📍Lieu :*\n${selectedEvent.place}\n\n`;
+        const eventDetailsMessage = `*${selectedEvent.name}*\n\n*Description :*\n${selectedEvent.description}\n\n*📅Date :*\n${moment(selectedEvent.date).format('DD MMM YYYY')}\n\n*⏰Heure :*\n${selectedEvent.time}\n\n*📍Lieu :*\n${selectedEvent.place}\n\n`;
 
         try {
           const mediaMessage = await MessageMedia.fromUrl(
@@ -943,7 +943,7 @@ const UserCommander = async (client, msg) => {
             transactionSteps[msg.from].selectedEvent.name
           }*` +
           `\nLieu: ${transactionSteps[msg.from].selectedEvent.place}` +
-          `\nDate: ${transactionSteps[msg.from].selectedEvent.date}` +
+          `\nDate: ${moment(transactionSteps[msg.from].selectedEvent.date).format('DD MMM YYYY')}` +
           `\nHeure: ${transactionSteps[msg.from].selectedEvent.time}` +
           `\nPack: ${selectedPack.name} ${selectedPack.price} XFA.\n\n`;
         const fullNameMessage =
