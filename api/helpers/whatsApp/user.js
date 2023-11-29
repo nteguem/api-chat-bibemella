@@ -792,7 +792,7 @@ const UserCommander = async (client, msg) => {
             : selectedItem.productId?.price,
           selectedItem.productId?.durationInDay,
           selectedItem.productType === "product"
-            ? `https://bibemella.isomora.com/wp-content/uploads/${selectedItem.productId?.image}`
+            ?  process.env.BASE_URL_CLOUD + selectedItem.productId?.image
             : selectedItem.productType === "event"
             ? process.env.BASE_URL_CLOUD + selectedItem.eventId.previewImage
             : "",
