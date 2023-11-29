@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
   participations: [{
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'events' },
     transaction_id: { type: String, required: true },
+    subscriptionDate: { type: Date, default: Date.now },
     operator: { type: String, required: true },
     productType: { type: String, required: true, default: 'event' },
     packId: { type: mongoose.Schema.Types.ObjectId, ref: 'productservices' },
