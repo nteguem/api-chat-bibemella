@@ -49,8 +49,8 @@ async function handlePaymentSuccess(req, res, client) {
     };
     let img =
       serviceData?.type === "product"
-        ? `https://bibemella.isomora.com/wp-content/uploads/${serviceData?.image}`
-        : process.env.BASE_URL_CLOUD+serviceData.image;
+        ? process.env.BASE_URL_CLOUD+serviceData.image
+        : serviceData?.type === "events" ? process.env.BASE_URL_CLOUD+serviceData.image : "";
     const pdfBuffer = await generatePDFBuffer(
       user,
       phone,
