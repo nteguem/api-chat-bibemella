@@ -87,7 +87,15 @@ async function getAllUser(phoneNumber) {
       path: "subscriptions.productId",
       model: "productservices",
       select: "name subservices", // Add the fields you want to select
-    });
+    }).populate({
+      path: "participations.eventId",
+      model: "events",
+     
+    }).populate({
+      path: "participations.packId",
+      model: "productservices", // Assuming 'ProductService' is the name of the referenced model
+    })
+    .exec();
     const updatedUsers = users.map((user) => {
       user.subscriptions.forEach((subscription) => {
         if (subscription.productId && subscription.isOption) {
