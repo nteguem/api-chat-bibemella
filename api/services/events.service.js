@@ -16,7 +16,13 @@ async function getAllEventsUsers (eventId){
   try{
     const users = await User.find(
         { 'participations.eventId': eventId }
-    );
+    ).populate({
+      path: "participations.eventId",
+      model: "events",
+    }).populate({
+      path: "participations.packId",
+      model: "productservices",
+    }).exec();
     return { success: true, users };
   }catch (error) {
     return { success: false, error: error.message };
