@@ -18,6 +18,7 @@ const setupProductRoutes = (app) => {
   router.delete('/delete/:id', productHanlder.deleteProductService );
   router.put('/update-service/:id', productHanlder.updateService );
   router.put('/update-product/:id', productHanlder.updateProduct );
+  router.delete('/remove-option/:id/:optionId', productHanlder.deleteOptionFromService );
 };
 
 module.exports = { setupProductRoutes };

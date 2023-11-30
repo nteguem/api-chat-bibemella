@@ -182,11 +182,55 @@ const deleteEvent = async (req, res) => {
   }
 };
 
+const deleteEventImage = async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const imageUrl = req.body.imageUrl; 
+
+    // Find the event by ID
+    const responseEvent = await eventService.findEventById(eventId);
+
+    if (!responseEvent.success) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
+    }
+
+    const existingEvent = responseEvent.event;
+    const imageIndex = existingEvent.gallery.indexOf(imageUrl);
+
+    if (imageIndex === -1) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Image not found in the gallery" });
+    }
+
+    existingEvent.gallery.splice(imageIndex, 1);
+
+    const response = await existingEvent.save();
+
+    if (response) {
+      // Optionally, you may want to delete the image file from your storage here
+      res.json({ message: "Image deleted successfully", data: response });
+    } else {
+      res.status(500).json({
+        message: "Error deleting the image",
+        error: response.error,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ success: false });
+  }
+};
+
+
 
 module.exports = {
   createEvent,
   getAllEvents,
   updateEvent,
   deleteEvent,
-  getAllEventsUsers
+  getAllEventsUsers,
+  deleteEventImage
 };
