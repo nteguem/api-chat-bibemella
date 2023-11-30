@@ -100,6 +100,27 @@ async function deleteProduct(id) {
   }
 }
 
+async function deleteProductOption(id, optionId) {
+  try {
+    const deletedSubscription = await ProductService.findByIdAndUpdate(
+      id,
+      {
+        $pull: { subservices: { _id: optionId } }
+      },
+      { new: true } // To return the modified document
+    );
+
+    if (!deletedSubscription) {
+      return { success: false, message: 'Produit ou service non trouvé' };
+    }
+
+    return { success: true, message: 'Option supprimée avec succès', data: deletedSubscription };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+
 //uniquement pour les utilisateurs qui ont souscrit a un enseignement.
 async function findActiveSubscribers(isOption, id) {
   try {
@@ -256,4 +277,5 @@ module.exports = {
   findActiveSubscribers,
   getAllUserSubscriptions,
   addProductToUser,
+  deleteProductOption
 };

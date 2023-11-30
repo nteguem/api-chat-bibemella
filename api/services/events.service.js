@@ -15,11 +15,16 @@ async function createEvent(eventData) {
 async function getAllEventsUsers (eventId){
   try{
     const users = await User.find(
-        { 'participations.eventId': eventId }
+        { 'participations.eventId': eventId },
+        {
+          participations: {
+            $elemMatch: { eventId: eventId }
+          },
+          name: 1,
+          fullname: 1,
+          city: 1
+        }
     ).populate({
-      path: "participations.eventId",
-      model: "events",
-    }).populate({
       path: "participations.packId",
       model: "productservices",
     }).exec();

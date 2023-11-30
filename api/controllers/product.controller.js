@@ -171,6 +171,18 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const deleteOptionFromService = async (req, res) => {
+  const productId = req.params.id;
+  const optionId = req.params.optionId;
+  const response = await productService.deleteProductOption(productId, optionId);
+
+  if (response.success) {
+    res.json({ message: response.message, success: true });
+  } else {
+    res.status(404).json({ message: response.message });
+  }
+};
+
 const deleteProductService = async (req, res) => {
   const productId = req.params.id;
   const response = await productService.deleteProduct(productId);
@@ -235,4 +247,5 @@ module.exports = {
   updateService,
   deleteProductService,
   updateProduct,
+  deleteOptionFromService
 };
