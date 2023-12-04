@@ -2,8 +2,10 @@ require("dotenv").config(); // Load environment variables from the .env file
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Pagination = require("./pagination.service");
 // const { hasActiveSubscription } = require('./subscription.service')
 const JWT_SECRET = process.env.JWT_SECRET; // Remplacez ceci par une clé secrète sécurisée
+
 
 async function createUser(userData) {
   try {
@@ -79,23 +81,31 @@ async function saveUser(phoneNumber, contactName) {
   }
 }
 
-async function getAllUser(phoneNumber) {
+async function getAllUser(phoneNumber, page = 1, limit = 10) {
   let query = phoneNumber ? { phoneNumber } : {};
 
   try {
-    const users = await User.find(query).populate({
-      path: "subscriptions.productId",
-      model: "productservices",
-      select: "name subservices", // Add the fields you want to select
-    }).populate({
-      path: "participations.eventId",
-      model: "events",
-     
-    }).populate({
-      path: "participations.packId",
-      model: "productservices", // Assuming 'ProductService' is the name of the referenced model
-    })
-    .exec();
+    const usersCount = await User.countDocuments(query);
+    const paginationData = Pagination(usersCount, page, limit);
+
+    const users = await User.find(query)
+      .skip(paginationData.offset)
+      .limit(paginationData.limit)
+      .populate({
+        path: "subscriptions.productId",
+        model: "productservices",
+        select: "name subservices", // Add the fields you want to select
+      })
+      .populate({
+        path: "participations.eventId",
+        model: "events",
+      })
+      .populate({
+        path: "participations.packId",
+        model: "productservices", // Assuming 'ProductService' is the name of the referenced model
+      })
+      .exec();
+
     const updatedUsers = users.map((user) => {
       user.subscriptions.forEach((subscription) => {
         if (subscription.productId && subscription.isOption) {
@@ -107,7 +117,8 @@ async function getAllUser(phoneNumber) {
       });
       return user;
     });
-    return { success: true, users: updatedUsers };
+
+    return { success: true, users: updatedUsers, pagination: paginationData };
   } catch (error) {
     return { success: false, error: error.message };
   }
