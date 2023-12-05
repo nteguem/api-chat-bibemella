@@ -1,6 +1,6 @@
 const Transactions = require("../models/transactions.model");
 
-async function getAllTransactions(phoneNumber) {
+async function getAllTransactions(phoneNumber, page = 1, limit = 10) {
   try {
     const query = phoneNumber ? { userNumber: phoneNumber } : {};
     const transactionsWithUsers = await Transactions.aggregate([
@@ -32,7 +32,10 @@ async function getAllTransactions(phoneNumber) {
           productId: 1,
         },
       },
-    ]);
+    ])
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
 
     return { success: true, transaction: transactionsWithUsers };
   } catch (error) {

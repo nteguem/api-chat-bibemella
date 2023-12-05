@@ -57,9 +57,7 @@ const createProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   const { type } = req.body;
-  const page = req.query.page;
-  const limit = req.query.limit;
-  const response = await productService.getAllProducts(type || null, page, limit);
+  const response = await productService.getAllProducts(type || null);
 
   if (response.success) {
     res.json(response.products);

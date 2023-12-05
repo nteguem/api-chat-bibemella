@@ -3,7 +3,9 @@ const TotalTransactionsService = require("../services/totalTransaction.service")
 
 const getAllTransactions = async (req, res) => {
   const { phoneNumber } = req.body;
-  const response = await transactionService.getAllTransactions(phoneNumber || null);
+  const page = req.query.page;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+  const response = await transactionService.getAllTransactions(phoneNumber, page, limit || null);
 
   if (response.success) {
     res.json(response.transaction);

@@ -1,15 +1,18 @@
-function Pagination(totalItems, page = 1, limit = 10) {
-    const totalPages = Math.ceil(totalItems / limit);
-    const offset = (page - 1) * limit;
+function Pagination(array, page = 1, limit = 10) {
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+  
+    const results = array.slice(startIndex, endIndex);
   
     return {
-      page,
-      limit,
-      totalItemsPerPage: limit,
-      totalItems,
-      totalPages,
-      offset,
+      page: page,
+      limit: limit,
+      totaItemsPerPage: limit,
+      totalItems: array.length,
+      totalPages: Math.ceil(array.length / limit),
+      results: results
     };
   }
   
-  module.exports = Pagination;  
+  module.exports = Pagination;
+  
