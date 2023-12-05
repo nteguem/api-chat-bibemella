@@ -12,10 +12,13 @@ async function createProductService(productData) {
   }
 }
 
-async function getAllProducts(type) {
+async function getAllProducts(type, page = 1, limit = 10) {
   try {
     const query = type ? { type } : {};
-    const products = await ProductService.find(query);
+    const products = await ProductService.find(query)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .exec();
     return { success: true, products };
   } catch (error) {
     return { success: false, error: error.message };

@@ -12,34 +12,40 @@ async function createEvent(eventData) {
   }
 }
 
-async function getAllEventsUsers (eventId){
-  try{
+async function getAllEventsUsers(eventId) {
+  try {
     const users = await User.find(
-        { 'participations.eventId': eventId },
-        {
-          participations: {
-            $elemMatch: { eventId: eventId }
-          },
-          name: 1,
-          fullname: 1,
-          city: 1
-        }
-    ).populate({
-      path: "participations.packId",
-      model: "productservices",
-    }).exec();
+      { "participations.eventId": eventId },
+      {
+        participations: {
+          $elemMatch: { eventId: eventId },
+        },
+        name: 1,
+        fullname: 1,
+        city: 1,
+      }
+    )
+      .populate({
+        path: "participations.packId",
+        model: "productservices",
+      })
+      .exec();
     return { success: true, users };
-  }catch (error) {
+  } catch (error) {
     return { success: false, error: error.message };
   }
 }
 
-async function getAllEvents() {
+async function getAllEvents(page = 1, limit = 10) {
   try {
-    const events = await Events.find({}).populate({
-            path: 'pack',
-            model: 'productservices',
-        });
+    const events = await Events.find({})
+      .populate({
+        path: "pack",
+        model: "productservices",
+      })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
     return { success: true, events };
   } catch (error) {
     return { success: false, error: error.message };
@@ -60,9 +66,13 @@ async function findEventById(id) {
   }
 }
 
-async function addEventToUser(phoneNumber, addSubscription, transaction_id, operator) {
+async function addEventToUser(
+  phoneNumber,
+  addSubscription,
+  transaction_id,
+  operator
+) {
   try {
-    
     const user = await User.findOne({ phoneNumber });
     const product = await Events.findOne({
       _id: addSubscription.itemId,
@@ -79,7 +89,7 @@ async function addEventToUser(phoneNumber, addSubscription, transaction_id, oper
       eventId: addSubscription.itemId,
       transaction_id: transaction_id,
       operator: operator,
-      packId: addSubscription.packId
+      packId: addSubscription.packId,
     });
 
     await user.save();
@@ -100,7 +110,6 @@ async function addEventToUser(phoneNumber, addSubscription, transaction_id, oper
 
 const deleteEvent = async (eventId) => {
   try {
-  
     const result = await Events.findByIdAndDelete(eventId);
     return { success: true };
   } catch (error) {
@@ -109,12 +118,11 @@ const deleteEvent = async (eventId) => {
   }
 };
 
-
 module.exports = {
   createEvent,
   getAllEvents,
   findEventById,
   addEventToUser,
   deleteEvent,
-  getAllEventsUsers
+  getAllEventsUsers,
 };

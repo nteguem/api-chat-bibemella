@@ -59,7 +59,9 @@ const createEvent = async (req, res) => {
 };
 
 const getAllEvents = async (req, res) => {
-  const response = await eventService.getAllEvents();
+  const page = req.query.page;
+  const limit = req.query.limit;
+  const response = await eventService.getAllEvents(page, limit);
 
   if (response.success) {
     res.json(response.events);
