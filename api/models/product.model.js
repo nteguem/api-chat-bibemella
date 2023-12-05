@@ -15,7 +15,7 @@ const subserviceSchema = new mongoose.Schema({
 const productServiceSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String },
-  price: { type: Number, required: true },
+  price: { type: Number },
   type: { type: String, required: true, enum: itemTypes },
   image: { type: String },
   advantage: { type: String },

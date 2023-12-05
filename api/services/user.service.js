@@ -2,8 +2,10 @@ require("dotenv").config(); // Load environment variables from the .env file
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Pagination = require("./pagination.service");
 // const { hasActiveSubscription } = require('./subscription.service')
 const JWT_SECRET = process.env.JWT_SECRET; // Remplacez ceci par une clé secrète sécurisée
+
 
 async function createUser(userData) {
   try {
@@ -79,7 +81,7 @@ async function saveUser(phoneNumber, contactName) {
   }
 }
 
-async function getAllUser(phoneNumber) {
+async function getAllUser(phoneNumber, page = 1, limit = 10) {
   let query = phoneNumber ? { phoneNumber } : {};
 
   try {
@@ -147,7 +149,8 @@ async function getAllUserPagination(phoneNumber, page = 1, limit = 10) {
       });
       return user;
     });
-    return { success: true, users: updatedUsers };
+
+    return { success: true, users: updatedUsers, pagination: paginationData };
   } catch (error) {
     return { success: false, error: error.message };
   }
