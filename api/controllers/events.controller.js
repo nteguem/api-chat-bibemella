@@ -184,7 +184,7 @@ const deleteEvent = async (req, res) => {
 
 const deleteEventImage = async (req, res) => {
   try {
-    const eventId = req.params.eventId;
+    const eventId = req.params.id;
     const imageUrl = req.body.imageUrl; 
 
     // Find the event by ID

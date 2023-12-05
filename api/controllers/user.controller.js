@@ -25,7 +25,9 @@ const loginUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   let { phoneNumber } = req.body;
-  const response = await userService.getAllUser(phoneNumber || null);
+  const page = req.query.page;
+  const limit = req.query.limit;
+  const response = await userService.getAllUserPagination(phoneNumber || null, page, limit);
 
   if (response.success) {
     res.json(response.users);
