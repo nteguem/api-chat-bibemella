@@ -15,11 +15,12 @@ async function createProductService(productData) {
 async function getAllProducts(type, page = 1, limit = 10) {
   try {
     const query = type ? { type } : {};
+    const total = await ProductService.countDocuments(query);
     const products = await ProductService.find(query)
     .skip((page - 1) * limit)
     .limit(limit)
     .exec();
-    return { success: true, products };
+    return { success: true, products, total: total };
   } catch (error) {
     return { success: false, error: error.message };
   }

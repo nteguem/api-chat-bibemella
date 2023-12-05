@@ -64,7 +64,7 @@ const getAllEvents = async (req, res) => {
   const response = await eventService.getAllEvents(page, limit);
 
   if (response.success) {
-    res.json(response.events);
+    res.json({events: response.events, total: response.total, success: true});
   } else {
     res.status(500).json({
       message: "Erreur lors de la récupération des produit",

@@ -8,7 +8,7 @@ const getAllTransactions = async (req, res) => {
   const response = await transactionService.getAllTransactions(phoneNumber, page, limit || null);
 
   if (response.success) {
-    res.json(response.transaction);
+    res.json({transactions: response.transaction, total: response.total, success: true});
   } else {
     res.status(500).json({
       message: "Erreur lors de la récupération de la transaction",

@@ -30,7 +30,7 @@ const getAllUser = async (req, res) => {
   const response = await userService.getAllUserPagination(phoneNumber || null, page, limit);
 
   if (response.success) {
-    res.json(response.users);
+    res.json({users: response.users, totalCount: response.totalUsers, success: true });
   } else {
     res.status(500).json({ message: 'Erreur lors de la récupération des users', error: response.error });
   }

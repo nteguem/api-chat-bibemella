@@ -38,6 +38,7 @@ async function getAllEventsUsers(eventId) {
 
 async function getAllEvents(page = 1, limit = 10) {
   try {
+    const total = await Events.countDocuments({});
     const events = await Events.find({})
       .populate({
         path: "pack",
@@ -46,7 +47,7 @@ async function getAllEvents(page = 1, limit = 10) {
       .skip((page - 1) * limit)
       .limit(limit)
       .exec();
-    return { success: true, events };
+    return { success: true, events, total: total };
   } catch (error) {
     return { success: false, error: error.message };
   }

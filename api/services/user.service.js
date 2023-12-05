@@ -80,7 +80,7 @@ async function saveUser(phoneNumber, contactName) {
   }
 }
 
-async function getAllUser(phoneNumber, page = 1, limit = 10) {
+async function getAllUser(phoneNumber) {
   let query = phoneNumber ? { phoneNumber } : {};
 
   try {
@@ -120,6 +120,7 @@ async function getAllUserPagination(phoneNumber, page = 1, limit = 10) {
   let query = phoneNumber ? { phoneNumber } : {};
 
   try {
+    const totalUsers = await User.countDocuments(query);
     const users = await User.find(query)
       .populate({
         path: "subscriptions.productId",
@@ -149,7 +150,7 @@ async function getAllUserPagination(phoneNumber, page = 1, limit = 10) {
       return user;
     });
 
-    return { success: true, users: updatedUsers };
+    return { success: true, users: updatedUsers, totalUsers: totalUsers };
   } catch (error) {
     return { success: false, error: error.message };
   }

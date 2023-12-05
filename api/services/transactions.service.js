@@ -3,6 +3,7 @@ const Transactions = require("../models/transactions.model");
 async function getAllTransactions(phoneNumber, page = 1, limit = 10) {
   try {
     const query = phoneNumber ? { userNumber: phoneNumber } : {};
+    const total = await Transactions.countDocuments(query);
     const transactionsWithUsers = await Transactions.aggregate([
       {
         $match: query, // Your match condition for Transactions
@@ -37,7 +38,7 @@ async function getAllTransactions(phoneNumber, page = 1, limit = 10) {
       .limit(limit)
       .exec();
 
-    return { success: true, transaction: transactionsWithUsers };
+    return { success: true, transaction: transactionsWithUsers, total: total };
   } catch (error) {
     return { success: false, error: error.message };
   }
