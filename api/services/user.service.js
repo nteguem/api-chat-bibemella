@@ -150,7 +150,7 @@ async function getAllUserPagination(phoneNumber, page = 1, limit = 10) {
       return user;
     });
 
-    return { success: true, users: updatedUsers, pagination: paginationData };
+    return { success: true, users: updatedUsers };
   } catch (error) {
     return { success: false, error: error.message };
   }
