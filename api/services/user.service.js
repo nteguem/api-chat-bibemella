@@ -2,7 +2,6 @@ require("dotenv").config(); // Load environment variables from the .env file
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const Pagination = require("./pagination.service");
 // const { hasActiveSubscription } = require('./subscription.service')
 const JWT_SECRET = process.env.JWT_SECRET; // Remplacez ceci par une clé secrète sécurisée
 
