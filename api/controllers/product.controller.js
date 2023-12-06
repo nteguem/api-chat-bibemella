@@ -62,7 +62,7 @@ const getAllProducts = async (req, res) => {
   const response = await productService.getAllProducts(type || null, page, limit);
 
   if (response.success) {
-    res.json({products: response.products, total: response.total, success: true});
+    res.json({products: response.products, totalService: response.totalService, totalProduct: response.totalProduct, success: true});
   } else {
     res.status(500).json({
       message: "Erreur lors de la récupération des produit",
