@@ -8,6 +8,7 @@ const { addProductToUser } = require("../services/product.service");
 const { addTransaction } = require("../services/transactions.service");
 const { addAmountToTotal } = require("../services/totalTransaction.service");
 const { addEventToUser } = require("../services/events.service");
+const { getAdminUsers } = require("../services/user.service");
 
 async function handlePaymentSuccess(req, res, client) {
   try {
@@ -49,8 +50,10 @@ async function handlePaymentSuccess(req, res, client) {
     };
     let img =
       serviceData?.type === "product"
-        ? process.env.BASE_URL_CLOUD+serviceData.image
-        : serviceData?.type === "events" ? process.env.BASE_URL_CLOUD+serviceData.image : "";
+        ? process.env.BASE_URL_CLOUD + serviceData.image
+        : serviceData?.type === "events"
+        ? process.env.BASE_URL_CLOUD + serviceData.image
+        : "";
     const pdfBuffer = await generatePDFBuffer(
       user,
       phone,
@@ -64,7 +67,6 @@ async function handlePaymentSuccess(req, res, client) {
     const pdfBase64 = pdfBuffer.toString("base64");
     const pdfName = "facture.pdf";
     const documentType = "application/pdf";
-
 
     if (serviceData?.type === "events") {
       await Promise.all([
@@ -113,6 +115,27 @@ async function handlePaymentSuccess(req, res, client) {
         `Super ! Merci de renseigner votre nom d'utilisateur Ejara en saissisant *ejara*\n\n 
       Si vous n'avez pas encore de compte Ejara, suivez ce lien pour découvrir comment créer un compte : https://youtu.be/wLkfXWOYCco`
       );
+    }
+    //function qui permet de notifier tout les users
+    let responses = await getAdminUsers();
+    if (responses.success) {
+      let formattedMessage;
+      if (serviceData.type === "product") {
+        formattedMessage = `Nouvel achat d'un produit NFT:\n\nNom du produit: ${servName}\nPrix: ${serviceData.price}\n`;
+      } else if (serviceData.type === "events") {
+        formattedMessage = `Nouvelle souscription d'un évènement:\n\nNom de l'évènement: ${servName}\nPrix: ${serviceData.price}\n`;
+      } else {
+        formattedMessage = `Nouvel achat d'un service:\n\nNom du service: ${servName}\nPrix: ${serviceData.price}\n`;
+      }
+
+      let adminUsers = responses.users;
+      for (const adminUser of adminUsers){
+        await sendMessageToNumber(
+        client,
+        `${adminUser.phoneNumber}@c\.us`,
+        '*Notification:* \n\n'+formattedMessage
+      );
+      }
     }
 
     res.status(200).send("Success");

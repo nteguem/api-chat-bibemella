@@ -664,7 +664,9 @@ const UserCommander = async (client, msg) => {
                     : service?.productId.category
                   : service?.productId?.name ||
                     service?.eventId?.name +
-                      ` (${moment(service?.eventId?.date).format("DD MMM YYYY")})`;
+                      ` (${moment(service?.eventId?.date).format(
+                        "DD MMM YYYY"
+                      )})`;
                 return `${index + 1}. ${n}`;
               })
               .join("\n");
@@ -736,7 +738,17 @@ const UserCommander = async (client, msg) => {
           transactionSteps[msg.from].step = "awaitConfirmationRequest";
           transactionSteps[msg.from].selectedItem = selectedItem;
         } else if (selectedItem.productType === "event") {
-          const eventDetailsMessage = `*${selectedItem.eventId.name}*\n\n*Description :*\n${selectedItem.eventId.description}\n\n*📅Date :*\n${moment(selectedItem.eventId.date).format('DD MMM YYYY')}\n\n*⏰Heure :*\n${selectedItem.eventId.time}\n\n*📍Lieu :*\n${selectedItem.eventId.place}\n\n*Nom du pack :*${selectedItem.packId.name}\n\n*Prix du pack :*${selectedItem.packId.price}`;
+          const eventDetailsMessage = `*${
+            selectedItem.eventId.name
+          }*\n\n*Description :*\n${
+            selectedItem.eventId.description
+          }\n\n*📅Date :*\n${moment(selectedItem.eventId.date).format(
+            "DD MMM YYYY"
+          )}\n\n*⏰Heure :*\n${selectedItem.eventId.time}\n\n*📍Lieu :*\n${
+            selectedItem.eventId.place
+          }\n\n*Nom du pack :*${selectedItem.packId.name}\n\n*Prix du pack :*${
+            selectedItem.packId.price
+          }`;
           try {
             const mediaMessage = await MessageMedia.fromUrl(
               process.env.BASE_URL_CLOUD + selectedItem.eventId.previewImage
@@ -792,7 +804,7 @@ const UserCommander = async (client, msg) => {
             : selectedItem.productId?.price,
           selectedItem.productId?.durationInDay,
           selectedItem.productType === "product"
-            ?  process.env.BASE_URL_CLOUD + selectedItem.productId?.image
+            ? process.env.BASE_URL_CLOUD + selectedItem.productId?.image
             : selectedItem.productType === "event"
             ? process.env.BASE_URL_CLOUD + selectedItem.eventId.previewImage
             : "",
@@ -841,22 +853,60 @@ const UserCommander = async (client, msg) => {
       const eventsResponse = await getAllEvents();
       if (eventsResponse.success) {
         let events = eventsResponse.events;
-        const replyMessage =
-          "Choisissez un évènements en répondant avec son numéro :\n" +
-          events
+        // const replyMessage =
+        //   "Choisissez un évènements en répondant avec son numéro :\n" +
+        //   events
+        //     .map((event, index) => {
+        //       return `${index + 1}. ${event.name} (${moment(event.date).format(
+        //         "DD MMM YYYY"
+        //       )})`;
+        //     })
+        //     .join("\n");
+        // msg.reply(replyMessage + "\n\n#. Menu principal");
+        const currentDate = moment();
+
+        // Filtrer les événements à venir
+        const upcomingEvents = events.filter((event) =>
+          moment(event.date).isAfter(currentDate)
+        );
+
+        // Filtrer les événements passés
+        const pastEvents = events.filter((event) =>
+          moment(event.date).isBefore(currentDate)
+        );
+
+        // Générer le message pour les événements à venir
+        const upcomingEventsMessage =
+          "*Événements à venir :*\n" +
+          upcomingEvents
             .map((event, index) => {
               return `${index + 1}. ${event.name} (${moment(event.date).format(
                 "DD MMM YYYY"
               )})`;
             })
             .join("\n");
-        msg.reply(replyMessage + "\n\n#. Menu principal");
+
+        // Générer le message pour les événements passés
+        const pastEventsMessage =
+          "*Événements passés :*\n" +
+          pastEvents
+            .map((event, index) => {
+              return `${upcomingEvents.length + 1}. ${event.name} (${moment(event.date).format(
+                "DD MMM YYYY"
+              )})`;
+            })
+            .join("\n");
+
+        // Créer le message final
+        const replyMessage = `${upcomingEventsMessage}\n\n${pastEventsMessage}\n\n#. Menu principal`;
+
+        msg.reply(replyMessage);
 
         // Enregistrez l'étape de la transaction pour cet utilisateur
         transactionSteps[msg.from] = {
           step: "awaitEventSelect",
           type: "EVENTS",
-          events,
+          events: [...upcomingEvents, ...pastEvents],
         };
       }
     } else if (
@@ -869,7 +919,15 @@ const UserCommander = async (client, msg) => {
 
       if (selectedEvent) {
         // Afficher les détails du produit
-        const eventDetailsMessage = `*${selectedEvent.name}*\n\n*Description :*\n${selectedEvent.description}\n\n*📅Date :*\n${moment(selectedEvent.date).format('DD MMM YYYY')}\n\n*⏰Heure :*\n${selectedEvent.time}\n\n*📍Lieu :*\n${selectedEvent.place}\n\n`;
+        const eventDetailsMessage = `*${
+          selectedEvent.name
+        }*\n\n*Description :*\n${
+          selectedEvent.description
+        }\n\n*📅Date :*\n${moment(selectedEvent.date).format(
+          "DD MMM YYYY"
+        )}\n\n*⏰Heure :*\n${selectedEvent.time}\n\n*📍Lieu :*\n${
+          selectedEvent.place
+        }\n\n`;
 
         try {
           const mediaMessage = await MessageMedia.fromUrl(
@@ -943,7 +1001,9 @@ const UserCommander = async (client, msg) => {
             transactionSteps[msg.from].selectedEvent.name
           }*` +
           `\nLieu: ${transactionSteps[msg.from].selectedEvent.place}` +
-          `\nDate: ${moment(transactionSteps[msg.from].selectedEvent.date).format('DD MMM YYYY')}` +
+          `\nDate: ${moment(
+            transactionSteps[msg.from].selectedEvent.date
+          ).format("DD MMM YYYY")}` +
           `\nHeure: ${transactionSteps[msg.from].selectedEvent.time}` +
           `\nPack: ${selectedPack.name} ${selectedPack.price} XFA.\n\n`;
         const fullNameMessage =

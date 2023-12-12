@@ -80,6 +80,15 @@ async function saveUser(phoneNumber, contactName) {
   }
 }
 
+async function getAdminUsers() {
+  const users = await User.find({role: 'admin'});
+  if(users){
+    return { success: true, users: users };
+  }else{
+    return { success: false, error: 'Error getting admin users' };
+  }
+}
+
 async function getAllUser(phoneNumber) {
   let query = phoneNumber ? { phoneNumber } : {};
 
@@ -210,5 +219,6 @@ module.exports = {
   getUser,
   updateUser,
   saveUser,
-  getAllUserPagination
+  getAllUserPagination,
+  getAdminUsers
 };
