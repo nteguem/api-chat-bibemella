@@ -8,7 +8,7 @@ const { addProductToUser } = require("../services/product.service");
 const { addTransaction } = require("../services/transactions.service");
 const { addAmountToTotal } = require("../services/totalTransaction.service");
 const { addEventToUser } = require("../services/events.service");
-const { getAdminUsers } = require("../services/user.service");
+const { getAdminUsers, getAllUser } = require("../services/user.service");
 
 async function handlePaymentSuccess(req, res, client) {
   try {
@@ -120,12 +120,18 @@ async function handlePaymentSuccess(req, res, client) {
     let responses = await getAdminUsers();
     if (responses.success) {
       let formattedMessage;
+      let userResponses = await getAllUser({phoneNumber: email});
+      let userInfos = userResponses.users[0];
+      let n = userInfos.fullname ? userInfos.fullname : userInfos.name;
+
+      let userMessage = `\nNom de l'utilisateur: ${n}\nNumero de telephone: ${userInfos.phoneNumber}`
+      
       if (serviceData.type === "product") {
-        formattedMessage = `Nouvel achat d'un produit NFT:\n\nNom du produit: ${servName}\nPrix: ${serviceData.price}\n`;
+        formattedMessage = `Nouvel achat d'un produit NFT:\n\n${servName}\nPrix: ${serviceData.price}\n`;
       } else if (serviceData.type === "events") {
-        formattedMessage = `Nouvelle souscription d'un évènement:\n\nNom de l'évènement: ${servName}\nPrix: ${serviceData.price}\n`;
+        formattedMessage = `Nouvelle souscription d'un évènement:\n\nNom de l'évènement: *${servName}*\nPrix: ${serviceData.price}\n`;
       } else {
-        formattedMessage = `Nouvel achat d'un service:\n\nNom du service: ${servName}\nPrix: ${serviceData.price}\n`;
+        formattedMessage = `Nouvel achat d'un service:\n\n${servName}\nPrix: ${serviceData.price}\n`;
       }
 
       let adminUsers = responses.users;
@@ -133,7 +139,7 @@ async function handlePaymentSuccess(req, res, client) {
         await sendMessageToNumber(
         client,
         `${adminUser.phoneNumber}@c\.us`,
-        '*Notification:* \n\n'+formattedMessage
+        '*Notification:* \n\n'+formattedMessage+userMessage
       );
       }
     }
