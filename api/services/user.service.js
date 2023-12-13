@@ -91,7 +91,6 @@ async function getAdminUsers() {
 
 async function getAllUser(phoneNumber) {
   let query = phoneNumber ? { phoneNumber } : {};
-
   try {
     const users = await User.find(query)
       .populate({

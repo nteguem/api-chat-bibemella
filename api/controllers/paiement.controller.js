@@ -120,7 +120,7 @@ async function handlePaymentSuccess(req, res, client) {
     let responses = await getAdminUsers();
     if (responses.success) {
       let formattedMessage;
-      let userResponses = await getAllUser({phoneNumber: email});
+      let userResponses = await getAllUser(email);
       let userInfos = userResponses.users[0];
       let n = userInfos.fullname ? userInfos.fullname : userInfos.name;
 
