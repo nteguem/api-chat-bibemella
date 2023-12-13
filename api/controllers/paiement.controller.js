@@ -129,7 +129,7 @@ async function handlePaymentSuccess(req, res, client) {
       if (serviceData.type === "product") {
         formattedMessage = `Nouvel achat d'un produit NFT:\n\n${servName}\nPrix: ${serviceData.price}\n`;
       } else if (serviceData.type === "events") {
-        formattedMessage = `Nouvelle souscription d'un évènement:\n\nNom de l'évènement: *${servName}*\nPrix: ${serviceData.price}\n`;
+        formattedMessage = `Nouvelle souscription d'un évènement:\n\nNom de l'évènement: ${servName}\nPrix: ${serviceData.price}\n`;
       } else {
         formattedMessage = `Nouvel achat d'un service:\n\n${servName}\nPrix: ${serviceData.price}\n`;
       }
