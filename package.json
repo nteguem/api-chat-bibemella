@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "nodemon --watch index.js index.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +17,6 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "ejs": "^3.1.9",
     "express": "^4.18.2",
     "formidable": "^3.5.1",
     "formidable-serverless": "^1.1.1",
@@ -30,7 +29,7 @@
     "nodemon": "^3.0.1",
     "openai": "^4.18.0",
     "pdfkit": "^0.13.0",
-    "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.19.2"
+    "socket.io": "^4.7.2",
+    "whatsapp-web.js": "^1.23.0"
   }
 }

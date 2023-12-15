@@ -6,6 +6,8 @@ const cors = require('cors');
 const createError = require("http-errors");
 const cookieParser = require("cookie-parser");
 const dbConnect = require('./api/config/dbConnect');
+const http = require('http');
+const socketIo = require('socket.io');
 const { initializeWhatsAppClient, handleIncomingMessages } = require('./api/helpers//whatsApp/whatappsHandler');
 
 
@@ -14,29 +16,27 @@ dbConnect();
 
 // App initialization
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(cors());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Configure CORS origin
+
+
+// Middleware pour gérer les requêtes CORS
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-Type, Accept, Content-Type, Authorization"
-  );
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
-    return res.status(200).json({});
-  }
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
 
 // Create instance whatapp
-const client = initializeWhatsAppClient();
+const client = initializeWhatsAppClient(io);
 
 //Handle incoming messages from the chatbot using the modular function.
 handleIncomingMessages(client);
@@ -44,6 +44,25 @@ handleIncomingMessages(client);
 // Launch WhatsApp client
 client.initialize();
 
+//socket io for qrCode
+io.on('connection', (socket) => {
+  console.log('Client connected');
+
+  socket.on('message', (data) => {
+    console.log('Message from client:', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+
+  socket.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+  if (client.qrCode) {
+    socket.emit('qrCode', client.qrCode);
+  }
+});
 
 // App Routes
 app.use('/api/v1', appRoutes(client));   
@@ -64,6 +83,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start the app
-app.listen(process.env.PORT || 4000, () => {
+server.listen(4000, () => {
   console.log("Server started");
 });
