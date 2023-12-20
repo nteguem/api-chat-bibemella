@@ -16,16 +16,23 @@ const initializeWhatsAppClient = (io) => {
   client.on('qr', (qrCode) => {
     io.emit('qrCode', qrCode);
   });
-
+  
   client.on('authenticated', () => {
     io.emit('qrCode', "");
     console.log('Client is authenticated');
   });
-
+    
   client.on('ready', () => {
     console.log('Client is ready');
-    io.emit('qrCode', "");
+    io.emit('numberBot', `${client.info?.wid?.user} (${client.info?.pushname})`);
+    io.emit('qrCode', "connected");
   });
+
+  client.on('disconnected', () => {
+    io.emit('qrCode', "disconnected")  
+    io.emit('numberBot', "");
+    client.initialize();
+});
 
   return client;
 };

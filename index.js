@@ -52,6 +52,17 @@ io.on('connection', (socket) => {
     console.log('Message from client:', data);
   });
 
+  socket.on('disconnectClient', () => {
+    console.log('Received disconnect request from client');
+    if (client) {
+      io.emit('qrCode', "disconnected");
+      io.emit('numberBot', "");
+      client.logout(); // Déconnecter le client WhatsApp
+      client.initialize();
+
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
@@ -59,8 +70,9 @@ io.on('connection', (socket) => {
   socket.on('error', (error) => {
     console.error('WebSocket error:', error);
   });
-  if (client.qrCode) {
-    socket.emit('qrCode', client.qrCode);
+  if (client.hasOwnProperty('info')) {
+    socket.emit('numberBot', `${client.info?.wid?.user} (${client.info?.pushname})`);
+    socket.emit('qrCode', "connected");
   }
 });
 
