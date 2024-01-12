@@ -34,15 +34,15 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     durationInDays:
       inputObject.selectedService.type === "product"
         ? 0
-        : inputObject.selectedService.hasSub
+        : inputObject.selectedService?.hasSub
           ? inputObject?.selectedServiceOption?.durationInDay
           : inputObject.selectedService?.durationInDay,
     type: inputObject.selectedService.type,
-    hasSub: inputObject.selectedService.hasSub,
-    selectedServiceOption: inputObject.selectedService.hasSub
+    hasSub: inputObject.selectedService?.hasSub,
+    selectedServiceOption: inputObject.selectedService?.hasSub
       ? inputObject.selectedServiceOption
       : null,
-    price: inputObject.selectedService.hasSub
+    price: inputObject.selectedService?.hasSub
       ? inputObject?.selectedServiceOption?.price
       : inputObject.selectedService.price
   };

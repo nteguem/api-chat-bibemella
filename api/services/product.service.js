@@ -52,7 +52,7 @@ async function addProductToUser(
         addSubscription.type === "service"
           ? addSubscription.expirationDate
           : undefined,
-      isOption: addSubscription.hasSub,
+      isOption: addSubscription?.hasSub,
       optionId: addSubscription?.selectedServiceOption?._id,
       productType: addSubscription.type,
       transaction_id: transaction_id,

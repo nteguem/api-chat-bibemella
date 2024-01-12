@@ -92,7 +92,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const selectedServiceChoice = services[userChoice - 1];
 
       // Vérifiez si le type contient des données dans l'objet "name"
-      if (!selectedService.hasSub) {
+      if (!selectedService?.hasSub) {
         // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
         msg.reply(
           `Entrez le contenu du ${selectedService.name} que vous souhaitez partager avec votre communauté.`
@@ -124,11 +124,11 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const selectedService = transactions[msg.from].selectedService;
       const serviceMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte
 
-      let opId = selectedService.hasSub
+      let opId = selectedService?.hasSub
         ? transactions[msg.from].selectedServiceOption._id
         : selectedService._id;
       const activeSubscribers = await findActiveSubscribers(
-        selectedService.hasSub,
+        selectedService?.hasSub,
         opId
       );
       if (activeSubscribers.success) {
@@ -201,7 +201,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const selectedService = transactions[msg.from].selectedService;
       const serviceMessage = transactions[msg.from].serviceMessage; // This is the message entered by the user
       const users = transactions[msg.from].users;
-      let servName = selectedService.hasSub
+      let servName = selectedService?.hasSub
         ? selectedService.name +
           ": " +
           `*${transactions[msg.from]?.selectedServiceOption.name}*`
