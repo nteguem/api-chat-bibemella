@@ -130,7 +130,7 @@ const UserCommander = async (client, msg) => {
       const selectedService = services[userChoice - 1];
 
       // Vérifiez si le type contient des données dans le sous-type
-      if (!selectedService.hasSub) {
+      if (!selectedService?.hasSub) {
         // Si l'objet n'a pas de sous-type
         msg.reply(
           `*${selectedService.name} : ${selectedService.price} XAF*\nSouhaitez-vous recevoir des informations sur le ${selectedService.name} ?\n\nRépondez par "Oui" ou "Non".`

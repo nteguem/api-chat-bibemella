@@ -9,6 +9,7 @@ const { setupProductRoutes } = require('./product.route');
 const { setupConversationRoutes } = require('./conversation.route');
 const { setupTransactionsRoutes } = require('./transactions.route');
 const { setupEventsRoutes } = require('./events.route');
+const { setupStatsRoutes } = require('./stats.route');
 
 /* GET home page. */
 // Define a route for the home page ('/') that renders the 'index' template with the title 'Bibemella'.
@@ -29,6 +30,7 @@ const setupAppRoutes = (client) => {
   setupConversationRoutes(app);
   setupTransactionsRoutes(app);
   setupEventsRoutes(app);
+  setupStatsRoutes(app);
   return app;
 }
 
