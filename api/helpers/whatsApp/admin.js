@@ -233,9 +233,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
           }
         });
       } else {
-        
         users.forEach(async (targetUser) => {
-          
           try {
             // Send the media message
             const content = `Cher ${targetUser.name}, voici le ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
@@ -267,7 +265,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       transactions[msg.from] &&
       transactions[msg.from].step === "enter_annonce"
     ) {
-      const annonce = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte
+      const annonce = userResponse || ""; // Stockez la réponse de l'utilisateur dans une variable distincte
       msg.reply(
         `Vous êtes sur le point de publier l'annonce suivant :\n\n*${annonce}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`
       );
@@ -293,21 +291,27 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         const AllUsers = await getAllUser();
         const annonce = transactions[msg.from].annonce;
         const content = `Cher utilisateur, \n\n*${annonce}* \n\n Bonne lecture !`;
-        await createNotification({
-          sender: sender,
-          notifications: [
-            {
-              type: transactions[msg.from].type,
-              description: content,
-            },
-          ],
-        });
+        // await createNotification({
+        //   sender: sender,
+        //   notifications: [
+        //     {
+        //       type: transactions[msg.from].type,
+        //       description: content,
+        //     },
+        //   ],
+        // });
 
         if (transactions[msg.from].mediaMessage) {
           const mediaMessage = transactions[msg.from].mediaMessage;
-          await client.sendMessage(`${users.phoneNumber}@c.us`, mediaMessage, {
-            caption: content,
-          });
+          for (const users of AllUsers.users) {
+            await client.sendMessage(
+              `${users.phoneNumber}@c.us`,
+              mediaMessage,
+              {
+                caption: content,
+              }
+            );
+          }
         } else {
           for (const users of AllUsers.users) {
             await sendMessageToNumber(
@@ -321,6 +325,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         msg.reply(SUCCESS_MESSAGE_ANNONCE);
         msg.reply(MenuPrincipal);
       } catch (error) {
+        console.log(error, "hhhh");
         msg.reply("Une erreur s'est produite lors de l'envoi des messages.");
       } finally {
         // Reset the transaction
