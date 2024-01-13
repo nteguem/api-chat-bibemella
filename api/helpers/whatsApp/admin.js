@@ -287,50 +287,58 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       transactions[msg.from].step === "confirm_send_annonce" &&
       userResponse.toLowerCase() === "oui"
     ) {
-      try {
-        const AllUsers = await getAllUser();
-        const annonce = transactions[msg.from].annonce;
-        const content = `Cher utilisateur, \n\n*${annonce}* \n\n Bonne lecture !`;
-        // await createNotification({
-        //   sender: sender,
-        //   notifications: [
-        //     {
-        //       type: transactions[msg.from].type,
-        //       description: content,
-        //     },
-        //   ],
-        // });
+      const AllUsers = await getAllUser();
+      const annonce = transactions[msg.from].annonce;
+      const content = `Cher utilisateur, \n\n*${annonce}* \n\n Bonne lecture !`;
+      // await createNotification({
+      //   sender: sender,
+      //   notifications: [
+      //     {
+      //       type: transactions[msg.from].type,
+      //       description: content,
+      //     },
+      //   ],
+      // });
 
-        if (transactions[msg.from].mediaMessage) {
-          const mediaMessage = transactions[msg.from].mediaMessage;
-          for (const users of AllUsers.users) {
+      if (transactions[msg.from].mediaMessage) {
+        const mediaMessage = transactions[msg.from].mediaMessage;
+        AllUsers.users.forEach(async (targetUser) => {
+          try {
             await client.sendMessage(
-              `${users.phoneNumber}@c.us`,
+              `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
               {
                 caption: content,
               }
             );
-          }
-        } else {
-          for (const users of AllUsers.users) {
-            await sendMessageToNumber(
-              client,
-              `${users.phoneNumber}@c.us`,
-              content
+          } catch (error) {
+            console.log(error, "hhhh");
+            msg.reply(
+              "Une erreur s'est produite lors de l'envoi des messages."
             );
           }
-        }
-
-        msg.reply(SUCCESS_MESSAGE_ANNONCE);
-        msg.reply(MenuPrincipal);
-      } catch (error) {
-        console.log(error, "hhhh");
-        msg.reply("Une erreur s'est produite lors de l'envoi des messages.");
-      } finally {
-        // Reset the transaction
-        delete transactions[msg.from];
+        });
+      } else {
+        AllUsers.users.forEach(async (targetUser) => {
+          try {
+            await sendMessageToNumber(
+              client,
+              `${targetUser.phoneNumber}@c.us`,
+              content
+            );
+          } catch (error) {
+            console.log(error, "hhhh");
+            msg.reply(
+              "Une erreur s'est produite lors de l'envoi des messages."
+            );
+          }
+        });
       }
+
+      msg.reply(SUCCESS_MESSAGE_ANNONCE);
+      msg.reply(MenuPrincipal);
+      delete transactions[msg.from];
+      
     } else if (userResponse === COMMAND_NAME.SOLDE && !transactions[msg.from]) {
       //consulter le solde
       const resultTotal = await getTotalSuccessAmount();
