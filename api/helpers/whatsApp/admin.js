@@ -114,7 +114,9 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             return `${index + 1}. ${serviceOption.name}`;
           }
         );
-        const serviceOptionsMessage = `Choisissez un enseignement pour l'enseignement de ${selectedServiceChoice.name} en entrant son numéro :\n
+        const serviceOptionsMessage = `Choisissez un enseignement pour l'enseignement de ${
+          selectedServiceChoice.name
+        } en entrant son numéro :\n
         ${serviceOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(serviceOptionsMessage);
@@ -209,8 +211,8 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const users = transactions[msg.from].users;
       let servName = selectedService?.hasSub
         ? selectedService.name +
-        ": " +
-        `*${transactions[msg.from]?.selectedServiceOption.name}*`
+          ": " +
+          `*${transactions[msg.from]?.selectedServiceOption.name}*`
         : selectedService.name;
 
       if (transactions[msg.from].mediaMessage) {
@@ -336,21 +338,31 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       msg.reply(SUCCESS_MESSAGE_ANNONCE);
       msg.reply(MenuPrincipal);
       delete transactions[msg.from];
-      
     } else if (userResponse === COMMAND_NAME.SOLDE && !transactions[msg.from]) {
       //consulter le solde
       const resultTotal = await getTotalSuccessAmount();
       if (resultTotal.success) {
-        let amount = resultTotal.totalAmount[0].amount;
-        let num = resultTotal.totalAmount[0].number;
-        let amountMessage =
-          "Le solde total de tous les transactions effectuées est de: " +
-          `*${amount} FCFA*\n\n` +
-          "Nombre de transaction: " +
-          `*${num}*\n` +
-          "\n\n#. Menu principal";
+        if (resultTotal.totalAmount.length > 0) {
+          let amount = resultTotal.totalAmount[0].amount;
+          let num = resultTotal.totalAmount[0].number;
+          let amountMessage =
+            "Le solde total de tous les transactions effectuées est de: " +
+            `*${amount} FCFA*\n\n` +
+            "Nombre de transaction: " +
+            `*${num}*\n` +
+            "\n\n#. Menu principal";
+          msg.reply(amountMessage);
+        } else {
+          let amountMessage =
+            "Le solde total de tous les transactions effectuées est de: " +
+            `*0 FCFA*\n\n` +
+            "Nombre de transaction: " +
+            `*0*\n` +
+            "\n\n#. Menu principal";
+          msg.reply(amountMessage);
+        }
+
         delete transactions[msg.from];
-        msg.reply(amountMessage);
       } else {
         msg.reply("Une erreur s'est produite lors de la recuperation du solde");
       }
