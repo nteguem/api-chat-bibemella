@@ -658,8 +658,9 @@ const UserCommander = async (client, msg) => {
               .map((service, index) => {
                 let n = service?.isOption
                   ? service?.productType === "service"
-                    ? service?.productId.category +
-                      ": " +
+                    ? 
+                    // service?.productId.category +
+                    //   ": " +
                       service?.productId.name
                     : service?.productId.category
                   : service?.productId?.name ||

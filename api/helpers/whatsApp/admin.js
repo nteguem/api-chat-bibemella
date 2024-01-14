@@ -114,11 +114,9 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             return `${index + 1}. ${serviceOption.name}`;
           }
         );
-        const serviceOptionsMessage = `Choisissez un enseignement pour les ${
-          selectedServiceChoice.name
-        } 
-                en entrant son numéro :\n${serviceOptions.join("\n")}
-              \n*. Menu précédent\n#. Menu principal`;
+        const serviceOptionsMessage = `Choisissez un enseignement pour l'enseignement de ${selectedServiceChoice.name} en entrant son numéro :\n
+        ${serviceOptions.join("\n")}
+        \n*. Menu précédent\n#. Menu principal`;
         msg.reply(serviceOptionsMessage);
 
         // Attendez que l'utilisateur choisisse une sous-option et demandez-lui s'il souhaite intégrer cette sous-option
@@ -154,7 +152,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       }
 
       msg.reply(
-        `Vous êtes sur le point de publier le ${selectedService.name} suivant :\n\n*${serviceMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`
+        `Vous êtes sur le point de publier l'enseignement de ${selectedService.name} suivant :\n\n*${serviceMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`
       );
 
       transactions[msg.from].step = "confirm_publish_message";
@@ -173,7 +171,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       ) {
         const selectedServiceOption =
           selectedServiceChoice.subservices[teachingOptionNumber - 1];
-        const TeachingDetailsMessage = `Entrez le ${selectedServiceOption.category} ${selectedServiceOption.name} que vous souhaitez envoyer à votre communauté`;
+        const TeachingDetailsMessage = `Entrez l'enseignement de ${selectedServiceOption.name} que vous souhaitez envoyer à votre communauté`;
 
         msg.reply(TeachingDetailsMessage);
 
@@ -211,8 +209,8 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const users = transactions[msg.from].users;
       let servName = selectedService?.hasSub
         ? selectedService.name +
-          ": " +
-          `*${transactions[msg.from]?.selectedServiceOption.name}*`
+        ": " +
+        `*${transactions[msg.from]?.selectedServiceOption.name}*`
         : selectedService.name;
 
       if (transactions[msg.from].mediaMessage) {
@@ -222,7 +220,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         users.forEach(async (targetUser) => {
           try {
             // Send the media message
-            const content = `Cher ${targetUser.name}, voici le ${servName} pour aujourd'hui. \n\n Bonne lecture !`;
+            const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Bonne lecture !`;
             await client.sendMessage(
               `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
@@ -236,7 +234,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         users.forEach(async (targetUser) => {
           try {
             // Send the media message
-            const content = `Cher ${targetUser.name}, voici le ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
+            const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
             await sendMessageToNumber(
               client,
               `${targetUser.phoneNumber}@c.us`,
@@ -384,13 +382,13 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const events = transactions[msg.from].events;
       const selectedEvent = events[userChoice - 1];
       const getUsers = await getAllEventsUsers(selectedEvent._id);
-
+      // console.log(getUsers, 'kdjfkdjfk');
       if (getUsers.success) {
         const users = getUsers.users;
         const replyMessage =
-          "La liste des utilisateurs ayant souscrit a l'evenment *" +
-          selectedEvent?.name +
-          ": *\n" +
+          "La liste des utilisateurs ayant souscrit a l'evènement" +
+          `*${selectedEvent?.name}*` +
+          ": \n" +
           users
             .map((us, index) => {
               return `${index + 1}. ${us.fullname} (${us.city})`;
