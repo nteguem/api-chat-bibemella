@@ -100,7 +100,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const selectedServiceChoice = services[userChoice - 1];
 
       // Vérifiez si le type contient des données dans l'objet "name"
-      if (!selectedService.hasSub) {
+      if (!selectedService?.hasSub) {
         // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
         msg.reply(
           `Entrez le contenu du ${selectedService.name} que vous souhaitez partager avec votre communauté.`
@@ -130,11 +130,11 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const selectedService = transactions[msg.from].selectedService;
       const serviceMessage = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte
 
-      let opId = selectedService.hasSub
+      let opId = selectedService?.hasSub
         ? transactions[msg.from].selectedServiceOption._id
         : selectedService._id;
       const activeSubscribers = await findActiveSubscribers(
-        selectedService.hasSub,
+        selectedService?.hasSub,
         opId
       );
       if (activeSubscribers.success) {
@@ -207,7 +207,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const selectedService = transactions[msg.from].selectedService;
       const serviceMessage = transactions[msg.from].serviceMessage; // This is the message entered by the user
       const users = transactions[msg.from].users;
-      let servName = selectedService.hasSub
+      let servName = selectedService?.hasSub
         ? selectedService.name +
         ": " +
         `*${transactions[msg.from]?.selectedServiceOption.name}*`
@@ -231,10 +231,10 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
           }
         });
       } else {
-        const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
         users.forEach(async (targetUser) => {
           try {
             // Send the media message
+            const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
             await sendMessageToNumber(
               client,
               `${targetUser.phoneNumber}@c.us`,
@@ -263,7 +263,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       transactions[msg.from] &&
       transactions[msg.from].step === "enter_annonce"
     ) {
-      const annonce = userResponse; // Stockez la réponse de l'utilisateur dans une variable distincte
+      const annonce = userResponse || ""; // Stockez la réponse de l'utilisateur dans une variable distincte
       msg.reply(
         `Vous êtes sur le point de publier l'annonce suivant :\n\n*${annonce}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`
       );
@@ -271,41 +271,72 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       transactions[msg.from].step = "confirm_send_annonce";
       transactions[msg.from].type = "Annonce";
       transactions[msg.from].annonce = annonce;
+      if (msg.hasMedia) {
+        const media = await msg.downloadMedia();
+        const mediaMessage = new MessageMedia(
+          media.mimetype,
+          media.data,
+          media.filename
+        );
+        transactions[msg.from].mediaMessage = mediaMessage;
+      }
     } else if (
       transactions[msg.from] &&
       transactions[msg.from].step === "confirm_send_annonce" &&
       userResponse.toLowerCase() === "oui"
     ) {
-      try {
-        const AllUsers = await getAllUser();
-        const annonce = transactions[msg.from].annonce;
-        const content = `Cher utilisateur, \n\n*${annonce}* \n\n Bonne lecture !`;
-        await createNotification({
-          sender: sender,
-          notifications: [
-            {
-              type: transactions[msg.from].type,
-              description: content,
-            },
-          ],
+      const AllUsers = await getAllUser();
+      const annonce = transactions[msg.from].annonce;
+      const content = `Cher utilisateur, \n\n*${annonce}* \n\n Bonne lecture !`;
+      // await createNotification({
+      //   sender: sender,
+      //   notifications: [
+      //     {
+      //       type: transactions[msg.from].type,
+      //       description: content,
+      //     },
+      //   ],
+      // });
+
+      if (transactions[msg.from].mediaMessage) {
+        const mediaMessage = transactions[msg.from].mediaMessage;
+        AllUsers.users.forEach(async (targetUser) => {
+          try {
+            await client.sendMessage(
+              `${targetUser.phoneNumber}@c.us`,
+              mediaMessage,
+              {
+                caption: content,
+              }
+            );
+          } catch (error) {
+            console.log(error, "hhhh");
+            msg.reply(
+              "Une erreur s'est produite lors de l'envoi des messages."
+            );
+          }
         });
-
-        for (const users of AllUsers.users) {
-          await sendMessageToNumber(
-            client,
-            `${users.phoneNumber}@c.us`,
-            content
-          );
-        }
-
-        msg.reply(SUCCESS_MESSAGE_ANNONCE);
-        msg.reply(MenuPrincipal);
-      } catch (error) {
-        msg.reply("Une erreur s'est produite lors de l'envoi des messages.");
-      } finally {
-        // Reset the transaction
-        delete transactions[msg.from];
+      } else {
+        AllUsers.users.forEach(async (targetUser) => {
+          try {
+            await sendMessageToNumber(
+              client,
+              `${targetUser.phoneNumber}@c.us`,
+              content
+            );
+          } catch (error) {
+            console.log(error, "hhhh");
+            msg.reply(
+              "Une erreur s'est produite lors de l'envoi des messages."
+            );
+          }
+        });
       }
+
+      msg.reply(SUCCESS_MESSAGE_ANNONCE);
+      msg.reply(MenuPrincipal);
+      delete transactions[msg.from];
+      
     } else if (userResponse === COMMAND_NAME.SOLDE && !transactions[msg.from]) {
       //consulter le solde
       const resultTotal = await getTotalSuccessAmount();

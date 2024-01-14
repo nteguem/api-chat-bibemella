@@ -55,7 +55,7 @@ async function addTransaction(data) {
       userNumber: data.userPhoneNumber,
       productId: data.name,
       isOption: data?.hasSub || undefined,
-      optionId: data.hasSub ? data.selectedServiceOption.name : undefined,
+      optionId: data?.hasSub ? data.selectedServiceOption.name : undefined,
       createdAt: new Date()
     });
 
