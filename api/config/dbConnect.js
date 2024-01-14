@@ -5,7 +5,7 @@ const liveDB = process.env.URL_DB_LIVE;
 const dbConnect = async () => {
   try {
     // Connection to mongodb
-mongoose.connect(liveDB);
+mongoose.connect(localDB);
 mongoose.Promise = global.Promise
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error'));
