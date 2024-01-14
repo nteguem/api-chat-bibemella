@@ -43,7 +43,7 @@ handleIncomingMessages(client);
 
 // Launch WhatsApp client
 client.initialize();
-
+ 
 //socket io for qrCode
 io.on('connection', (socket) => {
   console.log('Client connected');
@@ -59,7 +59,6 @@ io.on('connection', (socket) => {
       io.emit('numberBot', "");
       client.logout(); // Déconnecter le client WhatsApp
       client.initialize();
-
     }
   });
 
