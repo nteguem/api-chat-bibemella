@@ -9,7 +9,10 @@ const {
 const {
   getTotalSuccessAmount,
 } = require("../../services/totalTransaction.service");
-const { getAllEvents, getAllEventsUsers } = require("../../services/events.service");
+const {
+  getAllEvents,
+  getAllEventsUsers,
+} = require("../../services/events.service");
 
 const SUCCESS_MESSAGE_ENSEIGNEMENTS =
   "L'enseignement a été publié à toute la communauté avec succès.";
@@ -17,7 +20,12 @@ const SUCCESS_MESSAGE_ANNONCE =
   "L'annonce a été partagé à toute la communauté avec succès.";
 
 const welcomeStatusUser = {};
-const COMMAND_NAME = { ENSEIGNEMENTS: "1", ANNONCE: "2", SOLDE: "3", USERS: '4' };
+const COMMAND_NAME = {
+  ENSEIGNEMENTS: "1",
+  ANNONCE: "2",
+  SOLDE: "3",
+  USERS: "4",
+};
 
 const AdminCommander = async (client, msg, transactions) => {
   const contact = await msg.getContact();
@@ -106,11 +114,9 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             return `${index + 1}. ${serviceOption.name}`;
           }
         );
-        const serviceOptionsMessage = `Choisissez un enseignement pour les ${
-          selectedServiceChoice.name
-        } 
-                en entrant son numéro :\n${serviceOptions.join("\n")}
-              \n*. Menu précédent\n#. Menu principal`;
+        const serviceOptionsMessage = `Choisissez un enseignement pour l'enseignement de ${selectedServiceChoice.name} en entrant son numéro :\n
+        ${serviceOptions.join("\n")}
+        \n*. Menu précédent\n#. Menu principal`;
         msg.reply(serviceOptionsMessage);
 
         // Attendez que l'utilisateur choisisse une sous-option et demandez-lui s'il souhaite intégrer cette sous-option
@@ -146,7 +152,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       }
 
       msg.reply(
-        `Vous êtes sur le point de publier le ${selectedService.name} suivant :\n\n*${serviceMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`
+        `Vous êtes sur le point de publier l'enseignement de ${selectedService.name} suivant :\n\n*${serviceMessage}*\n\nRépondez par 'Oui' pour confirmer, 'Non' pour annuler.`
       );
 
       transactions[msg.from].step = "confirm_publish_message";
@@ -165,7 +171,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       ) {
         const selectedServiceOption =
           selectedServiceChoice.subservices[teachingOptionNumber - 1];
-        const TeachingDetailsMessage = `Entrez le ${selectedServiceOption.category} ${selectedServiceOption.name} que vous souhaitez envoyer à votre communauté`;
+        const TeachingDetailsMessage = `Entrez l'enseignement de ${selectedServiceOption.name} que vous souhaitez envoyer à votre communauté`;
 
         msg.reply(TeachingDetailsMessage);
 
@@ -203,8 +209,8 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const users = transactions[msg.from].users;
       let servName = selectedService.hasSub
         ? selectedService.name +
-          ": " +
-          `*${transactions[msg.from]?.selectedServiceOption.name}*`
+        ": " +
+        `*${transactions[msg.from]?.selectedServiceOption.name}*`
         : selectedService.name;
 
       if (transactions[msg.from].mediaMessage) {
@@ -214,7 +220,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         users.forEach(async (targetUser) => {
           try {
             // Send the media message
-            const content = `Cher ${targetUser.name}, voici le ${servName} pour aujourd'hui. \n\n Bonne lecture !`;
+            const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Bonne lecture !`;
             await client.sendMessage(
               `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
@@ -225,7 +231,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
           }
         });
       } else {
-        const content = `Cher ${targetUser.name}, voici le ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
+        const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
         users.forEach(async (targetUser) => {
           try {
             // Send the media message
@@ -304,7 +310,6 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       //consulter le solde
       const resultTotal = await getTotalSuccessAmount();
       if (resultTotal.success) {
-        
         let amount = resultTotal.totalAmount[0].amount;
         let num = resultTotal.totalAmount[0].number;
         let amountMessage =
@@ -313,15 +318,12 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
           "Nombre de transaction: " +
           `*${num}*\n` +
           "\n\n#. Menu principal";
-          delete transactions[msg.from];
-          msg.reply(amountMessage);
-      }else{
+        delete transactions[msg.from];
+        msg.reply(amountMessage);
+      } else {
         msg.reply("Une erreur s'est produite lors de la recuperation du solde");
       }
-    }else if (
-      userResponse === COMMAND_NAME.USERS &&
-      !transactions[msg.from]
-    ){
+    } else if (userResponse === COMMAND_NAME.USERS && !transactions[msg.from]) {
       const eventsResponse = await getAllEvents();
       if (eventsResponse.success) {
         let events = eventsResponse.events;
@@ -341,8 +343,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
           events,
         };
       }
-
-    }else if (
+    } else if (
       transactions[msg.from] &&
       transactions[msg.from].step === "awaitEventSelect"
     ) {
@@ -351,24 +352,21 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const selectedEvent = events[userChoice - 1];
       const getUsers = await getAllEventsUsers(selectedEvent._id);
       // console.log(getUsers, 'kdjfkdjfk');
-      if(getUsers.success){
+      if (getUsers.success) {
         const users = getUsers.users;
         const replyMessage =
-            "La liste des utilisateurs ayant souscrit a l'evenment *" +
-            selectedEvent?.name + ": *\n" + 
-            users
-              .map((us, index) => {
-                return `${index + 1}. ${us.fullname} (${us.city})`;
-              })
-              .join("\n");
-          msg.reply(replyMessage + "\n\n#. Menu principal");
-      }else{
-
+          "La liste des utilisateurs ayant souscrit a l'evènement" +
+          `*${selectedEvent?.name}*` +
+          ": \n" +
+          users
+            .map((us, index) => {
+              return `${index + 1}. ${us.fullname} (${us.city})`;
+            })
+            .join("\n");
+        msg.reply(replyMessage + "\n\n#. Menu principal");
+      } else {
       }
-      
-    } 
-    
-    else {
+    } else {
       delete transactions[msg.from];
       msg.reply(MenuPrincipal);
     }

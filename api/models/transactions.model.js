@@ -9,7 +9,8 @@ const transactionSchema = new mongoose.Schema({
   userNumber: { type: String, required: true, },
   productId: { type: String },
   optionId: { type: String },
-  isOption: { type: Boolean, default: false},
+  isOption: { type: Boolean, default: false },
+  createdAt: { type: Date, required: true }
 });
 
 const Transactions = mongoose.model('transactions', transactionSchema);
