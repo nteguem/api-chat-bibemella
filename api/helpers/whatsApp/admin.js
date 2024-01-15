@@ -429,7 +429,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       msg.reply(MenuPrincipal);
     }
   }
-};
+
 
 module.exports = {
   AdminCommander,
