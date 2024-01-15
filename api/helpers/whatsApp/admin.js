@@ -221,7 +221,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
     
             const mediaMessage = transactions[msg.from].mediaMessage;
            
-            users.forEach(async (targetUser) => {
+            for (const targetUser of users) {
               try {
                 // Send the media message
                 const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
@@ -230,24 +230,23 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                   mediaMessage,
                   { caption: content }
                 );
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
               } catch (error) {
-                console.log(`Erreur lors de l'envoi du contenu media:`,error);
+                console.log(`Erreur lors de l'envoi du contenu media:`, error);
               }
-            });
+            }            
           } else {
-            users.forEach(async (targetUser) => {
+            for (const targetUser of users) {
               try {
                 // Send the media message
                 const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-                await sendMessageToNumber(
-                  client,
-                  `${targetUser.phoneNumber}@c.us`,
-                  content
-                );
+                await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
               } catch (error) {
-                console.log(`Erreur lors de l'envoi du contenu media :`,error);
+                console.log(`Erreur lors de l'envoi du contenu media :`, error);
               }
-            });
+            }
+            
           }
           msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
         }else{
@@ -301,36 +300,28 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
 
       if (transactions[msg.from].mediaMessage) {
         const mediaMessage = transactions[msg.from].mediaMessage;
-        AllUsers.users.forEach(async (targetUser) => {
+        for (const targetUser of AllUsers.users) {
           try {
             await client.sendMessage(
               `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
-              {
-                caption: content,
-              }
+              { caption: content }
             );
+            await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
           } catch (error) {
-            
-            console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
-            );
+            console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber);
           }
-        });
+        }
+        
       } else {
-        AllUsers.users.forEach(async (targetUser) => {
+        for (const targetUser of AllUsers.users) {
           try {
-            await sendMessageToNumber(
-              client,
-              `${targetUser.phoneNumber}@c.us`,
-              content
-            );
+            await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
+            await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
           } catch (error) {
-            
-           console.log(
-              "Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
-            );
+            console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber);
           }
-        });
+        }        
       }
 
       msg.reply(SUCCESS_MESSAGE_ANNONCE);
