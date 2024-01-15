@@ -224,6 +224,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             users.forEach(async (targetUser) => {
               try {
                 // Send the media message
+                await new Promise(resolve => setTimeout(resolve, 10000));
                 const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Bonne lecture !`;
                 await client.sendMessage(
                   `${targetUser.phoneNumber}@c.us`,
@@ -238,6 +239,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             users.forEach(async (targetUser) => {
               try {
                 // Send the media message
+                await new Promise(resolve => setTimeout(resolve, 10000));
                 const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Bonne lecture !`;
                 await sendMessageToNumber(
                   client,
@@ -312,6 +314,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         const mediaMessage = transactions[msg.from].mediaMessage;
         AllUsers.users.forEach(async (targetUser) => {
           try {
+            await new Promise(resolve => setTimeout(resolve, 10000));
             await client.sendMessage(
               `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
@@ -329,6 +332,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       } else {
         AllUsers.users.forEach(async (targetUser) => {
           try {
+            await new Promise(resolve => setTimeout(resolve, 10000));
             await sendMessageToNumber(
               client,
               `${targetUser.phoneNumber}@c.us`,
