@@ -58,12 +58,12 @@ async function getDailyTransactionData() {
     });
 
     // Convertir les totaux par jour en tableau avec la structure attendue par le frontend
-    const lineChartDataTotalSpent = Object.keys(dailyTotals).map((day) => ({
-      name: `Day ${day}`, // Nom à personnaliser
-      data: Array.from({ length: 31 }, (_, i) => (dailyTotals[i + 1] || 0)),
+    const dailyTransactionData = Object.keys(dailyTotals).map((day) => ({
+      day: parseInt(day),
+      totalSpent: dailyTotals[day],
     }));
 
-    return { success: true, lineChartDataTotalSpent };
+    return { success: true, dailyTransactionData };
   } catch (error) {
     return { success: false, error: error.message };
   }

@@ -17,7 +17,7 @@ const getDailyTransactionData = async (req, res) => {
   const response = await statService.getDailyTransactionData(); // Utilisation de la nouvelle fonction
 
   if (response.success) {
-    res.json({ monthlyTransactionsDatas: response.lineChartDataTotalSpent, success: true }); // Utilisation de la nouvelle propriété lineChartDataTotalSpent
+    res.json({ dailyTransactionData: response.dailyTransactionData, success: true }); // Utilisation de la nouvelle propriété lineChartDataTotalSpent
   } else {
     res.status(500).json({
       message: "Erreur lors de la récupération des stats mensuelles",
