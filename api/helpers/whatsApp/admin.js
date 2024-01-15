@@ -297,7 +297,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
     ) {
       const AllUsers = await getAllUser();
       const annonce = transactions[msg.from].annonce;
-      const content = `Cher utilisateur, \n\n*${annonce}* \n\n Bonne lecture !`;
+      const content = `Cher utilisateur, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
       // await createNotification({
       //   sender: sender,
       //   notifications: [
