@@ -237,7 +237,6 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
           try {
             // Send the media message
             const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-            await new Promise(resolve => setTimeout(resolve, 10000));
             await sendMessageToNumber(
               client,
               `${targetUser.phoneNumber}@c.us`,
@@ -313,7 +312,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
               }
             );
           } catch (error) {
-            console.log(error, "hhhh");
+            console.log(" :", error);
             msg.reply(
               "Une erreur s'est produite lors de l'envoi des messages."
             );
@@ -322,14 +321,13 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       } else {
         AllUsers.users.forEach(async (targetUser) => {
           try {
-            await new Promise(resolve => setTimeout(resolve, 10000));
             await sendMessageToNumber(
               client,
               `${targetUser.phoneNumber}@c.us`,
               content
             );
           } catch (error) {
-            console.log(error, "hhhh");
+            console.log("error :", error);
             msg.reply(
               "Une erreur s'est produite lors de l'envoi des messages."
             );
