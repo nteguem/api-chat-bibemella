@@ -114,7 +114,10 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             return `${index + 1}. ${serviceOption.name}`;
           }
         );
-        const serviceOptionsMessage = `Choisissez un enseignement pour ${selectedServiceChoice.name} en entrant son numéro :\n${serviceOptions.join("\n")}
+        const serviceOptionsMessage = `Choisissez un enseignement pour l'enseignement de ${
+          selectedServiceChoice.name
+        } en entrant son numéro :\n
+        ${serviceOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(serviceOptionsMessage);
 
@@ -208,8 +211,8 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const users = transactions[msg.from].users;
       let servName = selectedService?.hasSub
         ? selectedService.name +
-        ": " +
-        `*${transactions[msg.from]?.selectedServiceOption.name}*`
+          ": " +
+          `*${transactions[msg.from]?.selectedServiceOption.name}*`
         : selectedService.name;
 
         if(users.length>0){
@@ -220,44 +223,39 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
            
             for (const targetUser of users) {
               try {
-                const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui. \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-                await delay(10000); // Attendre 10 secondes avant chaque envoi
+                // Send the media message
+                const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
                 await client.sendMessage(
                   `${targetUser.phoneNumber}@c.us`,
                   mediaMessage,
                   { caption: content }
                 );
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
               } catch (error) {
-                console.error(`Erreur lors de l'envoi du contenu media pour ${targetUser.name}`);
+                console.log(`Erreur lors de l'envoi du contenu media:`, error);
               }
-            }
+            }            
           } else {
             for (const targetUser of users) {
               try {
+                // Send the media message
                 const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-                await delay(10000); // Attendre 10 secondes avant chaque envoi
-                await sendMessageToNumber(
-                  client,
-                  `${targetUser.phoneNumber}@c.us`,
-                  content
-                );
+                await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
               } catch (error) {
-                console.error(`Erreur lors de l'envoi du contenu media`);
+                console.log(`Erreur lors de l'envoi du contenu media :`, error);
               }
             }
+            
           }
           msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
         }else{
           msg.reply(`Aucun utilisateur n'a souscrit à cet enseignement.\n\n`);
         }
-        msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
-      } else {
-        msg.reply(`Aucun utilisateur n'a souscrit à cet enseignement.\n\n`);
-      }
 
+     
 
-
-
+     
       msg.reply(MenuPrincipal);
 
       delete transactions[msg.from];
@@ -299,55 +297,31 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const AllUsers = await getAllUser();
       const annonce = transactions[msg.from].annonce;
       const content = `Cher utilisateur, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-      // await createNotification({
-      //   sender: sender,
-      //   notifications: [
-      //     {
-      //       type: transactions[msg.from].type,
-      //       description: content,
-      //     },
-      //   ],
-      // });
 
       if (transactions[msg.from].mediaMessage) {
         const mediaMessage = transactions[msg.from].mediaMessage;
         for (const targetUser of AllUsers.users) {
           try {
-            await delay(10000);
             await client.sendMessage(
               `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
-              {
-                caption: content,
-              }
+              { caption: content }
             );
+            await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
           } catch (error) {
-
-            msg.reply(
-              "Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
-            );
+            console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber);
           }
         }
-
+        
       } else {
-
         for (const targetUser of AllUsers.users) {
           try {
-            await delay(10000); //attendre 10 secondes avant chaque envoie
-            await sendMessageToNumber(
-              client,
-              `${targetUser.phoneNumber}@c.us`,
-              content
-            );
+            await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
+            await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
           } catch (error) {
-
-            msg.reply(
-              "Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
-            );
+            console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber);
           }
-        }
-
-      
+        }        
       }
 
       msg.reply(SUCCESS_MESSAGE_ANNONCE);
@@ -414,7 +388,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         const users = getUsers.users;
         const replyMessage =
           "La liste des utilisateurs ayant souscrit a l'evènement" +
-          ` * ${selectedEvent?.name} * ` +
+          `*${selectedEvent?.name}*` +
           ": \n" + users.length > 0 ?
           users
             .map((us, index) => {
@@ -429,7 +403,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       msg.reply(MenuPrincipal);
     }
   }
-
+};
 
 module.exports = {
   AdminCommander,
