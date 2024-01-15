@@ -114,8 +114,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             return `${index + 1}. ${serviceOption.name}`;
           }
         );
-        const serviceOptionsMessage = `Choisissez un enseignement pour ${selectedServiceChoice.name} en entrant son numéro :\n 
-        ${serviceOptions.join("\n")}
+        const serviceOptionsMessage = `Choisissez un enseignement pour ${selectedServiceChoice.name} en entrant son numéro :\n${serviceOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(serviceOptionsMessage);
 
