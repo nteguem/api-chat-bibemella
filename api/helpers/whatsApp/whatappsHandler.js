@@ -9,7 +9,6 @@ const initializeWhatsAppClient = (io) => {
   const client = new Client({
     puppeteer: {
       args: ['--no-sandbox'],
-      executablePath: '/var/www/api-chat-bibemella/node_modules/puppeteer/.local-chromium/linux-982053/chrome-linux/chrome',
     },
     // Configurations du client WhatsApp
   });
