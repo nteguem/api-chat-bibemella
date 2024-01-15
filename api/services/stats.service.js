@@ -59,8 +59,8 @@ async function getDailyTransactionData() {
 
     // Convertir les totaux par jour en tableau avec la structure attendue par le frontend
     const dailyTransactionData = Object.keys(dailyTotals).map((day) => ({
-      day: parseInt(day),
-      totalSpent: dailyTotals[day],
+      name: `Day ${day}`, // Nom à personnaliser
+      data: Array.from({ length: 31 }, (_, i) => (dailyTotals[i + 1] || 0)),
     }));
 
     return { success: true, dailyTransactionData };
