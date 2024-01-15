@@ -231,7 +231,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                   { caption: content }
                 );
               } catch (error) {
-                msg.reply(`Erreur lors de l'envoi du contenu media`);
+                console.log(`Erreur lors de l'envoi du contenu media:`,error);
               }
             });
           } else {
@@ -245,7 +245,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
                   content
                 );
               } catch (error) {
-                msg.reply(`Erreur lors de l'envoi du contenu media`);
+                console.log(`Erreur lors de l'envoi du contenu media :`,error);
               }
             });
           }
@@ -298,15 +298,6 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const AllUsers = await getAllUser();
       const annonce = transactions[msg.from].annonce;
       const content = `Cher utilisateur, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-      // await createNotification({
-      //   sender: sender,
-      //   notifications: [
-      //     {
-      //       type: transactions[msg.from].type,
-      //       description: content,
-      //     },
-      //   ],
-      // });
 
       if (transactions[msg.from].mediaMessage) {
         const mediaMessage = transactions[msg.from].mediaMessage;
@@ -321,8 +312,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             );
           } catch (error) {
             
-            msg.reply(
-              "Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
+            console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
             );
           }
         });
@@ -336,7 +326,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             );
           } catch (error) {
             
-            msg.reply(
+           console.log(
               "Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
             );
           }
