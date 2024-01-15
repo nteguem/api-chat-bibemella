@@ -51,7 +51,7 @@ const UserCommander = async (client, msg) => {
     } else if (userResponse.toLowerCase() === "ejara") {
       transactionSteps[msg.from] = {};
       msg.reply(
-        "Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
+        "Avez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
       );
 
       transactionSteps[msg.from].step = "ask-ejara-account";
@@ -1043,7 +1043,7 @@ const UserCommander = async (client, msg) => {
     } else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
-          "Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
+          "Avez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
         );
 
         transactionSteps[msg.from].step = "ask-ejara-account";

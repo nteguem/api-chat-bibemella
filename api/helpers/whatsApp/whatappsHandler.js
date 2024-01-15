@@ -30,7 +30,7 @@ const initializeWhatsAppClient = (io) => {
   });
 
   client.on('disconnected', () => {
-    io.emit('qrCode', "disconnected")  
+    io.emit('qrCode', "disconnected");
     io.emit('numberBot', "");
     client.initialize();
 });
@@ -45,7 +45,10 @@ const handleIncomingMessages = (client) => {
   client.on('message', async (msg) => {
     const contact = await msg.getContact();
     const contactName = contact.pushname; // Récupérer le nom de l'utilisateur
-    await saveUser(msg.from, contactName);
+    if(msg.from.replace(/@c\.us$/, "") !== 'status@broadcast'){
+      await saveUser(msg.from, contactName);
+    }
+    
     //  if (!transactionSteps?.userType) {
     let response = await getAllUser(msg.from.replace(/@c\.us$/, ""));
     let user = response.users[0];
