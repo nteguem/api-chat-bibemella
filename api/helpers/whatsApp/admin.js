@@ -253,7 +253,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
           }
           msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
         }else{
-          msg.reply(`Aucun utilisateur n'a soucrit a cet enseigmenet\n\n`);
+          msg.reply(`Aucun utilisateur n'a souscrit à cet enseignement.\n\n`);
         }
 
      
