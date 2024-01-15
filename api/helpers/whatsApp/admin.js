@@ -114,7 +114,10 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             return `${index + 1}. ${serviceOption.name}`;
           }
         );
-        const serviceOptionsMessage = `Choisissez un enseignement pour ${selectedServiceChoice.name} en entrant son numéro :\n${serviceOptions.join("\n")}
+        const serviceOptionsMessage = `Choisissez un enseignement pour l'enseignement de ${
+          selectedServiceChoice.name
+        } en entrant son numéro :\n
+        ${serviceOptions.join("\n")}
         \n*. Menu précédent\n#. Menu principal`;
         msg.reply(serviceOptionsMessage);
 
@@ -208,8 +211,8 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const users = transactions[msg.from].users;
       let servName = selectedService?.hasSub
         ? selectedService.name +
-        ": " +
-        `*${transactions[msg.from]?.selectedServiceOption.name}*`
+          ": " +
+          `*${transactions[msg.from]?.selectedServiceOption.name}*`
         : selectedService.name;
 
         if(users.length>0){
@@ -250,14 +253,10 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         }else{
           msg.reply(`Aucun utilisateur n'a souscrit à cet enseignement.\n\n`);
         }
-        msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
-      } else {
-        msg.reply(`Aucun utilisateur n'a souscrit à cet enseignement.\n\n`);
-      }
 
+     
 
-
-
+     
       msg.reply(MenuPrincipal);
 
       delete transactions[msg.from];
@@ -322,7 +321,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
               }
             );
           } catch (error) {
-
+            
             msg.reply(
               "Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
             );
@@ -340,7 +339,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
               content
             );
           } catch (error) {
-
+            
             msg.reply(
               "Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber
             );
@@ -414,7 +413,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         const users = getUsers.users;
         const replyMessage =
           "La liste des utilisateurs ayant souscrit a l'evènement" +
-          ` * ${selectedEvent?.name} * ` +
+          `*${selectedEvent?.name}*` +
           ": \n" + users.length > 0 ?
           users
             .map((us, index) => {
@@ -429,7 +428,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       msg.reply(MenuPrincipal);
     }
   }
-
+};
 
 module.exports = {
   AdminCommander,
