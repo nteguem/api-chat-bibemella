@@ -894,7 +894,7 @@ const UserCommander = async (client, msg) => {
           "*Événements passés :*\n" +
           pastEvents
             .map((event, index) => {
-              return `${upcomingEvents.length + 1}. ${event.name} (${moment(event.date).format(
+              return `${upcomingEvents.length + index + 1}. ${event.name} (${moment(event.date).format(
                 "DD MMM YYYY"
               )})`;
             })
