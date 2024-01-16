@@ -49,7 +49,7 @@ io.on('connection', (socket) => {
   console.log('Client connected');
 
   socket.on('message', (data) => { 
-    console.log('Message from client:', data);
+    console.log('Message from client:', data); 
   });
 
   socket.on('disconnectClient', () => {
