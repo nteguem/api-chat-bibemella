@@ -691,8 +691,11 @@ const UserCommander = async (client, msg) => {
       const services = transactionSteps[msg.from].services;
 
       // Vérifier si le numéro saisi est valide
+      console.log('helloooo: ');
       if (userItemNumber >= 1 && userItemNumber <= services.length) {
         const selectedItem = services[userItemNumber - 1];
+
+        console.log('this is the selected item: ', selectedItem);
 
         if (selectedItem.productType === "product") {
           const productDetailsMessage = `*${
@@ -789,7 +792,7 @@ const UserCommander = async (client, msg) => {
 
       if (
         userWord.toLowerCase() === "facture" &&
-        transactionSteps[msg.from].type === COMMAND_NAME.PRODUITS
+        transactionSteps[msg.from].type === 'PRODUITS'
       ) {
         const pdfBuffer = await generatePDFBuffer(
           contact.pushname,
