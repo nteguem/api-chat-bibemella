@@ -51,7 +51,7 @@ const UserCommander = async (client, msg) => {
     } else if (userResponse.toLowerCase() === "ejara") {
       transactionSteps[msg.from] = {};
       msg.reply(
-        "Avez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
+        "Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
       );
 
       transactionSteps[msg.from].step = "ask-ejara-account";
@@ -130,7 +130,7 @@ const UserCommander = async (client, msg) => {
       const selectedService = services[userChoice - 1];
 
       // Vérifiez si le type contient des données dans le sous-type
-      if (!selectedService?.hasSub) {
+      if (!selectedService.hasSub) {
         // Si l'objet n'a pas de sous-type
         msg.reply(
           `*${selectedService.name} : ${selectedService.price} XAF*\nSouhaitez-vous recevoir des informations sur le ${selectedService.name} ?\n\nRépondez par "Oui" ou "Non".`
@@ -658,9 +658,8 @@ const UserCommander = async (client, msg) => {
               .map((service, index) => {
                 let n = service?.isOption
                   ? service?.productType === "service"
-                    ? 
-                    // service?.productId.category +
-                    //   ": " +
+                    ? service?.productId.category +
+                      ": " +
                       service?.productId.name
                     : service?.productId.category
                   : service?.productId?.name ||
@@ -892,7 +891,7 @@ const UserCommander = async (client, msg) => {
           "*Événements passés :*\n" +
           pastEvents
             .map((event, index) => {
-              return `${index + 1}. ${event.name} (${moment(event.date).format(
+              return `${upcomingEvents.length + 1}. ${event.name} (${moment(event.date).format(
                 "DD MMM YYYY"
               )})`;
             })
@@ -1043,7 +1042,7 @@ const UserCommander = async (client, msg) => {
     } else {
       if (msg.body.toLowerCase() === "ejara") {
         msg.reply(
-          "Avez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
+          "Possédez-vous un compte Ejara?\n\nRepondez par 'oui' ou 'non'"
         );
 
         transactionSteps[msg.from].step = "ask-ejara-account";
