@@ -213,32 +213,43 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         `*${transactions[msg.from]?.selectedServiceOption.name}*`
         : selectedService.name;
 
-      if (users.length > 0) {
-        if (transactions[msg.from].mediaMessage) {
-          // Define the content for the message
-
-          const mediaMessage = transactions[msg.from].mediaMessage;
-
-          for (const targetUser of users) {
-            try {
-              // Send the media message
-              const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-              await client.sendMessage(
-                `${targetUser.phoneNumber}@c.us`,
-                mediaMessage,
-                { caption: content }
-              );
-              const delay = getRandomDelay(5000, 15000);
-              await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
-            } catch (error) {
-              console.log(`Erreur lors de l'envoi du contenu media:`, error);
+        if(users.length>0){
+          if (transactions[msg.from].mediaMessage) {
+            // Define the content for the message
+    
+            const mediaMessage = transactions[msg.from].mediaMessage;
+           
+            for (const targetUser of users) {
+              try {
+                // Send the media message
+                const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
+                await client.sendMessage(
+                  `${targetUser.phoneNumber}@c.us`,
+                  mediaMessage,
+                  { caption: content }
+                );
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
+              } catch (error) {
+                console.log(`Erreur lors de l'envoi du contenu media:`, error);
+              }
+            }            
+          } else {
+            for (const targetUser of users) {
+              try {
+                // Send the media message
+                const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
+                await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
+              } catch (error) {
+                console.log(`Erreur lors de l'envoi du contenu media :`, error);
+              }
             }
           }
         } else {
           for (const targetUser of users) {
             try {
               // Send the media message
-              const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+              const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
               await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
               const delay = getRandomDelay(5000, 15000);
               await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
@@ -296,12 +307,11 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
     ) {
       const AllUsers = await getAllUser();
       const annonce = transactions[msg.from].annonce;
-
       if (transactions[msg.from].mediaMessage) {
         const mediaMessage = transactions[msg.from].mediaMessage;
         for (const targetUser of AllUsers.users) {
           try {
-            const content = `Cher ${targetUser.name}, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+            const content = `Cher ${targetUser.name}, \n\n*${annonce}* \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
             await client.sendMessage(
               `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
@@ -317,7 +327,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       } else {
         for (const targetUser of AllUsers.users) {
           try {
-            const content = `Cher ${targetUser.name}, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+            const content = `Cher ${targetUser.name}, \n\n*${annonce}* \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
             await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
             const delay = getRandomDelay(5000, 15000);
             await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
@@ -405,7 +415,6 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       delete transactions[msg.from];
       msg.reply(MenuPrincipal);
     }
-  }
 };
 
 module.exports = {
