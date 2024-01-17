@@ -296,12 +296,12 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
     ) {
       const AllUsers = await getAllUser();
       const annonce = transactions[msg.from].annonce;
-      const content = `Cher utilisateur, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
 
       if (transactions[msg.from].mediaMessage) {
         const mediaMessage = transactions[msg.from].mediaMessage;
         for (const targetUser of AllUsers.users) {
           try {
+            const content = `Cher ${targetUser.name}, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
             await client.sendMessage(
               `${targetUser.phoneNumber}@c.us`,
               mediaMessage,
@@ -317,6 +317,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       } else {
         for (const targetUser of AllUsers.users) {
           try {
+            const content = `Cher ${targetUser.name}, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
             await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
             const delay = getRandomDelay(5000, 15000);
             await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
