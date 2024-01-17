@@ -2,6 +2,7 @@ const { sendMessageToNumber } = require("./whatsappMessaging");
 const { createNotification } = require("../../services/notification.service");
 const { getAllUser } = require("../../services/user.service");
 const { MessageMedia } = require("whatsapp-web.js");
+const { getRandomDelay } = require("../utils")
 const {
   getAllProducts,
   findActiveSubscribers,
@@ -208,51 +209,53 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       const users = transactions[msg.from].users;
       let servName = selectedService?.hasSub
         ? selectedService.name +
-          ": " +
-          `*${transactions[msg.from]?.selectedServiceOption.name}*`
+        ": " +
+        `*${transactions[msg.from]?.selectedServiceOption.name}*`
         : selectedService.name;
 
-        if(users.length>0){
-          if (transactions[msg.from].mediaMessage) {
-            // Define the content for the message
-    
-            const mediaMessage = transactions[msg.from].mediaMessage;
-           
-            for (const targetUser of users) {
-              try {
-                // Send the media message
-                const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-                await client.sendMessage(
-                  `${targetUser.phoneNumber}@c.us`,
-                  mediaMessage,
-                  { caption: content }
-                );
-                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
-              } catch (error) {
-                console.log(`Erreur lors de l'envoi du contenu media:`, error);
-              }
-            }            
-          } else {
-            for (const targetUser of users) {
-              try {
-                // Send the media message
-                const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
-                await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
-                await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
-              } catch (error) {
-                console.log(`Erreur lors de l'envoi du contenu media :`, error);
-              }
+      if (users.length > 0) {
+        if (transactions[msg.from].mediaMessage) {
+          // Define the content for the message
+
+          const mediaMessage = transactions[msg.from].mediaMessage;
+
+          for (const targetUser of users) {
+            try {
+              // Send the media message
+              const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+              await client.sendMessage(
+                `${targetUser.phoneNumber}@c.us`,
+                mediaMessage,
+                { caption: content }
+              );
+              const delay = getRandomDelay(5000, 15000);
+              await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
+            } catch (error) {
+              console.log(`Erreur lors de l'envoi du contenu media:`, error);
             }
-            
           }
-          msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
-        }else{
-          msg.reply(`Aucun utilisateur n'a souscrit à cet enseignement.\n\n`);
+        } else {
+          for (const targetUser of users) {
+            try {
+              // Send the media message
+              const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+              await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
+              const delay = getRandomDelay(5000, 15000);
+              await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
+            } catch (error) {
+              console.log(`Erreur lors de l'envoi du contenu media :`, error);
+            }
+          }
+
         }
+        msg.reply(SUCCESS_MESSAGE_ENSEIGNEMENTS);
+      } else {
+        msg.reply(`Aucun utilisateur n'a souscrit à cet enseignement.\n\n`);
+      }
 
-     
 
-     
+
+
       msg.reply(MenuPrincipal);
 
       delete transactions[msg.from];
@@ -304,21 +307,23 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
               mediaMessage,
               { caption: content }
             );
-            await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
+            const delay = getRandomDelay(5000, 15000);
+            await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
           } catch (error) {
             console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber);
           }
         }
-        
+
       } else {
         for (const targetUser of AllUsers.users) {
           try {
             await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
-            await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
+            const delay = getRandomDelay(5000, 15000);
+            await new Promise(resolve => setTimeout(resolve, delay)); // Attendre delay (entre 5 a 15 secondes) avant le prochain envoi
           } catch (error) {
             console.log("Une erreur s'est produite lors de l'envoi au " + targetUser?.phoneNumber);
           }
-        }        
+        }
       }
 
       msg.reply(SUCCESS_MESSAGE_ANNONCE);
@@ -385,13 +390,13 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
         const users = getUsers.users;
         const replyMessage =
           "La liste des utilisateurs ayant souscrit a l'evènement" +
-          `*${selectedEvent?.name}*` +
-          ": \n" + users.length > 0 ?
-          users
-            .map((us, index) => {
-              return `${index + 1}. ${us.fullname} (${us.city})`;
-            })
-            .join("\n") : '\nAucun utilisateur';
+            `*${selectedEvent?.name}*` +
+            ": \n" + users.length > 0 ?
+            users
+              .map((us, index) => {
+                return `${index + 1}. ${us.fullname} (${us.city})`;
+              })
+              .join("\n") : '\nAucun utilisateur';
         msg.reply(replyMessage + "\n\n#. Menu principal");
       } else {
       }
