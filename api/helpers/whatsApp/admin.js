@@ -221,7 +221,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             for (const targetUser of users) {
               try {
                 // Send the media message
-                const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+                const content = `Cher ${targetUser.name}, voici l'enseignement de ${servName} pour aujourd'hui. \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
                 await client.sendMessage(
                   `${targetUser.phoneNumber}@c.us`,
                   mediaMessage,
@@ -236,7 +236,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
             for (const targetUser of users) {
               try {
                 // Send the media message
-                const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+                const content = `Cher ${targetUser.name}, voici l'enseignement ${servName} pour aujourd'hui :\n\n*${serviceMessage}* \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
                 await sendMessageToNumber(client, `${targetUser.phoneNumber}@c.us`, content);
                 await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes avant le prochain envoi
               } catch (error) {
@@ -293,7 +293,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
     ) {
       const AllUsers = await getAllUser();
       const annonce = transactions[msg.from].annonce;
-      const content = `Cher utilisateur, \n\n*${annonce}* \n\n Fondation Bibemella : Explorez, apprenez, grandissez!`;
+      const content = `Cher utilisateur, \n\n*${annonce}* \n\n Fondation Bibeme Ella : Toute la connaissance, le bien de tous.`;
 
       if (transactions[msg.from].mediaMessage) {
         const mediaMessage = transactions[msg.from].mediaMessage;

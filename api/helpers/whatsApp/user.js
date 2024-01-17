@@ -922,9 +922,8 @@ const UserCommander = async (client, msg) => {
 
       if (selectedEvent) {
         // Afficher les détails du produit
-        const eventDetailsMessage = `*${
-          selectedEvent.name
-        }*\n\n*Description :*\n${
+        const eventDetailsMessage = `*${selectedEvent.name}* \n
+        \n*Description :*\n${
           selectedEvent.description
         }\n\n*📅Date :*\n${moment(selectedEvent.date).format(
           "DD MMM YYYY"
