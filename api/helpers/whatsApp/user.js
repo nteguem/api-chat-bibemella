@@ -466,7 +466,7 @@ const UserCommander = async (client, msg) => {
 
         const replyMessage =
           services.length > 0
-            ? services[0].description
+            ? `*${services[0].name} :*\n\n${services[0].description}`
             : "Aucun service disponible.";
         msg.reply(replyMessage + "\n\n#. Menu principal");
 
