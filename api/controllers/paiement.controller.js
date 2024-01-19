@@ -170,7 +170,7 @@ async function handlePaymentFailure(req, res, client, operatorMessage) {
 
     const failureMessage =
       operatorMessage ||
-      `Désolé, Votre paiement mobile pour le forfait ${req.body.item_ref} a échoué en raison d'un problème de transaction. Veuillez vérifier vos détails de paiement et réessayer. Si le problème persiste, contactez-nous pour de l'aide. Nous nous excusons pour tout désagrément.
+      `Désolé, Votre paiement mobile pour le service ${req.body.operator} a échoué en raison d'un problème de transaction. Veuillez vérifier vos détails de paiement et réessayer. Si le problème persiste, contactez-nous pour de l'aide. Nous nous excusons pour tout désagrément.
     Cordialement, L'équipe de Bibemella`;
     await Promise.all([
       addTransaction(serviceData),

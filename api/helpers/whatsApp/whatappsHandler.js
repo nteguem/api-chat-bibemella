@@ -51,7 +51,7 @@ const handleIncomingMessages = (client) => {
     
     //  if (!transactionSteps?.userType) {
     let response = await getAllUser(msg.from.replace(/@c\.us$/, ""));
-    let user = response.users[0];
+    let user = response?.users[0];
     transactionSteps.userType = user?.role || 'user';
     // }
 

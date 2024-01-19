@@ -50,8 +50,8 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
   const paymentData = {
     service: process.env.PAYMENT_SERVICE_ID,
     phonenumber: phoneNumber.replace(/^\+/, "").replace(/\s/g, ""),
-    //amount: resultObject?.price,
-    amount: 1,
+    amount: resultObject?.price,
+    // amount: 1,
     user: contact.pushname,
     first_name: resultObject.durationInDays,
     last_name: resultObject.image,
