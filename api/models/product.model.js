@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const itemTypes = ['service', 'product', 'welness', 'chatgpt', 'event'];
+const itemTypes = ['service', 'product', 'wellness', 'chatgpt', 'event'];
 
 // Subservice schema (nested within the product/service schema)
 const subserviceSchema = new mongoose.Schema({
