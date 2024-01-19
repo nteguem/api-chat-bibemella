@@ -133,7 +133,7 @@ async function getAllUserPagination(phoneNumber, page = 1, limit = 10) {
       .populate({
         path: "subscriptions.productId",
         model: "productservices",
-        select: "name subservices price type", // Add the fields you want to select
+        select: "name subservices price type", 
       })
       .populate({
         path: "participations.eventId",
