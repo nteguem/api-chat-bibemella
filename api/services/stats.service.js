@@ -7,27 +7,61 @@ const Transactions = require("../models/transactions.model");
 async function getAll(phoneNumber) {
   let query = phoneNumber ? { phoneNumber } : {};
   try {
+    // Récupérer le total des transactions
     const totalAmount = await TotalTransactions.findOne(); 
 
     if (!totalAmount) {
       throw new Error("Aucune transaction totale trouvée");
     }
 
+    // Récupérer le total des événements
     const totalEvent = await Events.countDocuments({});
+
+    // Récupérer le total des produits/services
     const totalProductService = await ProductService.countDocuments({});
+
+    // Récupérer le total des utilisateurs
     const totalUsers = await User.countDocuments(query);
     
-    const engagementLevels = await User.find({}, { engagementLevel: 1, _id: 0 }); // Récupérer uniquement les valeurs d'engagementLevel
+    // Récupérer les niveaux d'engagement
+    const engagementLevels = await User.find({}, { engagementLevel: 1, _id: 0 });
 
-    // Calculer la somme des engagementLevel
+    // Calculer la somme des niveaux d'engagement
     const totalEngagementLevel = engagementLevels.reduce((total, user) => total + (user.engagementLevel || 0), 0);
 
+    // Récupérer les transactions mensuelles
+    const transactions = await Transactions.find();
+
+    // Initialiser un objet pour stocker les totaux par mois
+    const monthlyTotals = {};
+
+    // Parcourir les transactions pour calculer les totaux par mois
+    transactions.forEach((transaction) => {
+      const date = new Date(transaction.createdAt);
+      const monthYearKey = `${date.getMonth() + 1}-${date.getFullYear()}`; // Format 'mois-année'
+      const amount = transaction.amount;
+
+      if (!monthlyTotals[monthYearKey]) {
+        monthlyTotals[monthYearKey] = 0;
+      }
+
+      monthlyTotals[monthYearKey] += amount;
+    });
+
+    // Formater les données mensuelles
+    const monthlyData = Object.entries(monthlyTotals).reduce((acc, [monthYear, totalAmount]) => {
+      acc[monthYear] = { totalAmount };
+      return acc;
+    }, {});
+
+    // Retourner toutes les statistiques
     const stats = {
       totalAmount: totalAmount.number,
-      totalUsers: totalUsers,
-      totalEvent: totalEvent,
-      totalProductService: totalProductService,
-      totalEngagementLevel: totalEngagementLevel
+      totalUsers,
+      totalEvent,
+      totalProductService,
+      totalEngagementLevel,
+      monthlyData,
     };
 
     return { success: true, stats };
@@ -36,40 +70,6 @@ async function getAll(phoneNumber) {
   }
 }
 
-async function getDailyTransactionData() {
-  try {
-    // Récupérer toutes les transactions
-    const transactions = await Transactions.find();
-
-    // Initialiser un objet pour stocker les totaux par jour
-    const dailyTotals = {};
-
-    // Parcourir les transactions pour calculer les totaux par jour
-    transactions.forEach((transaction) => {
-      const date = new Date(transaction.createdAt); // Supposons que la date est stockée dans la propriété 'date'
-      const day = date.getDate();
-      const amount = transaction.amount;
-
-      if (!dailyTotals[day]) {
-        dailyTotals[day] = 0;
-      }
-
-      dailyTotals[day] += amount;
-    });
-
-    // Convertir les totaux par jour en tableau avec la structure attendue par le frontend
-    const dailyTransactionData = Object.keys(dailyTotals).map((day) => ({
-      name: `Day ${day}`, // Nom à personnaliser
-      data: Array.from({ length: 31 }, (_, i) => (dailyTotals[i + 1] || 0)),
-    }));
-
-    return { success: true, dailyTransactionData };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
 module.exports = {
   getAll,
-  getDailyTransactionData
 };
