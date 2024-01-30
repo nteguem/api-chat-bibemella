@@ -9,7 +9,11 @@ const initializeWhatsAppClient = (io) => {
       args: ['--no-sandbox'],
       executablePath: '/usr/bin/google-chrome-stable',
     },
-    authStrategy: new LocalAuth(),
+    authStrategy: new LocalAuth(
+      {
+        dataPath: 'sessions'
+      }
+    ),
   });
 
   client.on('qr', (qrCode) => {
