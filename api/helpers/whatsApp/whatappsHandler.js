@@ -11,7 +11,7 @@ const initializeWhatsAppClient = (io) => {
     },
     authStrategy: new LocalAuth(
       {
-        dataPath: 'sessions'
+        dataPath: '../sessions'
       }
     ),
   });
