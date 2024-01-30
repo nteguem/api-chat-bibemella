@@ -104,7 +104,7 @@ Nous attendons vos actions. Merci de votre engagement à la Fondation Bibemella 
       if (!selectedService?.hasSub) {
         // Si l'objet "name" est vide, demandez à l'utilisateur s'il souhaite intégrer ce type
         msg.reply(
-          `Entrez le contenu du ${selectedService.name} que vous souhaitez partager avec votre communauté.`
+          `Entrez le contenu du ${selectedService?.name} que vous souhaitez partager avec votre communauté.`
         );
         transactions[msg.from].step = "pre_confirm_send_message";
         transactions[msg.from].selectedService = selectedService;
