@@ -96,7 +96,7 @@ async function getAllUser(phoneNumber) {
       .populate({
         path: "subscriptions.productId",
         model: "productservices",
-        select: "name subservices", // Add the fields you want to select
+        select: "name subservices price type", // Add the fields you want to select
       })
       .populate({
         path: "participations.eventId",
@@ -133,7 +133,7 @@ async function getAllUserPagination(phoneNumber, page = 1, limit = 10) {
       .populate({
         path: "subscriptions.productId",
         model: "productservices",
-        select: "name subservices", // Add the fields you want to select
+        select: "name subservices price type", 
       })
       .populate({
         path: "participations.eventId",
@@ -180,7 +180,7 @@ async function getUser(userId) {
   }
 }
 
-async function updateUser(phoneNumber, updatedData) {
+async function updateUser(phoneNumber, updatedData) { 
   try {
     // Utilisez findOneAndUpdate pour trouver l'utilisateur par phoneNumber et mettre à jour username_ejara
     const updatedUser = await User.findOneAndUpdate(

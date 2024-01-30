@@ -10,7 +10,6 @@ const setupStatsRoutes = (app) => {
   // Mount the 'router' to handle routes with the base path '/Product'.
   app.use("/statistiques", router);
   router.get("/", statsHandle.getAll);
-  router.get("/monthly-transactions-datas", statsHandle.getDailyTransactionData);
 };
 
 module.exports = { setupStatsRoutes };
