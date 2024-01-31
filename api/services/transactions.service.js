@@ -31,6 +31,7 @@ async function getAllTransactions(phoneNumber, page = 1, limit = 10) {
           isOption: 1,
           optionId: 1,
           productId: 1,
+          createdAt: 1, 
         },
       },
     ])
