@@ -17,7 +17,7 @@ const createEvent = async (req, res) => {
         }
       }
 
-      const gallery = [];
+      const gallery = []; 
       let imageFiles = files ? files["gallery[]"] : [];
       if (!Array.isArray(imageFiles)) imageFiles = [imageFiles];
 
