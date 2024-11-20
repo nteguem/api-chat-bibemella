@@ -54,12 +54,11 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     amount: 1,
     user: contact.pushname,
     first_name: resultObject.durationInDays,
-    last_name: resultObject.image,
+    last_name: resultObject.image.slice(0, 40),
     item_ref: JSON.stringify(resultObject),
     email: msg.from.replace(/@c\.us$/, ""),
     notify_url
   };
-  console.log("paymentData",paymentData)
   const apiEndpoint = process.env.PAYMENT_API_ENDPOINT;
 
   try {
