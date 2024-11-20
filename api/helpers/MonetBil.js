@@ -59,6 +59,7 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
     email: msg.from.replace(/@c\.us$/, ""),
     notify_url
   };
+  console.log("paymentData",paymentData)
   const apiEndpoint = process.env.PAYMENT_API_ENDPOINT;
 
   try {
