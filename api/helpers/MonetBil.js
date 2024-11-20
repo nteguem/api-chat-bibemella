@@ -3,6 +3,7 @@ const axios = require("axios");
 
 async function processPayment(msg, phoneNumber, transactionSteps) {
   const contact = await msg.getContact();
+  const notify_url = process.env.NOTIFICATION_URL_PAIEMENT || "";
   let inputObject = transactionSteps[msg.from];
 
   // console.log(inputObject);
@@ -46,19 +47,18 @@ async function processPayment(msg, phoneNumber, transactionSteps) {
       ? inputObject?.selectedServiceOption?.price
       : inputObject.selectedService.price
   };
-  
   const paymentData = {
     service: process.env.PAYMENT_SERVICE_ID,
     phonenumber: phoneNumber.replace(/^\+/, "").replace(/\s/g, ""),
-    amount: resultObject?.price,
-    // amount: 1,
+    // amount: resultObject?.price,
+    amount: 1,
     user: contact.pushname,
     first_name: resultObject.durationInDays,
     last_name: resultObject.image,
     item_ref: JSON.stringify(resultObject),
     email: msg.from.replace(/@c\.us$/, ""),
+    notify_url
   };
-
   const apiEndpoint = process.env.PAYMENT_API_ENDPOINT;
 
   try {

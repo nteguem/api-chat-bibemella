@@ -8,7 +8,7 @@ const cookieParser = require("cookie-parser");
 const dbConnect = require('./api/config/dbConnect');
 const http = require('http');
 const socketIo = require('socket.io');
-const { initializeWhatsAppClient, handleIncomingMessages } = require('./api/helpers//whatsApp/whatappsHandler');
+const { initializeWhatsAppClient, handleIncomingMessages } = require('./api/helpers/whatsApp/whatappsHandler');
 
 
 // Connection to MongoDB
@@ -95,6 +95,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start the app
-server.listen(4000, () => {
+server.listen(4500, () => {
   console.log("Server started");
 });
