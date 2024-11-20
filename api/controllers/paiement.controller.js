@@ -12,6 +12,7 @@ const { getAdminUsers, getAllUser } = require("../services/user.service");
 
 async function handlePaymentSuccess(req, res, client) {
   try {
+    console.log("req.body",req.body)
     const {
       user,
       phone,
