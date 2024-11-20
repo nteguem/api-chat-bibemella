@@ -12,7 +12,6 @@ const { getAdminUsers, getAllUser } = require("../services/user.service");
 
 async function handlePaymentSuccess(req, res, client) {
   try {
-    console.log("req.body",req.body)
     const {
       user,
       phone,
@@ -53,7 +52,7 @@ async function handlePaymentSuccess(req, res, client) {
       serviceData?.type === "product"
         ? process.env.BASE_URL_CLOUD + serviceData.image || ""
         : serviceData?.type === "events"
-        ? "https://res.cloudinary.com/nwccompany/image/upload/v1732102516/yreqpmysewd61tarcrte.png" || ""
+        ? "https://res.cloudinary.com/nwccompany/image/upload/v1732102516/yreqpmysewd61tarcrte.png"
         : "";
     const pdfBuffer = await generatePDFBuffer(
       user,

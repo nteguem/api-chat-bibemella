@@ -29,7 +29,7 @@ async function generatePDFBuffer(
 
     // Load the logo image
     const logoResponse = await axios.get(
-      `https://bibemella.isomora.com/wp-content/uploads/2023/10/logo-fbe.png`,
+      `https://res.cloudinary.com/nwccompany/image/upload/v1732102516/yreqpmysewd61tarcrte.png`,
       {
         responseType: "arraybuffer", // Set response type to 'arraybuffer'
       }
