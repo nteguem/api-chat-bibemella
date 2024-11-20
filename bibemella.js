@@ -95,6 +95,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start the app
-server.listen(4500, () => {
+server.listen(7000, () => {
   console.log("Server started");
 });
