@@ -53,7 +53,7 @@ async function handlePaymentSuccess(req, res, client) {
       serviceData?.type === "product"
         ? process.env.BASE_URL_CLOUD + serviceData.image || ""
         : serviceData?.type === "events"
-        ? process.env.BASE_URL_CLOUD + serviceData.image || ""
+        ? "https://res.cloudinary.com/nwccompany/image/upload/v1732102516/yreqpmysewd61tarcrte.png" || ""
         : "";
     const pdfBuffer = await generatePDFBuffer(
       user,
